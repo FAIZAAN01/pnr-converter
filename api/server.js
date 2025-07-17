@@ -171,7 +171,28 @@ function parseGalileoEnhanced(pnrText, options) {
         const operatedByMatch = line.match(operatedByRegex);
         const isPassengerLine = passengerLineIdentifierRegex.test(line);
 
-        if (isPassengerLine) { /* Passenger logic is unchanged */ }
+                if (isPassengerLine) {
+            const cleanedLine = line.replace(/^\s*\d+\.\s*/, '');
+            const nameBlocks = cleanedLine.split(/\s+\d+\.\s*/);
+            for (const nameBlock of nameBlocks) {
+                if (!nameBlock.trim()) continue;
+                const nameParts = nameBlock.trim().split('/');
+                if (nameParts.length < 2) continue;
+                const lastName = nameParts[0].trim();
+                const givenNamesAndTitleRaw = nameParts[1].trim();
+                const titles = ['MR', 'MRS', 'MS', 'MSTR', 'MISS', 'CHD', 'INF'];
+                const words = givenNamesAndTitleRaw.split(/\s+/);
+                const lastWord = words[words.length - 1].toUpperCase();
+                let title = '';
+                if (titles.includes(lastWord)) title = words.pop();
+                const givenNames = words.join(' '); 
+                if (lastName && givenNames) {
+                    let formattedName = `${lastName.toUpperCase()}/${givenNames.toUpperCase()}`;
+                    if (title) formattedName += ` ${title}`;
+                    if (!passengers.includes(formattedName)) passengers.push(formattedName);
+                }
+            }
+        }
         else if (flightMatches.length > 0) {
             // This loop correctly processes EVERY flight found on the line.
             for (const flightMatch of flightMatches) {
