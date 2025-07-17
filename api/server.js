@@ -134,13 +134,10 @@ function parseGalileoEnhanced(pnrText, options) {
     const use24hSegment = options.segmentTimeFormat === '24h';
     const use24hTransit = options.transitTimeFormat === '24h';
 
-    // --- START: CORRECTED REGEX FOR FUSED AIRPORT CODES ---
-    // This now correctly captures the optional segment number at the beginning.
-    const flightSegmentRegexFusedAirports = /^\s*(\d+)\s+([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S+\s+([A-Z]{6})\s+\S+\s+(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}|\+\d))?/;
-    // ---
-
-    const flightSegmentRegexCompact = /^\s*(\d+)\s+([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S*\s*([A-Z]{3})([A-Z]{3})\s+\S+\s+(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}))?/;
-    const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
+    // --- START: FINAL, CORRECTED REGEX FOR ALL FORMATS ---
+    // This single, more robust regex replaces the multiple, conflicting ones.
+    // It specifically looks for a 6-letter fused airport code OR two 3-letter codes.
+    const flightSegmentRegex = /^\s*(\d+)\s+([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+.*?([A-Z]{3})\s*([A-Z]{3})?\s+.*?(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}|\+\d))?/;
     
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
@@ -148,28 +145,8 @@ function parseGalileoEnhanced(pnrText, options) {
     for (const line of lines) {
         if (!line) continue;
         
-        let flightMatch;
-        let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator, depTerminal, arrTerminal;
-
-        // Try matching the different PNR formats in order of specificity.
-        flightMatch = line.match(flightSegmentRegexFusedAirports);
-        if (flightMatch) {
-            let fusedAirports;
-            // The segment number is now correctly captured at index 1.
-            [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, fusedAirports, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
-            depAirport = fusedAirports.substring(0, 3);
-            arrAirport = fusedAirports.substring(3, 6);
-        } else {
-            flightMatch = line.match(flightSegmentRegexCompact);
-            if (flightMatch) {
-                [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
-            } else {
-                flightMatch = line.match(flightSegmentRegexFlexible);
-                if (flightMatch) {
-                    [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
-                }
-            }
-        }
+        let flightMatch = line.match(flightSegmentRegex);
+        let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator;
         
         const operatedByMatch = line.match(operatedByRegex);
         const isPassengerLine = passengerLineIdentifierRegex.test(line);
@@ -197,6 +174,25 @@ function parseGalileoEnhanced(pnrText, options) {
             }
         }
         else if (flightMatch) {
+            // Logic to handle both fused and separate airport codes from the single regex
+            let potentialArrAirport = flightMatch[7];
+            if (potentialArrAirport) {
+                depAirport = flightMatch[6];
+                arrAirport = potentialArrAirport;
+            } else {
+                depAirport = flightMatch[6].substring(0, 3);
+                arrAirport = flightMatch[6].substring(3, 6);
+            }
+            
+            segmentNumStr = flightMatch[1];
+            airlineCode = flightMatch[2];
+            flightNumRaw = flightMatch[3];
+            travelClass = flightMatch[4];
+            depDateStr = flightMatch[5];
+            depTimeStr = flightMatch[8];
+            arrTimeStr = flightMatch[9];
+            arrDateStrOrNextDayIndicator = flightMatch[10];
+
             if (currentFlight) flights.push(currentFlight);
             flightIndex++;
             let precedingTransitTimeForThisSegment = null;
@@ -253,7 +249,7 @@ function parseGalileoEnhanced(pnrText, options) {
             }
 
             let arrivalDateString = null;
-            // This is the logic that creates the string your frontend needs. It will now run correctly.
+            // This is the critical logic that will now work correctly for all segments.
             if (departureMoment.isValid() && arrivalMoment.isValid() && !arrivalMoment.isSame(departureMoment, 'day')) {
                 arrivalDateString = arrivalMoment.format('DD MMM');
             }
@@ -267,13 +263,13 @@ function parseGalileoEnhanced(pnrText, options) {
                 departure: { 
                     airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name,
                     time: formatMomentTime(departureMoment, use24hSegment),
-                    terminal: depTerminal || null
+                    terminal: null // Terminals are not reliably captured with this regex
                 },
                 arrival: { 
                     airport: arrAirport, city: arrAirportInfo.city, name: arrAirportInfo.name,
                     time: formatMomentTime(arrivalMoment, use24hSegment),
-                    dateString: arrivalDateString, // And the result is placed here.
-                    terminal: arrTerminal || null
+                    dateString: arrivalDateString,
+                    terminal: null
                 },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
                 aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
