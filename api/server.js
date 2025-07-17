@@ -116,8 +116,6 @@ function getTravelClassName(classCode) {
 
 // PASTE THIS ENTIRE FUNCTION OVER YOUR OLD ONE IN server.js
 
-// PASTE THIS ENTIRE FUNCTION OVER YOUR OLD ONE IN server.js
-
 function parseGalileoEnhanced(pnrText, options) {
     const flights = [];
     const passengers = [];
@@ -130,20 +128,23 @@ function parseGalileoEnhanced(pnrText, options) {
     const use24hSegment = options.segmentTimeFormat === '24h';
     const use24hTransit = options.transitTimeFormat === '24h';
 
-    // This robust regex correctly captures the core data from multiple Galileo formats.
+    // --- START: HARDENED REGEX FOR RELIABILITY ---
+    // This new regex replaces the generic '\S+' with specific patterns for the day-of-week digit and the status code (like DK1).
+    // This eliminates ambiguity and ensures the line is parsed correctly every time.
     const flightSegmentRegex = new RegExp(
-        '^\\s*(?:(\\d+)\\s+)?' +       // 1: Optional segment number
-        '([A-Z0-9]{2})\\s*' +          // 2: Airline code
-        '(\\d{1,4}[A-Z]?)' +           // 3: Flight number
-        '\\s+([A-Z])' +                // 4: Class of service
-        '\\s+([0-3]\\d[A-Z]{3})' +      // 5: Departure date (e.g., 18JUL)
-        '\\s+\\S+\\s+' +               // Skips day-of-week & status (e.g., " 5 ")
-        '([A-Z]{3})' +                 // 6: Departure Airport
-        '([A-Z]{3})' +                 // 7: Arrival Airport
-        '\\s+\\S+\\s+' +               // Skips status code (e.g., " DK1 ")
-        '(\\d{4})\\s+' +               // 8: Departure time
-        '(\\d{4})'                     // 9: Arrival time
+        '^\\s*(?:(\\d+)\\s+)?' +         // 1: Optional segment number
+        '([A-Z0-9]{2})\\s*' +            // 2: Airline code
+        '(\\d{1,4}[A-Z]?)' +             // 3: Flight number
+        '\\s+([A-Z])' +                  // 4: Class of service
+        '\\s+([0-3]\\d[A-Z]{3})' +        // 5: Departure date (e.g., 18JUL)
+        '\\s+[A-Z0-9]\\s+' +             // **FIX:** Specifically skips the day-of-week digit (e.g., " 5 ")
+        '([A-Z]{3})' +                   // 6: Departure Airport
+        '([A-Z]{3})' +                   // 7: Arrival Airport
+        '\\s+[A-Z0-9]{2,3}\\s+' +        // **FIX:** Specifically skips the status code (e.g., " DK1 ")
+        '(\\d{4})\\s+' +                 // 8: Departure time
+        '(\\d{4})'                       // 9: Arrival time
     );
+    // --- END: HARDENED REGEX ---
     
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
@@ -156,7 +157,7 @@ function parseGalileoEnhanced(pnrText, options) {
         const isPassengerLine = passengerLineIdentifierRegex.test(line);
 
         if (isPassengerLine) {
-            // Passenger parsing logic remains unchanged...
+            // Passenger parsing logic remains the same
             const cleanedLine = line.replace(/^\s*\d+\.\s*/, '');
             const nameBlocks = cleanedLine.split(/\s+\d+\.\s*/);
             for (const nameBlock of nameBlocks) {
@@ -184,60 +185,42 @@ function parseGalileoEnhanced(pnrText, options) {
             
             const [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr] = flightMatch;
             
-            // --- START: NEW RELIABLE DATE LOGIC ---
-
-            // 1. Isolate the details that come AFTER the main regex match.
+            // This logic is now reliable because the regex match is precise.
             let flightDetailsPart = line.substring(flightMatch[0].length).trim();
             let arrDateStrOrNextDayIndicator = null;
 
-            // 2. Look for an explicit arrival date in those details first. This is our "real data".
             const detailsDateMatch = flightDetailsPart.match(/^([0-3]\d[A-Z]{3}|\+\d)\s*/);
             if (detailsDateMatch) {
                 arrDateStrOrNextDayIndicator = detailsDateMatch[1];
-                // Remove the date from the details string so we don't parse it again.
                 flightDetailsPart = flightDetailsPart.substring(detailsDateMatch[0].length).trim();
             }
 
-            // 3. Get all timezone and airport info.
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
             if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
             if (!moment.tz.zone(arrAirportInfo.timezone)) arrAirportInfo.timezone = 'UTC';
             
-            // 4. Create the authoritative departure moment. This is always correct.
             const departureMoment = moment.tz(`${depDateStr} ${depTimeStr}`, "DDMMM HHmm", true, depAirportInfo.timezone);
-            
             let arrivalMoment;
 
-            // 5. Build the arrival moment based on the "real data" principle.
             if (arrDateStrOrNextDayIndicator) {
-                // PATH A: The PNR provided an explicit date or day indicator. This is the truth.
+                // PATH A: Use the explicit date from the PNR.
                 if (arrDateStrOrNextDayIndicator.startsWith('+')) {
-                    // Case: "+1"
                     const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10) || 0;
                     arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone).add(daysToAdd, 'day');
                 } else {
-                    // Case: "19JUL"
                     arrivalMoment = moment.tz(`${arrDateStrOrNextDayIndicator} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone);
                 }
             } else {
-                // PATH B: The PNR did NOT provide an arrival date. This is the ONLY time we apply logic.
-                // We start by assuming it arrives on the same day as departure.
+                // PATH B: No explicit date, so we apply logic.
                 arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone);
-                
-                // Now we check if that is physically possible.
-                // Comparing the full date-time objects is the most reliable way.
                 if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
-                    // If the arrival is before departure, it must be the next day.
                     arrivalMoment.add(1, 'day');
                 }
             }
             
-            // --- END: NEW RELIABLE DATE LOGIC ---
-            
             flightMoments.push({ departureMoment, arrivalMoment });
 
-            // The rest of the parsing logic uses these authoritative moments.
             const detailsParts = flightDetailsPart.split(/\s+/);
             let aircraftCodeKey = null;
             for (let part of detailsParts) {
@@ -289,7 +272,7 @@ function parseGalileoEnhanced(pnrText, options) {
     }
     if (currentFlight) flights.push(currentFlight);
 
-    // This logic for transit and direction remains the same as it relies on the accurate moments created above.
+    // This logic for transit and direction remains the same and is now fed with accurate data.
     if (flights.length > 0) {
         flights[0].direction = 'Outbound';
         const STOPOVER_THRESHOLD_MINUTES = 24 * 60; 
