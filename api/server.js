@@ -123,14 +123,14 @@ function parseGalileoEnhanced(pnrText, options) {
     let currentFlight = null;
     let flightIndex = 0;
     
-    // Store raw moment objects to perform accurate calculations later
     const flightMoments = []; 
 
     const use24hSegment = options.segmentTimeFormat === '24h';
     const use24hTransit = options.transitTimeFormat === '24h';
 
-    // This regex is now primarily for capturing the core flight data before the details section
-    const flightSegmentRegex = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S*\s*([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+\S*\s+(\d{4})\s+(\d{4})/;
+    // --- START OF FIX: This new Regex is designed to handle concatenated city pairs like 'FIHDAR' ---
+    const flightSegmentRegex = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S+\s+([A-Z]{6})\s+\S+\s+(\d{4})\s+(\d{4})/;
+    // --- END OF FIX ---
     
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
@@ -167,26 +167,25 @@ function parseGalileoEnhanced(pnrText, options) {
         else if (flightMatch) {
             if (currentFlight) flights.push(currentFlight);
             flightIndex++;
-
-            let [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr] = flightMatch;
-
-            // --- START OF BUG FIX ---
-            // The main regex now only captures up to the arrival time.
-            // We process the rest of the line separately to reliably find the optional arrival date.
             
+            // --- START OF FIX: Destructure the new regex match and split the city pair ---
+            const [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, cityPair, depTimeStr, arrTimeStr] = flightMatch;
+            const depAirport = cityPair.substring(0, 3);
+            const arrAirport = cityPair.substring(3, 6);
+            // We no longer need to look for terminals in the main regex, they will be in the details part if they exist
+            const depTerminal = null; 
+            const arrTerminal = null;
+            // --- END OF FIX ---
+
             let flightDetailsPart = line.substring(flightMatch[0].length).trim();
             let arrDateStrOrNextDayIndicator = null;
 
-            // Check if the remaining details start with a date code (e.g., "19JUL" or "+1")
             const detailsDateMatch = flightDetailsPart.match(/^([0-3]\d[A-Z]{3}|\+\d)\s*/);
             
             if (detailsDateMatch) {
-                // If a date is found, we capture it...
                 arrDateStrOrNextDayIndicator = detailsDateMatch[1];
-                // ...and we remove it from the details string so it's not parsed again later.
                 flightDetailsPart = flightDetailsPart.substring(detailsDateMatch[0].length).trim();
             }
-            // --- END OF BUG FIX ---
             
             const detailsParts = flightDetailsPart.split(/\s+/);
             
@@ -261,7 +260,8 @@ function parseGalileoEnhanced(pnrText, options) {
             };
         } else if (currentFlight && operatedByMatch) {
             currentFlight.operatedBy = operatedByMatch[1].trim();
-        } else if (currentFlight && line.trim().length > 0) {
+        } else if (currentFlight && line.trim().length > 0 && !isPassengerLine) {
+             // Added !isPassengerLine to prevent passenger names from becoming notes
             currentFlight.notes.push(line.trim());
         }
     }
