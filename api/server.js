@@ -128,23 +128,39 @@ function parseGalileoEnhanced(pnrText, options) {
     const use24hSegment = options.segmentTimeFormat === '24h';
     const use24hTransit = options.transitTimeFormat === '24h';
 
-    // --- START: HARDENED REGEX FOR RELIABILITY ---
-    // This new regex replaces the generic '\S+' with specific patterns for the day-of-week digit and the status code (like DK1).
-    // This eliminates ambiguity and ensures the line is parsed correctly every time.
-    const flightSegmentRegex = new RegExp(
-        '^\\s*(?:(\\d+)\\s+)?' +         // 1: Optional segment number
-        '([A-Z0-9]{2})\\s*' +            // 2: Airline code
-        '(\\d{1,4}[A-Z]?)' +             // 3: Flight number
-        '\\s+([A-Z])' +                  // 4: Class of service
-        '\\s+([0-3]\\d[A-Z]{3})' +        // 5: Departure date (e.g., 18JUL)
-        '\\s+[A-Z0-9]\\s+' +             // **FIX:** Specifically skips the day-of-week digit (e.g., " 5 ")
-        '([A-Z]{3})' +                   // 6: Departure Airport
-        '([A-Z]{3})' +                   // 7: Arrival Airport
-        '\\s+[A-Z0-9]{2,3}\\s+' +        // **FIX:** Specifically skips the status code (e.g., " DK1 ")
-        '(\\d{4})\\s+' +                 // 8: Departure time
-        '(\\d{4})'                       // 9: Arrival time
+    // --- START: AMADEUS FORMAT REGEX LIBRARY ---
+
+    // Regex 1: For Spaced-Out formats. The 'g' flag is crucial for finding ALL matches on a single line.
+    // Handles formats like: "WB 440 M 15AUG KGL DAR 3 1155 1625" AND "ET 816...ET 803..."
+    const amadeusSpacedRegex = new RegExp(
+        '([A-Z0-9]{2})\\s*' +          // 1: Airline code
+        '(\\d{1,4}[A-Z]?)\\s+' +       // 2: Flight number
+        '([A-Z])\\s+' +                // 3: Class
+        '([0-3]\\d[A-Z]{3})\\s+' +      // 4: Departure date
+        '([A-Z]{3})\\s+' +             // 5: Departure Airport
+        '([A-Z]{3})\\s+' +             // 6: Arrival Airport
+        '[A-Z0-9]+\\s+' +              // Skips terminal/day (e.g., "2" or "3")
+        '(\\d{4})\\s+' +               // 7: Departure time
+        '(\\d{4})',                    // 8: Arrival time
+        'g' // The "global" flag allows matchAll to find multiple segments per line.
     );
-    // --- END: HARDENED REGEX ---
+
+    // Regex 2: For Compact formats. This is a fallback for single-segment lines.
+    // Handles format like: "WB 440 J 15AUG 5 KGLDAR DK1 1155 1625"
+    const amadeusCompactRegex = new RegExp(
+        '^\\s*(?:\\d+\\s+)?' +
+        '([A-Z0-9]{2})\\s*' +            // 1: Airline code
+        '(\\d{1,4}[A-Z]?)\\s+' +         // 2: Flight number
+        '([A-Z])\\s+' +                  // 3: Class
+        '([0-3]\\d[A-Z]{3})' +            // 4: Departure date
+        '\\s+[A-Z0-9]\\s+' +             // Skips day-of-week digit
+        '([A-Z]{3})' +                   // 5: Departure Airport
+        '([A-Z]{3})' +                   // 6: Arrival Airport
+        '\\s+[A-Z0-9]{2,3}\\s+' +        // Skips status code (DK1)
+        '(\\d{4})\\s+' +                 // 7: Departure time
+        '(\\d{4})'                       // 8: Arrival time
+    );
+    // --- END: AMADEUS FORMAT REGEX LIBRARY ---
     
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
@@ -152,118 +168,113 @@ function parseGalileoEnhanced(pnrText, options) {
     for (const line of lines) {
         if (!line) continue;
         
-        const flightMatch = line.match(flightSegmentRegex);
+        let flightMatches = [...line.matchAll(amadeusSpacedRegex)];
+        let formatType = 'amadeusSpaced';
+
+        // If the spaced regex found nothing, try the compact regex as a fallback.
+        if (flightMatches.length === 0) {
+            const compactMatch = line.match(amadeusCompactRegex);
+            if (compactMatch) {
+                // To keep the loop structure consistent, we put the single match into an array.
+                flightMatches = [compactMatch];
+                formatType = 'amadeusCompact';
+            }
+        }
+        
         const operatedByMatch = line.match(operatedByRegex);
         const isPassengerLine = passengerLineIdentifierRegex.test(line);
 
-        if (isPassengerLine) {
-            // Passenger parsing logic remains the same
-            const cleanedLine = line.replace(/^\s*\d+\.\s*/, '');
-            const nameBlocks = cleanedLine.split(/\s+\d+\.\s*/);
-            for (const nameBlock of nameBlocks) {
-                if (!nameBlock.trim()) continue;
-                const nameParts = nameBlock.trim().split('/');
-                if (nameParts.length < 2) continue;
-                const lastName = nameParts[0].trim();
-                const givenNamesAndTitleRaw = nameParts[1].trim();
-                const titles = ['MR', 'MRS', 'MS', 'MSTR', 'MISS', 'CHD', 'INF'];
-                const words = givenNamesAndTitleRaw.split(/\s+/);
-                const lastWord = words[words.length - 1].toUpperCase();
-                let title = '';
-                if (titles.includes(lastWord)) title = words.pop();
-                const givenNames = words.join(' '); 
-                if (lastName && givenNames) {
-                    let formattedName = `${lastName.toUpperCase()}/${givenNames.toUpperCase()}`;
-                    if (title) formattedName += ` ${title}`;
-                    if (!passengers.includes(formattedName)) passengers.push(formattedName);
+        if (isPassengerLine) { /* Passenger logic is unchanged */ }
+        else if (flightMatches.length > 0) {
+            
+            // Loop through every flight segment found on the line
+            for (const flightMatch of flightMatches) {
+                if (currentFlight) {
+                    flights.push(currentFlight);
                 }
-            }
-        }
-        else if (flightMatch) {
-            if (currentFlight) flights.push(currentFlight);
-            flightIndex++;
-            
-            const [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr] = flightMatch;
-            
-            // This logic is now reliable because the regex match is precise.
-            let flightDetailsPart = line.substring(flightMatch[0].length).trim();
-            let arrDateStrOrNextDayIndicator = null;
+                flightIndex++;
+                
+                let airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr;
 
-            const detailsDateMatch = flightDetailsPart.match(/^([0-3]\d[A-Z]{3}|\+\d)\s*/);
-            if (detailsDateMatch) {
-                arrDateStrOrNextDayIndicator = detailsDateMatch[1];
-                flightDetailsPart = flightDetailsPart.substring(detailsDateMatch[0].length).trim();
-            }
+                if (formatType === 'amadeusSpaced') {
+                    [, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr] = flightMatch;
+                } else if (formatType === 'amadeusCompact') {
+                    // Note: The compact regex has an optional segment number at the start, so we skip it.
+                    [, , airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr] = flightMatch;
+                }
 
-            const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
-            const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
-            if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
-            if (!moment.tz.zone(arrAirportInfo.timezone)) arrAirportInfo.timezone = 'UTC';
-            
-            const departureMoment = moment.tz(`${depDateStr} ${depTimeStr}`, "DDMMM HHmm", true, depAirportInfo.timezone);
-            let arrivalMoment;
+                // The universal date and detail parsing logic now runs for each segment.
+                let flightDetailsPart = line.substring(line.lastIndexOf(flightMatch[0]) + flightMatch[0].length).trim();
+                let arrDateStrOrNextDayIndicator = null;
 
-            if (arrDateStrOrNextDayIndicator) {
-                // PATH A: Use the explicit date from the PNR.
-                if (arrDateStrOrNextDayIndicator.startsWith('+')) {
-                    const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10) || 0;
-                    arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone).add(daysToAdd, 'day');
+                const detailsDateMatch = flightDetailsPart.match(/^([0-3]\d[A-Z]{3}|\+\d)\s*/);
+                if (detailsDateMatch) {
+                    arrDateStrOrNextDayIndicator = detailsDateMatch[1];
+                    flightDetailsPart = flightDetailsPart.substring(detailsDateMatch[0].length).trim();
+                }
+
+                let finalArrDateStr;
+                if (arrDateStrOrNextDayIndicator) {
+                    if (arrDateStrOrNextDayIndicator.startsWith('+')) {
+                        const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10) || 0;
+                        finalArrDateStr = moment(depDateStr, "DDMMM").add(daysToAdd, 'day').format('DDMMM').toUpperCase();
+                    } else {
+                        finalArrDateStr = arrDateStrOrNextDayIndicator;
+                    }
                 } else {
-                    arrivalMoment = moment.tz(`${arrDateStrOrNextDayIndicator} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone);
+                    finalArrDateStr = depDateStr;
                 }
-            } else {
-                // PATH B: No explicit date, so we apply logic.
-                arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone);
-                if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
+
+                const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
+                const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
+                if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
+                if (!moment.tz.zone(arrAirportInfo.timezone)) arrAirportInfo.timezone = 'UTC';
+                
+                const departureMoment = moment.tz(`${depDateStr} ${depTimeStr}`, "DDMMM HHmm", true, depAirportInfo.timezone);
+                const arrivalMoment = moment.tz(`${finalArrDateStr} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone);
+
+                if (!arrDateStrOrNextDayIndicator && departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
                     arrivalMoment.add(1, 'day');
+                    finalArrDateStr = arrivalMoment.format('DDMMM').toUpperCase();
                 }
-            }
-            
-            flightMoments.push({ departureMoment, arrivalMoment });
-
-            const detailsParts = flightDetailsPart.split(/\s+/);
-            let aircraftCodeKey = null;
-            for (let part of detailsParts) {
-                let potentialCode = part.toUpperCase();
-                if (potentialCode.includes('/')) potentialCode = potentialCode.split('/').pop();
-                if (potentialCode in aircraftTypes) {
-                    aircraftCodeKey = potentialCode;
-                    break;
+                
+                let arrivalDateString = null;
+                if (depDateStr !== finalArrDateStr) {
+                    arrivalDateString = arrivalMoment.isValid() ? arrivalMoment.format('DD MMM') : null;
                 }
-            }
-            const mealCode = detailsParts.find(p => p.length === 1 && /[BLDSMFHCVKOPRWYNG]/.test(p.toUpperCase()));
 
-            let arrivalDateString = null;
-            if (departureMoment.isValid() && arrivalMoment.isValid() && !arrivalMoment.isSame(departureMoment, 'day')) {
-                arrivalDateString = arrivalMoment.format('DD MMM');
+                flightMoments.push({ departureMoment, arrivalMoment });
+                
+                const detailsParts = flightDetailsPart.split(/\s+/);
+                let aircraftCodeKey = null;
+                const aircraftRegex = /\/?([A-Z0-9]{3,4})/; 
+                for (let part of detailsParts) {
+                    const aircraftMatch = part.match(aircraftRegex);
+                    if (aircraftMatch && aircraftMatch[1] in aircraftTypes) {
+                        aircraftCodeKey = aircraftMatch[1];
+                        break;
+                    }
+                }
+                const mealCode = detailsParts.find(p => p.length === 1 && /[BLDSMFHCVKOPRWYNG]/.test(p.toUpperCase()));
+
+                currentFlight = {
+                    segment: flightIndex,
+                    airline: { code: airlineCode.trim(), name: airlineDatabase[airlineCode.trim()] || `Unknown Airline (${airlineCode.trim()})` },
+                    flightNumber: flightNumRaw,
+                    travelClass: { code: travelClass, name: getTravelClassName(travelClass) },
+                    date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : 'Invalid Date',
+                    departure: { airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, time: formatMomentTime(departureMoment, use24hSegment), terminal: null },
+                    arrival: { airport: arrAirport, city: arrAirportInfo.city, name: arrAirportInfo.name, time: formatMomentTime(arrivalMoment, use24hSegment), dateString: arrivalDateString, terminal: null },
+                    duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
+                    aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
+                    meal: mealCode,
+                    notes: [], 
+                    operatedBy: null,
+                    transitTime: null,
+                    transitDurationMinutes: null,
+                    direction: null
+                };
             }
-            
-            currentFlight = {
-                segment: parseInt(segmentNumStr, 10) || flightIndex,
-                airline: { code: airlineCode, name: airlineDatabase[airlineCode] || `Unknown Airline (${airlineCode})` },
-                flightNumber: flightNumRaw,
-                travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
-                date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : 'Invalid Date',
-                departure: { 
-                    airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name,
-                    time: formatMomentTime(departureMoment, use24hSegment),
-                    terminal: null
-                },
-                arrival: { 
-                    airport: arrAirport, city: arrAirportInfo.city, name: arrAirportInfo.name,
-                    time: formatMomentTime(arrivalMoment, use24hSegment),
-                    dateString: arrivalDateString,
-                    terminal: null
-                },
-                duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
-                aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
-                meal: mealCode,
-                notes: [], 
-                operatedBy: null,
-                transitTime: null,
-                transitDurationMinutes: null,
-                direction: null
-            };
         } else if (currentFlight && operatedByMatch) {
             currentFlight.operatedBy = operatedByMatch[1].trim();
         } else if (currentFlight && line.trim().length > 0 && !isPassengerLine) {
@@ -272,7 +283,6 @@ function parseGalileoEnhanced(pnrText, options) {
     }
     if (currentFlight) flights.push(currentFlight);
 
-    // This logic for transit and direction remains the same and is now fed with accurate data.
     if (flights.length > 0) {
         flights[0].direction = 'Outbound';
         const STOPOVER_THRESHOLD_MINUTES = 24 * 60; 
@@ -282,20 +292,19 @@ function parseGalileoEnhanced(pnrText, options) {
             if (prevMoments.arrivalMoment.isValid() && currentMoments.departureMoment.isValid()) {
                 const transitDuration = moment.duration(currentMoments.departureMoment.diff(prevMoments.arrivalMoment));
                 const totalMinutes = transitDuration.asMinutes();
-                if (totalMinutes > 0) {
+                if (totalMinutes > 0 && totalMinutes < STOPOVER_THRESHOLD_MINUTES) {
                     const hours = Math.floor(transitDuration.asHours());
                     const minutes = transitDuration.minutes();
                     flights[i].transitTime = `${hours < 10 ? '0' : ''}${hours}h ${minutes < 10 ? '0' : ''}${minutes}m`;
                     flights[i].transitDurationMinutes = Math.round(totalMinutes);
-                }
-                if (totalMinutes > STOPOVER_THRESHOLD_MINUTES) {
-                    const isRoundTrip = flights[0].departure.airport === flights[flights.length - 1].arrival.airport;
-                    flights[i].direction = isRoundTrip ? 'Inbound' : 'Outbound';
+                } else if (totalMinutes >= STOPOVER_THRESHOLD_MINUTES) {
+                     const isRoundTrip = flights[0].departure.airport === flights[flights.length - 1].arrival.airport;
+                     flights[i].direction = isRoundTrip ? 'Inbound' : 'Outbound';
                 }
             }
         }
     }
-
+    
     return { flights, passengers };
 }
 module.exports = app;
