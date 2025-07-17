@@ -569,8 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('input[name="baggageOption"]').forEach(radio => { 
         radio.addEventListener('change', () => { 
-            const showInputs = radio.value === 'alltheway' || radio.value === 'particular'; 
-            document.getElementById('allTheWayInputs').classList.toggle('visible', showInputs); 
+            const showInputs = radio.value === 'particular';  
         }); 
     });
     
