@@ -122,6 +122,7 @@ function getTravelClassName(classCode) {
     return `Class ${code}`;
 }
 
+// IN YOUR BACKEND FILE (app.js), REPLACE THIS ENTIRE FUNCTION
 function parseGalileoEnhanced(pnrText, options) {
     const flights = [];
     const passengers = [];
@@ -182,9 +183,7 @@ function parseGalileoEnhanced(pnrText, options) {
             }
         }
         else if (flightMatch) {
-            if (currentFlight) {
-                flights.push(currentFlight);
-            }
+            if (currentFlight) flights.push(currentFlight);
             flightIndex++;
             let precedingTransitTimeForThisSegment = null;
             let transitDurationInMinutes = null;
@@ -267,7 +266,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
                 transitDurationMinutes: transitDurationInMinutes,
-                formattedNextDepartureTime: formattedNextDepartureTime
+                formattedNextDepartureTime: formattedNextDepartureTime,
+                direction: null // Add the direction property, to be filled in later
             };
             previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && operatedByMatch) {
@@ -276,52 +276,36 @@ function parseGalileoEnhanced(pnrText, options) {
             currentFlight.notes.push(line.trim());
         }
     }
-    if (currentFlight) {
-        flights.push(currentFlight);
-    }
+    if (currentFlight) flights.push(currentFlight);
 
-    // --- START: REFINED LOGIC TO GENERATE JOURNEY SUMMARY ---
-    const summary = {
-        outbound: '',
-        inbound: ''
-    };
-
+    // --- START: ADD DIRECTION TO EACH FLIGHT OBJECT ---
     if (flights.length > 0) {
         let turnAroundIndex = -1;
         const departurePoints = new Set();
 
         // Find the first flight that is returning to a previous point of departure.
         for (let i = 0; i < flights.length; i++) {
-            const currentFlight = flights[i];
-            const origin = currentFlight.departure.airport;
-            const destination = currentFlight.arrival.airport;
-
-            // Check if the destination is a place we've departed from before.
-            // This marks the beginning of a return journey.
+            const destination = flights[i].arrival.airport;
             if (departurePoints.has(destination)) {
                 turnAroundIndex = i;
                 break;
             }
-            departurePoints.add(origin);
+            departurePoints.add(flights[i].departure.airport);
         }
 
-        const outboundFlights = (turnAroundIndex === -1) ? flights : flights.slice(0, turnAroundIndex);
-        const inboundFlights = (turnAroundIndex === -1) ? [] : flights.slice(turnAroundIndex);
-
-        // Build summary strings from the airport paths
-        if (outboundFlights.length > 0) {
-            const outboundPath = [outboundFlights[0].departure.airport, ...outboundFlights.map(f => f.arrival.airport)];
-            summary.outbound = [...new Set(outboundPath)].join(' --> '); // Use Set to remove duplicates from path (e.g. A->B->A)
-        }
-
-        if (inboundFlights.length > 0) {
-            const inboundPath = [inboundFlights[0].departure.airport, ...inboundFlights.map(f => f.arrival.airport)];
-            summary.inbound = [...new Set(inboundPath)].join(' --> ');
+        // Assign 'Outbound' or 'Inbound' to each flight's 'direction' property.
+        for (let i = 0; i < flights.length; i++) {
+            if (turnAroundIndex === -1 || i < turnAroundIndex) {
+                flights[i].direction = 'Outbound';
+            } else {
+                flights[i].direction = 'Inbound';
+            }
         }
     }
-    // --- END: REFINED LOGIC ---
+    // --- END: ADD DIRECTION TO EACH FLIGHT OBJECT ---
 
-    return { flights, passengers, summary };
+    // Return the object WITHOUT the summary property
+    return { flights, passengers };
 }
 
 module.exports = app;

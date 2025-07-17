@@ -298,17 +298,14 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
     displayResults(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted);
 }
 
-// --- REMOVED THE SEPARATE, UNUSED TOGGLE SWITCH CODE THAT WAS HERE ---
-
-// PASTE THIS ENTIRE FUNCTION OVER YOUR OLD ONE
 function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted) {
     const output = document.getElementById('output');
     const screenshotBtn = document.getElementById('screenshotBtn');
     const copyTextBtn = document.getElementById('copyTextBtn');
     output.innerHTML = '';
 
-    // Destructure flights, passengers, and the new summary object
-    const { flights = [], passengers = [], summary = { outbound: '', inbound: '' } } = pnrResult || {};
+    // We no longer need the summary object here
+    const { flights = [], passengers = [] } = pnrResult || {};
     
     if (flights.length > 0) {
         screenshotBtn.style.display = 'inline-block';
@@ -348,33 +345,34 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         const itineraryBlock = document.createElement('div');
         itineraryBlock.className = 'itinerary-block';
         
-        // --- START: NEW LOGIC TO DISPLAY HIGH-LEVEL SUMMARY ---
-        // Display the outbound journey summary if it exists
-        if (summary.outbound) {
-            const headingDiv = document.createElement('div');
-            headingDiv.className = 'itinerary-leg-header';
-            headingDiv.innerHTML = `
-                <span>OUTBOUND: ${summary.outbound}</span>
-                <img src="/icons/takeoff.png" alt="Outbound" class="leg-header-icon">
-            `;
-            itineraryBlock.appendChild(headingDiv);
-        }
-        
-        // Display the inbound journey summary if it exists
-        if (summary.inbound) {
-            const headingDiv = document.createElement('div');
-            headingDiv.className = 'itinerary-leg-header';
-            headingDiv.innerHTML = `
-                <span>INBOUND: ${summary.inbound}</span>
-                <img src="/icons/landing.png" alt="Inbound" class="leg-header-icon">
-            `;
-            itineraryBlock.appendChild(headingDiv);
-        }
-        // --- END: NEW LOGIC TO DISPLAY HIGH-LEVEL SUMMARY ---
+        // This variable will track the current heading so we only print it once.
+        let currentHeadingDisplayed = null;
 
         flights.forEach((flight, i) => {
-            // NOTE: The old logic to display direction headers inside the loop has been removed.
             
+            // --- START: NEW LOGIC TO DISPLAY SIMPLE HEADERS ---
+            // Check if the direction for this flight is new
+            if (flight.direction && flight.direction !== currentHeadingDisplayed) {
+                const headingDiv = document.createElement('div');
+                headingDiv.className = 'itinerary-leg-header';
+
+                const iconSrc = flight.direction === 'Outbound' 
+                    ? '/icons/takeoff.png' 
+                    : '/icons/landing.png';
+
+                // Display just the word "OUTBOUND" or "INBOUND"
+                headingDiv.innerHTML = `
+                    <span>${flight.direction.toUpperCase()}</span>
+                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                `;
+
+                itineraryBlock.appendChild(headingDiv);
+
+                // Update the tracker to prevent this header from being printed again
+                currentHeadingDisplayed = flight.direction;
+            }
+            // --- END: NEW LOGIC ---
+
             // Display transit time information
             if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
                 const transitDiv = document.createElement('div');
@@ -445,7 +443,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             itineraryBlock.appendChild(flightItem);
         });
         
-        // The entire fare calculation block remains unchanged...
+        // --- The entire fare calculation block remains unchanged ---
         const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
         const adultCountNum = parseInt(adultCount) || 0;
         const childCountNum = parseInt(childCount) || 0;
@@ -496,7 +494,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
          output.innerHTML = '<div class="info">Enter PNR data and click Convert to begin.</div>';
     }
 }
-
 
 function getMealDescription(mealCode) {
     // ... (This function remains unchanged)
