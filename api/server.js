@@ -7,7 +7,6 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const morgan = 'morgan';
-const { getMealDescription } = require('./main.js'); 
 
 const app = express();
 
@@ -115,39 +114,39 @@ function getTravelClassName(classCode) {
 }
 
 // --- START: NEW HELPER FUNCTION FOR MEAL DESCRIPTIONS ---
-// function getMealDescription(mealCode) {
-//     if (!mealCode) return null;
+function getMealDescription(mealCode) {
+    if (!mealCode) return null;
 
-//     const mealCodeMap = {
-//         'B': 'Breakfast',
-//         'L': 'Lunch',
-//         'D': 'Dinner',
-//         'S': 'Snack or Refreshments',
-//         'M': 'Meal (Non-Specific)',
-//         'F': 'Food for Purchase',
-//         'H': 'Hot Meal',
-//         'C': 'Complimentary Alcoholic Beverages',
-//         'V': 'Vegetarian Meal',
-//         'K': 'Kosher Meal',
-//         'O': 'Cold Meal',
-//         'P': 'Alcoholic Beverages for Purchase',
-//         'R': 'Refreshment',
-//         'W': 'Continental Breakfast',
-//         'Y': 'Duty-Free Sales Available',
-//         'N': 'No Meal Service',
-//         'G': 'Food and Beverages for Purchase',
-//     };
+    const mealCodeMap = {
+        'B': 'Breakfast',
+        'L': 'Lunch',
+        'D': 'Dinner',
+        'S': 'Snack or Refreshments',
+        'M': 'Meal (Non-Specific)',
+        'F': 'Food for Purchase',
+        'H': 'Hot Meal',
+        'C': 'Complimentary Alcoholic Beverages',
+        'V': 'Vegetarian Meal',
+        'K': 'Kosher Meal',
+        'O': 'Cold Meal',
+        'P': 'Alcoholic Beverages for Purchase',
+        'R': 'Refreshment',
+        'W': 'Continental Breakfast',
+        'Y': 'Duty-Free Sales Available',
+        'N': 'No Meal Service',
+        'G': 'Food and Beverages for Purchase',
+    };
 
-//     const descriptions = mealCode.toUpperCase().split('')
-//         .map(code => mealCodeMap[code])
-//         .filter(Boolean); // Filter out any undefined results for unknown characters
+    const descriptions = mealCode.toUpperCase().split('')
+        .map(code => mealCodeMap[code])
+        .filter(Boolean); // Filter out any undefined results for unknown characters
 
-//     if (descriptions.length === 0) {
-//         return `${mealCode}`; // Fallback for unknown codes
-//     }
+    if (descriptions.length === 0) {
+        return `${mealCode}`; // Fallback for unknown codes
+    }
 
-//     return descriptions.join(' & ');
-// }
+    return descriptions.join(' & ');
+}
 // --- END: NEW HELPER FUNCTION ---
 
 
