@@ -127,8 +127,8 @@ function parseGalileoEnhanced(pnrText, options) {
     const use24hSegment = options.segmentTimeFormat === '24h';
     const use24hTransit = options.transitTimeFormat === '24h';
 
-    // Regex updated to handle optional codeshare format (e.g., WB:QR6395) and more flexible spacing.
-    const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?(?:[A-Z0-9]{2}:)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([A-Z0-9]{1,2})?\s+([A-Z]{3})\s*([A-Z0-9]{1,2})?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
+    const flightSegmentRegexCompact = /^\s*(\d+)\s+([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S*\s*([A-Z]{3})([A-Z]{3})\s+\S+\s+(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}))?/;
+    const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
     
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
@@ -136,8 +136,20 @@ function parseGalileoEnhanced(pnrText, options) {
     for (const line of lines) {
         if (!line) continue;
         
-        // Removed the compact regex as the flexible one can now handle more cases.
-        const flightMatch = line.match(flightSegmentRegexFlexible);
+        let flightMatch = line.match(flightSegmentRegexCompact);
+        let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator, depTerminal, arrTerminal;
+
+        if (flightMatch) {
+            [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
+            depTerminal = null;
+            arrTerminal = null;
+        } else {
+            flightMatch = line.match(flightSegmentRegexFlexible);
+            if (flightMatch) {
+                [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
+            }
+        }
+        
         const operatedByMatch = line.match(operatedByRegex);
         const isPassengerLine = passengerLineIdentifierRegex.test(line);
 
@@ -170,9 +182,6 @@ function parseGalileoEnhanced(pnrText, options) {
             let transitDurationInMinutes = null;
             let formattedNextDepartureTime = null;
 
-            // Destructuring the match results based on the updated regex.
-            const [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
-            
             const flightDetailsPart = line.substring(flightMatch[0].length).trim();
             const detailsParts = flightDetailsPart.split(/\s+/);
             
@@ -187,8 +196,14 @@ function parseGalileoEnhanced(pnrText, options) {
                     break;
                 }
             }
-
-            const mealCode = detailsParts.find(p => p.length === 1 && /[BLDSMFHCVKOPRWYNG]/.test(p.toUpperCase()));
+            
+            // --- START: MODIFICATION FOR MULTI-CHARACTER MEAL CODES ---
+            // Define a regex that matches strings containing only valid IATA meal characters.
+            // This now supports single codes ('M'), multi-character codes ('MC'), and special meal codes. [3]
+            const validMealCharsRegex = /^[BLDSMFHCVKOPRWYNG]+$/i;
+            // Find a part in the remaining line details that matches our meal code pattern.
+            const mealCode = detailsParts.find(p => validMealCharsRegex.test(p));
+            // --- END: MODIFICATION FOR MULTI-CHARACTER MEAL CODES ---
             
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
@@ -245,7 +260,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
                 aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
-                meal: mealCode,
+                meal: mealCode || null, // Assign the found meal code
                 notes: [], 
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
@@ -267,7 +282,8 @@ function parseGalileoEnhanced(pnrText, options) {
         }
         flights[0].direction = 'Outbound';
 
-        const STOPOVER_THRESHOLD_MINUTES = 1440; 
+        const STOPOVER_THRESHOLD_MINUTES = 1440;
+
         const format12h = "DD MMM YYYY hh:mm A";
         const format24h = "DD MMM YYYY HH:mm";
 
