@@ -142,7 +142,7 @@ function getMealDescription(mealCode) {
         .filter(Boolean); // Filter out any undefined results for unknown characters
 
     if (descriptions.length === 0) {
-        return `Code ${mealCode}`; // Fallback for unknown codes
+        return `${mealCode}`; // Fallback for unknown codes
     }
 
     return descriptions.join(' & ');
