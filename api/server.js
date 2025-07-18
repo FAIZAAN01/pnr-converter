@@ -97,7 +97,6 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
     const minutes = durationMinutes % 60;
     const paddedHours = String(hours).padStart(2, '0');
     const paddedMinutes = String(minutes).padStart(2, '0');
-    // Return the formatted string instead of assigning it to another variable
     return `${paddedHours}h ${paddedMinutes}m`;
 }
 function getTravelClassName(classCode) {
@@ -114,7 +113,42 @@ function getTravelClassName(classCode) {
     return `Class ${code}`;
 }
 
-// PASTE THIS ENTIRE FUNCTION OVER YOUR OLD ONE IN server.js
+// --- START: NEW HELPER FUNCTION FOR MEAL DESCRIPTIONS ---
+function getMealDescription(mealCode) {
+    if (!mealCode) return null;
+
+    const mealCodeMap = {
+        'B': 'Breakfast',
+        'L': 'Lunch',
+        'D': 'Dinner',
+        'S': 'Snack or Refreshments',
+        'M': 'Meal (Non-Specific)',
+        'F': 'Food for Purchase',
+        'H': 'Hot Meal',
+        'C': 'Complimentary Alcoholic Beverages',
+        'V': 'Vegetarian Meal',
+        'K': 'Kosher Meal',
+        'O': 'Cold Meal',
+        'P': 'Alcoholic Beverages for Purchase',
+        'R': 'Refreshment',
+        'W': 'Continental Breakfast',
+        'Y': 'Duty-Free Sales Available',
+        'N': 'No Meal Service',
+        'G': 'Food and Beverages for Purchase',
+    };
+
+    const descriptions = mealCode.toUpperCase().split('')
+        .map(code => mealCodeMap[code])
+        .filter(Boolean); // Filter out any undefined results for unknown characters
+
+    if (descriptions.length === 0) {
+        return `Code ${mealCode}`; // Fallback for unknown codes
+    }
+
+    return descriptions.join(' & ');
+}
+// --- END: NEW HELPER FUNCTION ---
+
 
 function parseGalileoEnhanced(pnrText, options) {
     const flights = [];
@@ -197,13 +231,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 }
             }
             
-            // --- START: MODIFICATION FOR MULTI-CHARACTER MEAL CODES ---
-            // Define a regex that matches strings containing only valid IATA meal characters.
-            // This now supports single codes ('M'), multi-character codes ('MC'), and special meal codes. [3]
             const validMealCharsRegex = /^[BLDSMFHCVKOPRWYNG]+$/i;
-            // Find a part in the remaining line details that matches our meal code pattern.
             const mealCode = detailsParts.find(p => validMealCharsRegex.test(p));
-            // --- END: MODIFICATION FOR MULTI-CHARACTER MEAL CODES ---
             
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
@@ -260,7 +289,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
                 aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
-                meal: mealCode || null, // Assign the found meal code
+                // --- MODIFICATION: Use the new helper function to get the full description ---
+                meal: getMealDescription(mealCode),
                 notes: [], 
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
@@ -326,4 +356,5 @@ function parseGalileoEnhanced(pnrText, options) {
 
     return { flights, passengers };
 }
+
 module.exports = app;
