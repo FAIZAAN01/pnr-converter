@@ -46,12 +46,12 @@ function resetFareAndBaggageInputs() {
     // Reset currency to the default (USD)
     document.getElementById('currencySelect').value = 'USD';
 
-    // Reset baggage selection to "None"
-    document.getElementById('baggageNone').checked = true;
+    // Reset baggage selection to "Particular"
+    document.getElementById('baggageParticular').checked = true;
     
     // Also trigger a 'change' event on the radio button.
     // This is important to make sure any associated UI logic (like hiding/showing other inputs) runs.
-    document.getElementById('baggageNone').dispatchEvent(new Event('change'));
+    document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
 
     // If a result is currently displayed, update it to remove the now-cleared fare summary
     if (lastPnrResult) {
