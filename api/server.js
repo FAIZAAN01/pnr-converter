@@ -262,27 +262,35 @@ function parseGalileoEnhanced(pnrText, options) {
 
             let arrivalMoment;
 
-            // Improved arrival date/time logic with option to enforce strict arrival date
             if (arrDateStrOrNextDayIndicator) {
                 if (arrDateStrOrNextDayIndicator.startsWith('+')) {
+                    // If arrival date is a relative day offset (like "+1")
                     const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
                     arrivalMoment = moment
                         .tz(`${depDateStr} ${arrTimeStr}`, 'DDMMM HHmm', true, arrAirportInfo.timezone)
                         .add(daysToAdd, 'day');
                 } else {
+                    // If arrival date is explicitly given (like "19JUL")
                     arrivalMoment = moment.tz(`${arrDateStrOrNextDayIndicator} ${arrTimeStr}`, 'DDMMM HHmm', true, arrAirportInfo.timezone);
+
+                    // **Add this check:**
+                    if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
+                        // Arrival time is before departure time in local time zone => arrival is next day
+                        arrivalMoment.add(1, 'day');
+                    }
                 }
             } else if (options.strictArrivalDate) {
                 // Strict mode: arrival date missing = invalid
                 console.warn(`Segment ${segmentNumStr} missing explicit arrival date/time.`);
-                arrivalMoment = null; // Could choose to skip or handle differently
+                arrivalMoment = null; // Could skip or handle differently
             } else {
-                // Fallback: guess arrival date by comparing times
+                // Fallback guess arrival date if missing
                 arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, 'DDMMM HHmm', true, arrAirportInfo.timezone);
                 if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
                     arrivalMoment.add(1, 'day');
                 }
             }
+
 
             if (!arrivalMoment || !arrivalMoment.isValid()) {
                 console.warn(`Invalid or missing arrival moment for segment ${segmentNumStr}`);
