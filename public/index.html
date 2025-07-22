@@ -1120,7 +1120,6 @@ Contact Info"></textarea>
   <script src="/js/main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Mobile menu logic (your existing one)
       const mobileMenuBtn = document.getElementById('mobileMenuBtn');
       const sidebar = document.querySelector('.sidebar');
       const overlay = document.createElement('div');
@@ -1145,58 +1144,8 @@ Contact Info"></textarea>
         });
         overlay.addEventListener('click', closeSidebar);
       }
-
-      // ===== ✅ NEW: HISTORY MODAL & PREVIEW PANEL LOGIC =====
-
-      const historyModal = document.getElementById('historyModal');
-      const historyPreviewPanel = document.getElementById('historyPreviewPanel');
-      const previewContent = document.getElementById('previewContent');
-      const closeHistoryBtn = document.getElementById('closeHistoryBtn');
-      const closePreviewBtn = document.getElementById('closePreviewBtn');
-      const historyBtn = document.getElementById('historyBtn');
-      const historyList = document.getElementById('historyList');
-      // Show history modal when history button is clicked
-      historyBtn?.addEventListener('click', () => {
-        historyModal.classList.remove('hidden');
-        // Load history data if needed
-        loadHistoryData();
-      });
-      // Close entire modal
-      closeHistoryBtn?.addEventListener('click', () => {
-        historyModal.classList.add('hidden');
-      });
-
-      // Close preview panel only
-      closePreviewBtn?.addEventListener('click', () => {
-        historyPreviewPanel.classList.add('hidden');
-      });
-
-      // Click outside preview panel → close preview panel only
-      window.addEventListener('click', (e) => {
-        if (!historyPreviewPanel.classList.contains('hidden')) {
-          // If click is outside the preview content, close it
-          if (previewContent && !previewContent.contains(e.target) && !closePreviewBtn.contains(e.target)) {
-            historyPreviewPanel.classList.add('hidden');
-          }
-        }
-      });
-
-      // Optional: Click outside modal content → close entire modal
-      window.addEventListener('click', (e) => {
-        if (!historyModal.classList.contains('hidden')) {
-          const modalContent = historyModal.querySelector('.modal-content');
-          if (modalContent && !modalContent.contains(e.target) && !closeHistoryBtn.contains(e.target)) {
-            historyModal.classList.add('hidden');
-          }
-        }
-      });
-
-      // Prevent clicks inside preview from bubbling up
-      previewContent?.addEventListener('click', e => e.stopPropagation());
-
     });
   </script>
-
 </body>
 
 </html>
