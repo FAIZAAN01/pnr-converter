@@ -520,13 +520,14 @@ document.getElementById('closePreviewBtn')?.addEventListener('click', (e) => {
     }); 
         // Close when clicking outside the popup content
     window.addEventListener('click', (e) => {
-        const panel = document.getElementById('historyPreviewPanel');
-        const content = document.getElementById('previewContent'); // Add an ID to your popup content
-        if (!panel.classList.contains('hidden') && !content.contains(e.target)) {
-            panel.classList.add('hidden');
-        }
-    });
+    const panel = document.getElementById('historyPreviewPanel');
+    const content = document.getElementById('previewContent'); // <-- Correct ID
+    if (!panel || !content) return; // safe guard
+    if (!panel.classList.contains('hidden') && !content.contains(e.target)) {
+        panel.classList.add('hidden');
     }
+    });
+}
 };
 
 // --- EVENT LISTENERS & APP INITIALIZATION ---
