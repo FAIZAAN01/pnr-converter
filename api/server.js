@@ -264,34 +264,28 @@ function parseGalileoEnhanced(pnrText, options) {
 
             if (arrDateStrOrNextDayIndicator) {
                 if (arrDateStrOrNextDayIndicator.startsWith('+')) {
-                    // Case: "+1"
+                    // Example: +1
                     const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
                     arrivalMoment = departureMoment.clone().add(daysToAdd, 'day').hour(arrTimeStr.slice(0, 2)).minute(arrTimeStr.slice(2, 4));
                 } else {
-                    // Case: explicit date "19JUL"
+                    // Explicit date: always trust it!
                     arrivalMoment = moment.tz(`${arrDateStrOrNextDayIndicator} ${arrTimeStr}`, 'DDMMM HHmm', true, arrAirportInfo.timezone);
                 }
             } else {
-                // Case: no arrival date, so fallback logic
+                // Fallback: no explicit arrival date or +n indicator → guess
                 arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, 'DDMMM HHmm', true, arrAirportInfo.timezone);
+                if (
+                    departureMoment.isValid() &&
+                    arrivalMoment.isValid() &&
+                    arrivalMoment.isSameOrBefore(departureMoment)
+                ) {
+                    arrivalMoment.add(1, 'day');
+                }
             }
 
-            // Extra safeguard: if arrival time is before departure time on same day, bump by 1 day
-            if (
-                departureMoment.isValid() &&
-                arrivalMoment.isValid() &&
-                arrivalMoment.isSameOrBefore(departureMoment)
-            ) {
-                arrivalMoment.add(1, 'day');
-            }
             if (!departureMoment || !departureMoment.isValid()) {
                 console.warn(`Invalid or missing departure moment for segment ${segmentNumStr}`);
             }
-
-            if (!arrivalMoment || !arrivalMoment.isValid()) {
-                console.warn(`Invalid or missing arrival moment for segment ${segmentNumStr}`);
-            }
-
             if (previousArrivalMoment && previousArrivalMoment.isValid() && departureMoment && departureMoment.isValid()) {
                 const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
                 const totalMinutes = transitDuration.asMinutes();
