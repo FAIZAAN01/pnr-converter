@@ -1153,7 +1153,14 @@ Contact Info"></textarea>
       const previewContent = document.getElementById('previewContent');
       const closeHistoryBtn = document.getElementById('closeHistoryBtn');
       const closePreviewBtn = document.getElementById('closePreviewBtn');
-
+      const historyBtn = document.getElementById('historyBtn');
+      const historyList = document.getElementById('historyList');
+      // Show history modal when history button is clicked
+      historyBtn?.addEventListener('click', () => {
+        historyModal.classList.remove('hidden');
+        // Load history data if needed
+        loadHistoryData();
+      });
       // Close entire modal
       closeHistoryBtn?.addEventListener('click', () => {
         historyModal.classList.add('hidden');
