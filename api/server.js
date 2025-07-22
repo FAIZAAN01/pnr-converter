@@ -290,8 +290,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
                 notes: [],
                 transitTime: precedingTransitTimeForThisSegment,
-                transitDurationMinutes,
-                formattedNextDepartureTime,
+                transitDurationMinutes: transitDurationInMinutes, // ✅ must match the declared name!
+                formattedNextDepartureTime: formattedNextDepartureTime,
             };
 
             previousArrivalMoment = arrivalMoment ? arrivalMoment.clone() : previousArrivalMoment;
