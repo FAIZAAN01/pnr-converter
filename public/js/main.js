@@ -521,7 +521,7 @@ document.getElementById('closePreviewBtn')?.addEventListener('click', (e) => {
         // Close when clicking outside the popup content
     window.addEventListener('click', (e) => {
         const panel = document.getElementById('historyPreviewPanel');
-        const content = document.getElementById('historyPreviewContent'); // Add an ID to your popup content
+        const content = document.getElementById('historyModel'); // Add an ID to your popup content
         if (!panel.classList.contains('hidden') && !content.contains(e.target)) {
             panel.classList.add('hidden');
         }
