@@ -158,6 +158,9 @@ function parseGalileoEnhanced(pnrText, options) {
     let flightIndex = 0;
     let previousArrivalMoment = null;
 
+    let currentYear = null;
+    let previousDepartureMonthIndex = -1;
+
     const use24hSegment = options.segmentTimeFormat === '24h';
     const use24hTransit = options.transitTimeFormat === '24h';
 
@@ -241,21 +244,59 @@ function parseGalileoEnhanced(pnrText, options) {
 
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
+
             if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
+            
             if (!moment.tz.zone(arrAirportInfo.timezone)) arrAirportInfo.timezone = 'UTC';
-            const departureMoment = moment.tz(`${depDateStr} ${depTimeStr}`, "DDMMM HHmm", true, depAirportInfo.timezone);
+
+            const depDateMoment = moment.utc(depDateStr, "DDMMM");
+
+            const currentDepartureMonthIndex = depDateMoment.month(); // December is 11, January is 0
+
+            if (currentYear === null) {
+                currentYear = new Date().getFullYear();
+                // Heuristic: If the flight date is more than 3 months in the past,
+                // assume the PNR is for next year.
+                const prospectiveDate = depDateMoment.year(currentYear);
+                if (prospectiveDate.isBefore(moment().subtract(3, 'months'))) {
+                    currentYear++;
+                }
+            } 
+
+            // Step C: If the current month is earlier than the previous one, we've rolled over the year
+            else if (currentDepartureMonthIndex < previousDepartureMonthIndex) {
+                currentYear++;
+            }
+
+            previousDepartureMonthIndex = currentDepartureMonthIndex;
+
+            // const departureMoment = moment.tz(`${depDateStr} ${depTimeStr}`, "DDMMM HHmm", true, depAirportInfo.timezone);
+
+            const fullDepDateStr = `${depDateStr}${currentYear}`;
+            const departureMoment = moment.tz(fullDepDateStr + " " + depTimeStr, "DDMMMYYYY HHmm", true, depAirportInfo.timezone);
+
             let arrivalMoment;
 
             if (arrDateStrOrNextDayIndicator) {
                 if (arrDateStrOrNextDayIndicator.startsWith('+')) {
                     const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
-                    arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone).add(daysToAdd, 'day');
+                    arrivalMoment = departureMoment.clone().tz(arrAirportInfo.timezone).add(daysToAdd, 'day').set({ hour: parseInt(arrTimeStr.substring(0, 2)), minute: parseInt(arrTimeStr.substring(2, 4)) });
                 } else {
-                    arrivalMoment = moment.tz(`${arrDateStrOrNextDayIndicator} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone);
+                    // Handles explicit arrival date (e.g., 02JAN)
+                    const arrDateMoment = moment.utc(arrDateStrOrNextDayIndicator, "DDMMM");
+                    let arrivalYear = currentYear;
+                    // If arrival month is before departure month, it's in the next year
+                    if (arrDateMoment.month() < departureMoment.month()) {
+                        arrivalYear++;
+                    }
+                    const fullArrDateStr = `${arrDateStrOrNextDayIndicator}${arrivalYear}`;
+                    arrivalMoment = moment.tz(`${fullArrDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 }
             } else {
-                arrivalMoment = moment.tz(`${depDateStr} ${arrTimeStr}`, "DDMMM HHmm", true, arrAirportInfo.timezone);
-                if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) arrivalMoment.add(1, 'day');
+                arrivalMoment = moment.tz(`${fullDepDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
+                if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
+                    arrivalMoment.add(1, 'day');
+                }
             }
 
             if (previousArrivalMoment && previousArrivalMoment.isValid() && departureMoment && departureMoment.isValid()) {
