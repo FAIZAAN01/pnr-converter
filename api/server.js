@@ -58,7 +58,7 @@ app.post('/api/convert', (req, res) => {
     try {
         const { pnrText, options } = req.body;
 
-        const pnrTextForProcessing = pnrText || '';
+        const pnrTextForProcessing = (pnrText || '').toUpperCase();
         const serverOptions = options || {};
 
         const result = pnrTextForProcessing
