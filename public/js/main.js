@@ -298,14 +298,78 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
     displayResults(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted);
 }
 
+// ADD THIS ENTIRE NEW FUNCTION
+
+async function copyHistoryItineraryText(historyEntry) {
+    if (!historyEntry || !historyEntry.pnrText) {
+        showPopup('Error: Invalid history item.');
+        return;
+    }
+
+    // Use the same server options logic as the main convert handler
+    const options = {
+        segmentTimeFormat: document.querySelector('input[name="segmentTimeFormat"]:checked').value,
+        transitTimeFormat: document.querySelector('input[name="transitTimeFormat"]:checked').value,
+    };
+
+    try {
+        // 1. Fetch the parsed data again silently
+        const response = await fetch('/api/convert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pnrText: historyEntry.pnrText, options: options })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Failed to process history PNR.');
+        }
+
+        // 2. Create a temporary, invisible container
+        const tempContainer = document.createElement('div');
+
+        // 3. Get the current display options from the UI
+        const displayPnrOptions = {
+            showItineraryLogo: false, // We don't need the logo for plain text
+            showAirline: document.getElementById('showAirline').checked,
+            showAircraft: document.getElementById('showAircraft').checked,
+            showOperatedBy: document.getElementById('showOperatedBy').checked,
+            showClass: document.getElementById('showClass').checked,
+            showMeal: document.getElementById('showMeal').checked,
+            showNotes: document.getElementById('showNotes').checked,
+            showTransit: document.getElementById('showTransit').checked,
+            transitSymbol: document.getElementById('transitSymbolInput').value || ':::::::',
+        };
+
+        // 4. Render the results into our temporary container (no fare/baggage details needed)
+        displayResults(tempContainer, data.result, displayPnrOptions, {}, {}, true);
+
+        // 5. Extract the clean text from the generated HTML
+        const itineraryText = tempContainer.innerText;
+
+        // 6. Copy the text to the clipboard
+        if (itineraryText) {
+            await navigator.clipboard.writeText(itineraryText);
+            showPopup('Itinerary text copied to clipboard!');
+        } else {
+            showPopup('No text to copy.');
+        }
+
+    } catch (error) {
+        console.error('Failed to copy history item:', error);
+        showPopup('Error: Could not copy itinerary.');
+    }
+}
+
 // --- REMOVED THE SEPARATE, UNUSED TOGGLE SWITCH CODE THAT WAS HERE ---
 
-function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted) {
-    // ... (This function remains unchanged)
-    const output = document.getElementById('output');
+const outputDiv = document.getElementById('output');
+
+function displayResults(targetElement, pnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted) {
+    
     const screenshotBtn = document.getElementById('screenshotBtn');
     const copyTextBtn = document.getElementById('copyTextBtn');
-    output.innerHTML = '';
+    targetElement.innerHTML = '';
 
     const { flights = [], passengers = [] } = pnrResult || {};
 
@@ -525,8 +589,8 @@ const historyManager = {
             const entry = this.get().find(item => item.id === id);
             if (!entry) return;
             if (e.target.classList.contains('use-history-btn')) {
-                document.getElementById('pnrInput').value = entry.pnrText;
-                document.getElementById('historyModal').classList.add('hidden'); handleConvertClick();
+                copyHistoryItineraryText(entry);
+                document.getElementById('historyModal').classList.add('hidden'); 
             } else {
                 const previewContent = document.getElementById('previewContent');
                 previewContent.innerHTML = `<h4>Screenshot</h4><img src="${entry.screenshot}" alt="Itinerary Screenshot"><hr><h4>Raw PNR Data</h4><pre>${entry.pnrText}</pre>`;
