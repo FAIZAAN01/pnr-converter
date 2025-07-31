@@ -246,7 +246,7 @@ function parseGalileoEnhanced(pnrText, options) {
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
 
             if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
-            
+
             if (!moment.tz.zone(arrAirportInfo.timezone)) arrAirportInfo.timezone = 'UTC';
 
             const depDateMoment = moment.utc(depDateStr, "DDMMM");
@@ -261,7 +261,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 if (prospectiveDate.isBefore(moment().subtract(3, 'months'))) {
                     currentYear++;
                 }
-            } 
+            }
 
             // Step C: If the current month is earlier than the previous one, we've rolled over the year
             else if (currentDepartureMonthIndex < previousDepartureMonthIndex) {

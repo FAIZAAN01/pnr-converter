@@ -504,10 +504,91 @@ function getMealDescription(mealCode) {
 
 const historyManager = {
     // ... (This object remains unchanged)
-    get: function () { return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]'); },
-    save: function (history) { try { localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history)); } catch (e) { if (e.name === 'QuotaExceededError') { console.error("Could not save history: localStorage quota exceeded. The oldest history item will be removed."); history.pop(); if (history.length > 0) { this.save(history); } } else { console.error("Failed to save history:", e); } } },
-    add: async function (data) { if (!data.success || !data.result?.flights?.length) return; const outputEl = document.getElementById('output').querySelector('.output-container'); if (!outputEl) return; try { const canvas = await generateItineraryCanvas(outputEl); const screenshot = canvas.toDataURL('image/jpeg'); let history = this.get(); const currentPnrText = data.pnrText; const existingIndex = history.findIndex(item => item.pnrText === currentPnrText); if (existingIndex > -1) { history.splice(existingIndex, 1); } const newEntry = { id: Date.now(), pax: data.result.passengers.length ? data.result.passengers[0].split('/')[0] : 'Unknown Passenger', route: `${data.result.flights[0].departure.airport} - ${data.result.flights[data.result.flights.length - 1].arrival.airport}`, date: new Date().toISOString(), pnrText: currentPnrText, screenshot: screenshot }; history.unshift(newEntry); if (history.length > 50) { history.pop(); } this.save(history); } catch (err) { console.error('Failed to add history item:', err); } },
-    render: function () { const listEl = document.getElementById('historyList'); const search = document.getElementById('historySearchInput').value.toLowerCase(); const sort = document.getElementById('historySortSelect').value; if (!listEl) return; let history = this.get(); if (sort === 'oldest') history.reverse(); if (search) { history = history.filter(item => item.pax.toLowerCase().includes(search) || item.route.toLowerCase().includes(search)); } if (history.length === 0) { listEl.innerHTML = '<div class="info" style="margin: 10px;">No history found.</div>'; return; } listEl.innerHTML = history.map(item => `<div class="history-item" data-id="${item.id}"><div class="history-item-info"><div class="history-item-pax">${item.pax}</div><div class="history-item-details"><span>${item.route}</span><span>${new Date(item.date).toLocaleString()}</span></div></div><div class="history-item-actions"><button class="use-history-btn">Use This</button></div></div>`).join(''); },
+    get: function () {
+        return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+    },
+    save: function (history) {
+        try {
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                console.error("Could not save history: localStorage quota exceeded. The oldest history item will be removed.");
+                history.pop();
+                if (history.length > 0) {
+                    this.save(history);
+                }
+            } else {
+                console.error("Failed to save history:", e);
+            }
+        }
+    },
+    add: async function (data) {
+        if (!data.success || !data.result?.flights?.length) return;
+        const outputEl = document.getElementById('output').querySelector('.output-container');
+        if (!outputEl) return;
+        try {
+            const canvas = await generateItineraryCanvas(outputEl);
+            const screenshot = canvas.toDataURL('image/jpeg');
+            let history = this.get();
+            const currentPnrText = data.pnrText;
+            const existingIndex = history.findIndex(item => item.pnrText === currentPnrText);
+            if (existingIndex > -1) {
+                history.splice(existingIndex, 1);
+            }
+            const newEntry = {
+                id: Date.now(),
+                pax: data.result.passengers.length ? data.result.passengers[0].split('/')[0] : 'Unknown Passenger',
+                route: `${data.result.flights[0].departure.airport} - ${data.result.flights[data.result.flights.length - 1].arrival.airport}`,
+                date: new Date().toISOString(),
+                pnrText: currentPnrText,
+                screenshot: screenshot
+            };
+            history.unshift(newEntry);
+            if (history.length > 50) {
+                history.pop();
+            }
+            this.save(history);
+        } catch (err) {
+            console.error('Failed to add history item:', err);
+        }
+    },
+    render: function () {
+        const listEl = document.getElementById('historyList');
+        const search = document.getElementById('historySearchInput').value.toLowerCase();
+        const sort = document.getElementById('historySortSelect').value;
+        if (!listEl) return;
+        let history = this.get();
+        if (sort === 'oldest') history.reverse();
+        if (search) {
+            history = history.filter(item => item.pax.toLowerCase().includes(search) || item.route.toLowerCase().includes(search));
+        }
+        if (history.length === 0) {
+            listEl.innerHTML =
+                '<div class="info" style="margin: 10px;">No history found.</div>';
+            return;
+        }
+        listEl.innerHTML = history.map(item => `
+            <div class="history-item" data-id="${item.id}">
+                <div class="history-item-info">
+                    <div class="history-item-pax">
+                        ${item.pax}
+                    </div>
+                    <div class="history-item-details">
+                        <span style="font-weight:bold; color:black;">
+                            ${item.route}
+                        </span>
+                        <br>
+                        <span>
+                            ${new Date(item.date).toLocaleString()}
+                        </span>
+                    </div>
+                </div>
+                <div class="history-item-actions">
+                    <button class="use-history-btn">Use This</button>
+                </div>
+            </div>
+            `).join('');
+    },
     init: function () {
         document.getElementById('historyBtn')?.addEventListener('click', () => {
             this.render(); document.getElementById('historyModal')?.classList.remove('hidden');
@@ -601,10 +682,59 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('customLogoInput').addEventListener('change', (event) => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem(CUSTOM_LOGO_KEY, e.target.result); document.getElementById('customLogoPreview').src = e.target.result; document.getElementById('customLogoPreview').style.display = 'block'; showPopup('Custom logo saved!'); liveUpdateDisplay(); }; reader.readAsDataURL(file); });
-    document.getElementById('customTextInput').addEventListener('input', debounce((event) => { localStorage.setItem(CUSTOM_TEXT_KEY, event.target.value); liveUpdateDisplay(); }, 400));
-    document.getElementById('clearCustomBrandingBtn').addEventListener('click', () => { if (confirm('Are you sure you want to clear your saved logo and text?')) { localStorage.removeItem(CUSTOM_LOGO_KEY); localStorage.removeItem(CUSTOM_TEXT_KEY); document.getElementById('customLogoInput').value = ''; document.getElementById('customTextInput').value = ''; document.getElementById('customLogoPreview').style.display = 'none'; showPopup('Custom branding cleared.'); liveUpdateDisplay(); } });
-    document.getElementById('showItineraryLogo').addEventListener('change', () => { toggleCustomBrandingSection(); saveOptions(); liveUpdateDisplay(); });
-    document.getElementById('screenshotBtn').addEventListener('click', async () => { const outputEl = document.getElementById('output').querySelector('.output-container'); if (!outputEl) { showPopup('Nothing to capture.'); return; } try { const canvas = await generateItineraryCanvas(outputEl); canvas.toBlob(blob => { navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); showPopup('Screenshot copied to clipboard!'); }, 'image/png'); } catch (err) { console.error("Screenshot failed:", err); showPopup('Could not copy screenshot.'); } });
-    document.getElementById('copyTextBtn').addEventListener('click', () => { const text = document.getElementById('output').innerText; navigator.clipboard.writeText(text).then(() => { showPopup('Itinerary copied as text!'); }).catch(() => showPopup('Failed to copy text.')); });
+    document.getElementById('customLogoInput').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            localStorage.setItem(CUSTOM_LOGO_KEY, e.target.result);
+            document.getElementById('customLogoPreview').src = e.target.result;
+            document.getElementById('customLogoPreview').style.display = 'block';
+            showPopup('Custom logo saved!');
+            liveUpdateDisplay();
+        };
+        reader.readAsDataURL(file);
+    });
+    document.getElementById('customTextInput').addEventListener('input', debounce((event) => {
+        localStorage.setItem(CUSTOM_TEXT_KEY, event.target.value);
+        liveUpdateDisplay();
+    }, 400));
+    document.getElementById('clearCustomBrandingBtn').addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear your saved logo and text?')) {
+            localStorage.removeItem(CUSTOM_LOGO_KEY);
+            localStorage.removeItem(CUSTOM_TEXT_KEY);
+            document.getElementById('customLogoInput').value = '';
+            document.getElementById('customTextInput').value = '';
+            document.getElementById('customLogoPreview').style.display = 'none';
+            showPopup('Custom branding cleared.');
+            liveUpdateDisplay();
+        }
+    });
+    document.getElementById('showItineraryLogo').addEventListener('change', () => {
+        toggleCustomBrandingSection();
+        saveOptions();
+        liveUpdateDisplay();
+    });
+    document.getElementById('screenshotBtn').addEventListener('click', async () => {
+        const outputEl = document.getElementById('output').querySelector('.output-container');
+        if (!outputEl) {
+            showPopup('Nothing to capture.');
+            return;
+        } try {
+            const canvas = await generateItineraryCanvas(outputEl);
+            canvas.toBlob(blob => {
+                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                showPopup('Screenshot copied to clipboard!');
+            }, 'image/png');
+        } catch (err) {
+            console.error("Screenshot failed:", err);
+            showPopup('Could not copy screenshot.');
+        }
+    });
+    document.getElementById('copyTextBtn').addEventListener('click', () => {
+        const text = document.getElementById('output').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            showPopup('Itinerary copied as text!');
+        }).catch(() => showPopup('Failed to copy text.'));
+    });
 });
