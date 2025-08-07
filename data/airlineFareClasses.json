@@ -1,0 +1,29 @@
+{
+  "QR": {
+    "first": ["F", "A"],
+    "business": ["J", "C", "D", "I", "R", "P"],
+    "economy": ["Y", "B", "H", "K", "M", "L", "V", "S", "N", "Q", "T", "O", "W", "G", "X"]
+  },
+  "LH": {
+    "first": ["A", "F"],
+    "business": ["J", "C", "D", "Z", "P"],
+    "premium_economy": ["G", "E", "N"],
+    "economy": ["Y", "B", "M", "U", "H", "Q", "V", "W", "S", "T", "L", "K"]
+  },
+  "AI": {
+    "first": ["F"],
+    "business": ["J", "C", "D", "Z"],
+    "premium_economy": ["A", "R", "N"],
+    "economy": ["Y", "B", "M", "H", "K", "Q", "V", "W", "G", "S", "T", "U", "L"]
+  },
+  "6E": {
+    "business": [],
+    "economy": ["Y", "B", "H", "K", "L", "M", "N", "O", "Q", "S", "U", "V", "X", "G", "W", "E", "T", "R"]
+  },
+  "default": {
+    "first": ["F", "A", "P"],
+    "business": ["J", "C", "D", "I", "Z"],
+    "premium_economy": ["W", "E"],
+    "economy": ["Y", "B", "H", "K", "L", "M", "N", "O", "Q", "S", "U", "V", "X", "G", "T", "R"]
+  }
+}
