@@ -262,7 +262,7 @@ function parseGalileoEnhanced(pnrText, options) {
 
             const depDateMoment = moment.utc(depDateStr, "DDMMM");
 
-            const currentDepartureMonthIndex = depDateMoment.month(); // December is 11, January is 0
+            const currentDepartureMonthIndex = dearrivalMomentpDateMoment.month(); // December is 11, January is 0
 
             if (currentYear === null) {
                 currentYear = new Date().getFullYear();
@@ -304,8 +304,15 @@ function parseGalileoEnhanced(pnrText, options) {
                     arrivalMoment = moment.tz(`${fullArrDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 }
             } else {
+                // Create the arrival moment on the same day as departure initially.
                 arrivalMoment = moment.tz(`${fullDepDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
-                if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
+
+                // Heuristic: If the arrival clock time is earlier than the departure clock time,
+                // it's an overnight flight. This is safer than comparing UTC timestamps.
+                const depTimeNumeric = parseInt(depTimeStr, 10);
+                const arrTimeNumeric = parseInt(arrTimeStr, 10);
+
+                if (departureMoment.isValid() && arrivalMoment.isValid() && arrTimeNumeric <= depTimeNumeric) {
                     arrivalMoment.add(1, 'day');
                 }
             }
