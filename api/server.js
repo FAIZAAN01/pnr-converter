@@ -304,18 +304,12 @@ function parseGalileoEnhanced(pnrText, options) {
                     arrivalMoment = moment.tz(`${fullArrDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 }
             } else {
-                // Create the arrival moment on the same day as departure initially.
                 arrivalMoment = moment.tz(`${fullDepDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
-
-                // Heuristic: If the arrival clock time is earlier than the departure clock time,
-                // it's an overnight flight. This is safer than comparing UTC timestamps.
-                const depTimeNumeric = parseInt(depTimeStr, 10);
-                const arrTimeNumeric = parseInt(arrTimeStr, 10);
-
-                if (departureMoment.isValid() && arrivalMoment.isValid() && arrTimeNumeric <= depTimeNumeric) {
+                if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
                     arrivalMoment.add(1, 'day');
                 }
             }
+
             if (previousArrivalMoment && previousArrivalMoment.isValid() && departureMoment && departureMoment.isValid()) {
                 const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
                 const totalMinutes = transitDuration.asMinutes();
