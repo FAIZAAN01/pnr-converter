@@ -262,7 +262,7 @@ function parseGalileoEnhanced(pnrText, options) {
 
             const depDateMoment = moment.utc(depDateStr, "DDMMM");
 
-            const currentDepartureMonthIndex = dearrivalMomentpDateMoment.month(); // December is 11, January is 0
+            const currentDepartureMonthIndex = depDateMoment.month(); // December is 11, January is 0
 
             if (currentYear === null) {
                 currentYear = new Date().getFullYear();
@@ -316,7 +316,6 @@ function parseGalileoEnhanced(pnrText, options) {
                     arrivalMoment.add(1, 'day');
                 }
             }
-
             if (previousArrivalMoment && previousArrivalMoment.isValid() && departureMoment && departureMoment.isValid()) {
                 const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
                 const totalMinutes = transitDuration.asMinutes();
