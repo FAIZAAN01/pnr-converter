@@ -78,7 +78,7 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    /* --- UPDATED: Card Header with All Actions --- */
+    /* --- Card Header Layout --- */
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -123,7 +123,6 @@
       height: 18px;
     }
 
-    /* Hide new menu button on desktop */
     #mobileMenuBtn {
       display: none;
     }
@@ -868,7 +867,6 @@
       }
     }
 
-    /* --- UPDATED: Responsive Media Query --- */
     @media (max-width:1000px) {
       body {
         padding: 10px
@@ -910,7 +908,6 @@
 
       #mobileMenuBtn {
         display: flex;
-        /* Show the new menu button on mobile */
       }
 
       .sidebar {
@@ -940,7 +937,6 @@
 
         <div class="card-header">
           <h3>Input PNR Data</h3>
-          <!-- === UPDATED: Header actions group === -->
           <div class="header-actions">
             <button id="historyBtn" class="header-btn" title="View history">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -1063,7 +1059,6 @@
       </div>
     </div>
 
-    <!-- === UPDATED: Sidebar remains the same, JS will handle it === -->
     <div class="sidebar card">
       <div class="options">
         <h3>Display Options</h3>
@@ -1153,6 +1148,7 @@ Contact Info"></textarea>
   <script src="/js/main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // --- Mobile sidebar script ---
       const mobileMenuBtn = document.getElementById('mobileMenuBtn');
       const sidebar = document.querySelector('.sidebar');
       const overlay = document.createElement('div');
@@ -1176,6 +1172,23 @@ Contact Info"></textarea>
           }
         });
         overlay.addEventListener('click', closeSidebar);
+      }
+
+      // --- NEW: Baggage toggle script ---
+      const unitToggle = document.getElementById('unit-selector-checkbox');
+      const baggageAmountInput = document.getElementById('baggageAmountInput');
+
+      if (unitToggle && baggageAmountInput) {
+        unitToggle.addEventListener('change', function () {
+          // Assuming 'unchecked' is KG and 'checked' is PC based on the prompt's logic.
+          if (this.checked) {
+            // Switched to PC
+            baggageAmountInput.value = '2';
+          } else {
+            // Switched to KG
+            baggageAmountInput.value = '23';
+          }
+        });
       }
     });
   </script>
