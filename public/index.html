@@ -284,9 +284,19 @@ Contact Info"></textarea>
 
       if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
         const kgOptions = ['', '15', '23', '40'];
-        const pcOptions = ['','1', '2', '3'];
+        const pcOptions = ['', '1', '2', '3'];
 
-        const updateBaggageOptions = (isPcMode) => {
+        // This function simulates a manual input event.
+        // It's the key to making the dropdown selection trigger the auto-converter.
+        const triggerManualInput = () => {
+          const inputEvent = new Event('input', {
+            bubbles: true,
+            cancelable: true,
+          });
+          baggageInput.dispatchEvent(inputEvent);
+        };
+
+        const updateBaggageOptions = (isPcMode, shouldTriggerUpdate = false) => {
           baggageDropdown.innerHTML = '';
           const optionsArray = isPcMode ? pcOptions : kgOptions;
 
@@ -298,15 +308,32 @@ Contact Info"></textarea>
               e.preventDefault();
               baggageInput.value = value;
               baggageDropdown.classList.remove('open');
+
+              // Simulate manual input to trigger itinerary update
+              triggerManualInput();
             });
             baggageDropdown.appendChild(optionDiv);
           });
 
-          baggageInput.value = isPcMode ? '23' : '2';
+          // Set a default value when toggling units
+          baggageInput.value = isPcMode ? '1' : '23';
+
+          // If the unit toggle itself should trigger an update, fire the event
+          if (shouldTriggerUpdate) {
+            triggerManualInput();
+          }
         };
 
-        updateBaggageOptions(unitToggle.checked);
-        unitToggle.addEventListener('change', () => updateBaggageOptions(unitToggle.checked));
+        // Initial setup
+        updateBaggageOptions(unitToggle.checked, false);
+
+        // When the KG/PC toggle changes...
+        unitToggle.addEventListener('change', () => {
+          // ...update the options and trigger the conversion automatically.
+          updateBaggageOptions(unitToggle.checked, true);
+        });
+
+        // --- Event listeners for showing/hiding the dropdown ---
         comboboxContainer.addEventListener('click', (e) => {
           if (e.target.classList.contains('combobox-arrow') || e.target === baggageInput) {
             baggageDropdown.classList.toggle('open');
