@@ -75,7 +75,7 @@ async function generateItineraryCanvas(element) {
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
     // If the toggle checkbox exists and is checked, return 'pcs'. Otherwise, default to 'kgs'.
-    return unitToggle?.checked ? 'PC' : 'KG';
+    return unitToggle?.checked ? 'Pcs' : 'Kgs';
 }
 
 
@@ -188,30 +188,6 @@ function loadOptions() {
     } catch (e) { console.error("Failed to load options:", e); }
 }
 
-function liveUpdateBaggageDisplay() {
-    if (!lastPnrResult || !lastPnrResult.flights || lastPnrResult.flights.length === 0) {
-        return; // Do nothing if there's no itinerary to update
-    }
-
-    const baggageOption = document.querySelector('input[name="baggageOption"]:checked').value;
-    const baggageAmount = (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '';
-    const baggageUnit = (baggageOption === 'particular') ? getSelectedUnit() : '';
-
-    const baggageText = (baggageAmount && baggageUnit) ? `${baggageAmount}\u00A0${baggageUnit}` : '';
-
-    // Find all baggage detail spans in the output
-    const baggageSpans = document.querySelectorAll('#output .baggage-detail-value');
-
-    baggageSpans.forEach(span => {
-        span.textContent = baggageText;
-        // Also update the visibility of the parent container
-        const parentDetail = span.closest('.flight-detail');
-        if (parentDetail) {
-            parentDetail.style.display = baggageText ? 'block' : 'none';
-        }
-    });
-}
-
 // --- CORE APP LOGIC ---
 async function handleConvertClick() {
 
@@ -315,6 +291,7 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
     const baggageDetails = {
         option: baggageOption,
         amount: (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '',
+        // --- MODIFIED: Use the new helper function instead of the old dropdown ---
         unit: (baggageOption === 'particular') ? getSelectedUnit() : ''
     };
 
@@ -323,7 +300,8 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
 
 // --- REMOVED THE SEPARATE, UNUSED TOGGLE SWITCH CODE THAT WAS HERE ---
 
-function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetails) {
+function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted) {
+    // ... (This function remains unchanged)
     const output = document.getElementById('output');
     const screenshotBtn = document.getElementById('screenshotBtn');
     const copyTextBtn = document.getElementById('copyTextBtn');
@@ -337,8 +315,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
     } else {
         screenshotBtn.style.display = 'none';
         copyTextBtn.style.display = 'none';
-        output.innerHTML = '<div class="info">No flight segments found or PNR format not recognized.</div>';
-        return;
     }
 
     const outputContainer = document.createElement('div');
@@ -398,7 +374,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 currentHeadingDisplayed = flight.direction.toUpperCase();
             }
             // --- END: REVISED HEADING CREATION LOGIC (TEXT FIRST) ---
-            
+
             if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
                 const transitDiv = document.createElement('div');
                 const minutes = flight.transitDurationMinutes;
@@ -432,8 +408,9 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             let detailsHtml = '';
             let baggageText = '';
             if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
+                const baggageInfo = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
                 if (baggageDetails.option === 'particular') {
-                    baggageText = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
+                    baggageText = baggageInfo;
                 }
             }
 
@@ -676,11 +653,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('autoConvertToggle').addEventListener('change', saveOptions);
 
     // --- MODIFIED: Removed #baggageUnitSelect from the general listener ---
-    const generalInputs = '.options input, .fare-options-grid input, .fare-options-grid select';
-    document.querySelectorAll(generalInputs).forEach(el => {
+    const allTheRest = '.options input, .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
+    document.querySelectorAll(allTheRest).forEach(el => {
         const eventType = el.matches('input[type="checkbox"], input[type="radio"], select') ? 'change' : 'input';
         el.addEventListener(eventType, () => {
             saveOptions();
+
             if (el.id === 'showTaxes' || el.id === 'showFees') toggleFareInputsVisibility();
             if (el.id === 'showTransit') toggleTransitSymbolInputVisibility();
 
@@ -689,15 +667,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 liveUpdateDisplay();
             }
-        });
-    });
-
-    const baggageControls = document.querySelectorAll('.baggage-options input, #baggageAmountInput, #unit-selector-checkbox');
-    baggageControls.forEach(el => {
-        const eventType = el.type === 'text' ? 'input' : 'change';
-        el.addEventListener(eventType, () => {
-            saveOptions();
-            liveUpdateBaggageDisplay(); // Use the new targeted function
         });
     });
 
