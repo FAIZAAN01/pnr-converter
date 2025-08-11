@@ -408,12 +408,73 @@
       gap: 10px 20px;
     }
 
-    #baggageAmountSelect {
-      width: 70px;
-      padding: 4px;
+    /* === NEW: Custom Combobox Styles === */
+    .combobox-container {
+      position: relative;
+      width: 90px;
+    }
+
+    .combobox-input {
+      width: 100%;
+      padding: 4px 24px 4px 8px;
+      /* Space for the arrow */
       border-radius: 4px;
       border: 1px solid var(--border-color);
+      text-align: center;
+      box-sizing: border-box;
     }
+
+    .combobox-arrow {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 24px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .combobox-arrow::after {
+      content: '';
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--text-light);
+    }
+
+    .combobox-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      background: var(--card-bg);
+      z-index: 100;
+      max-height: 150px;
+      overflow-y: auto;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: none;
+      /* Hidden by default */
+    }
+
+    .combobox-dropdown.open {
+      display: block;
+    }
+
+    .combobox-option {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .combobox-option:hover {
+      background-color: var(--light-hover);
+    }
+
+    /* === END of Combobox Styles === */
 
     #allTheWayInputs {
       display: none;
@@ -999,7 +1060,6 @@
         <div class="fare-options-grid">
           <div class="fare-group"><label>ADLT</label>
             <div class="count-fare-wrapper">
-              <!-- === UPDATED: Input type is now "text" === -->
               <div><input id="adultCountInput" type="text" inputmode="decimal" value="1" title="Number of Adults"></div>
               <div><input id="adultFareInput" type="text" inputmode="decimal" placeholder="Fare" title="Fare"></div>
             </div>
@@ -1035,10 +1095,12 @@
           <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
             for="baggageParticular">Per segment</label>
 
-          <!-- === UPDATED: Back to Select Dropdown === -->
-          <select id="baggageAmountSelect">
-            <!-- Options will be dynamically populated by JS -->
-          </select>
+          <!-- === UPDATED: Custom Combobox Component === -->
+          <div class="combobox-container" id="baggageCombobox">
+            <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23">
+            <button class="combobox-arrow" type="button"></button>
+            <div class="combobox-dropdown" id="baggageDropdown"></div>
+          </div>
 
           <div class="c-unit-toggle">
             <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
@@ -1186,47 +1248,59 @@ Contact Info"></textarea>
         overlay.addEventListener('click', closeSidebar);
       }
 
-      // --- UPDATED: Baggage toggle script for dropdown ---
+      // --- UPDATED: Baggage Combobox Script ---
       const unitToggle = document.getElementById('unit-selector-checkbox');
-      const baggageSelect = document.getElementById('baggageAmountSelect');
+      const baggageInput = document.getElementById('baggageAmountInput');
+      const baggageDropdown = document.getElementById('baggageDropdown');
+      const comboboxContainer = document.getElementById('baggageCombobox');
 
-      if (unitToggle && baggageSelect) {
-        const kgOptions = [
-          { value: '15', text: '15' },
-          { value: '23', text: '23', selected: true },
-          { value: '40', text: '40' }
-        ];
-        const pcOptions = [
-          { value: '1', text: '1' },
-          { value: '2', text: '2', selected: true },
-          { value: '3', text: '3' }
-        ];
+      if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
+        const kgOptions = ['15', '23', '40'];
+        const pcOptions = ['1', '2', '3'];
 
         const updateBaggageOptions = (isPcMode) => {
-          // 1. Clear current options
-          baggageSelect.innerHTML = '';
-
-          // 2. Determine which options to add
+          baggageDropdown.innerHTML = '';
           const optionsArray = isPcMode ? pcOptions : kgOptions;
 
-          // 3. Populate select with new options
-          optionsArray.forEach(opt => {
-            const option = document.createElement('option');
-            option.value = opt.value;
-            option.textContent = opt.text;
-            if (opt.selected) {
-              option.selected = true;
-            }
-            baggageSelect.appendChild(option);
+          optionsArray.forEach(value => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'combobox-option';
+            optionDiv.textContent = value;
+            optionDiv.addEventListener('mousedown', (e) => {
+              e.preventDefault();
+              baggageInput.value = value;
+              baggageDropdown.classList.remove('open');
+            });
+            baggageDropdown.appendChild(optionDiv);
           });
+
+          baggageInput.value = isPcMode ? '2' : '23';
         };
 
-        // Set the initial state when the page loads
+        // Initial setup
         updateBaggageOptions(unitToggle.checked);
 
-        // Add event listener for any changes to the toggle
+        // Event listener for the toggle
         unitToggle.addEventListener('change', function () {
           updateBaggageOptions(this.checked);
+        });
+
+        // Show/hide dropdown logic
+        comboboxContainer.addEventListener('click', (e) => {
+          if (e.target.classList.contains('combobox-arrow') || e.target === baggageInput) {
+            baggageDropdown.classList.toggle('open');
+          }
+        });
+
+        baggageInput.addEventListener('focus', () => {
+          baggageDropdown.classList.add('open');
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!comboboxContainer.contains(e.target)) {
+            baggageDropdown.classList.remove('open');
+          }
         });
       }
     });
