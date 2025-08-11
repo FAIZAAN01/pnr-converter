@@ -78,7 +78,7 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    /* --- Card Header Layout --- */
+    /* --- UPDATED: Card Header with All Actions --- */
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -90,13 +90,18 @@
       margin: 0;
     }
 
-    #historyBtn {
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-btn {
       background-color: var(--light-bg);
       border: 1px solid var(--border-color);
       color: var(--text-light);
       padding: 8px 12px;
       border-radius: 20px;
-      /* Pill shape */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -107,15 +112,20 @@
       transition: all 0.2s ease;
     }
 
-    #historyBtn:hover {
+    .header-btn:hover {
       background-color: var(--light-hover);
       color: var(--text-dark);
       border-color: #d1d9e0;
     }
 
-    #historyBtn svg {
+    .header-btn svg {
       width: 18px;
       height: 18px;
+    }
+
+    /* Hide new menu button on desktop */
+    #mobileMenuBtn {
+      display: none;
     }
 
     #inputControls {
@@ -858,10 +868,7 @@
       }
     }
 
-    .mobile-menu-button {
-      display: none
-    }
-
+    /* --- UPDATED: Responsive Media Query --- */
     @media (max-width:1000px) {
       body {
         padding: 10px
@@ -901,24 +908,9 @@
         gap: 20px
       }
 
-      .mobile-menu-button {
+      #mobileMenuBtn {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 1010;
-        background: #fff;
-        color: var(--text-dark);
-        border: 1px solid #ddd;
-        border-radius: 50%;
-        border-radius: 0% 0% 0% 25%;
-        width: 50px;
-        height: 50px;
-        padding: 0;
-        margin: 0;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, .15)
+        /* Show the new menu button on mobile */
       }
 
       .sidebar {
@@ -948,15 +940,25 @@
 
         <div class="card-header">
           <h3>Input PNR Data</h3>
-          <button id="historyBtn" title="View history">
-            <!-- === UPDATED: New History Icon and Text === -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            History
-          </button>
+          <!-- === UPDATED: Header actions group === -->
+          <div class="header-actions">
+            <button id="historyBtn" class="header-btn" title="View history">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              History
+            </button>
+            <button id="mobileMenuBtn" class="header-btn" title="Open Menu">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div id="inputControls">
@@ -973,7 +975,6 @@
               </svg>
             </button>
             <button id="clearBtn" class="control-icon-btn" title="Clear input">
-              <!-- === UPDATED: SVG stroke color set to red variable === -->
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -1062,15 +1063,7 @@
       </div>
     </div>
 
-    <button id="mobileMenuBtn" class="mobile-menu-button">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-    </button>
-
+    <!-- === UPDATED: Sidebar remains the same, JS will handle it === -->
     <div class="sidebar card">
       <div class="options">
         <h3>Display Options</h3>
