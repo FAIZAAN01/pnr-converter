@@ -7,8 +7,9 @@
   <title>PNR Converter SV</title>
   <link rel="shortcut icon" href="pass.png" type="image/x-icon">
   <style>
-    /* --- "Corporate Slate" Professional Color Theme --- */
+    /* --- THEME VARIABLES --- */
     :root {
+      /* Color Palette (Remains the same) */
       --primary-blue: #4A69BD;
       --primary-blue-hover: #415C9E;
       --secondary-dark: #8395A7;
@@ -19,12 +20,26 @@
       --success-green-hover: #28B463;
       --history-purple: #D4AF37;
       --history-purple-hover: #BC9B31;
-      --light-bg: #F5F7FA;
-      --card-bg: #FFFFFF;
-      --text-dark: #34495E;
-      --text-light: #8395a7;
-      --border-color: #E0E6EC;
-      --light-hover: #e9ecef;
+
+      /* Light Theme (Default) */
+      --bg-main: #F5F7FA;
+      --bg-card: #FFFFFF;
+      --bg-input: var(--light-bg);
+      --bg-hover: #e9ecef;
+      --text-main: #34495E;
+      --text-secondary: #8395a7;
+      --border-main: #E0E6EC;
+    }
+
+    /* Dark Theme Definition */
+    [data-theme='dark'] {
+      --bg-main: #2c3e50;
+      --bg-card: #34495e;
+      --bg-input: #2c3e50;
+      --bg-hover: #4a69bd;
+      --text-main: #ecf0f1;
+      --text-secondary: #bdc3c7;
+      --border-main: #4a69bd;
     }
 
     /* --- BASE STYLES --- */
@@ -32,13 +47,15 @@
       font-family: Raleway, sans-serif;
       margin: 0 auto;
       padding: 20px;
-      background-color: var(--light-bg);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      transition: background-color 0.3s, color 0.3s;
     }
 
     h1,
     h2,
     h3 {
-      color: var(--text-dark);
+      color: var(--text-main);
     }
 
     h1 {
@@ -48,8 +65,7 @@
 
     hr {
       border: 0;
-      border-top: 1px solid var(--border-color);
-      margin: 25px 0;
+      border-top: 1px solid var(--border-main);
     }
 
     .container {
@@ -71,14 +87,14 @@
     .input-area,
     .output-area,
     .sidebar {
-      background: var(--card-bg);
+      background: var(--bg-card);
       padding: 25px;
       border-radius: 12px;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-main);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      transition: background-color 0.3s, border-color 0.3s;
     }
 
-    /* --- Card Header Layout --- */
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -97,9 +113,9 @@
     }
 
     .header-btn {
-      background-color: var(--light-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-light);
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-main);
+      color: var(--text-secondary);
       padding: 8px 12px;
       border-radius: 20px;
       display: flex;
@@ -113,15 +129,39 @@
     }
 
     .header-btn:hover {
-      background-color: var(--light-hover);
-      color: var(--text-dark);
+      background-color: var(--bg-hover);
+      color: var(--text-main);
       border-color: #d1d9e0;
     }
 
     .header-btn svg {
       width: 18px;
       height: 18px;
+      stroke: currentColor;
     }
+
+    /* UPDATED: Icon button for theme toggle */
+    #themeToggleBtn {
+      padding: 8px;
+      /* Make it more circular */
+    }
+
+    #themeToggleBtn .moon-icon {
+      display: none;
+    }
+
+    #themeToggleBtn .sun-icon {
+      display: block;
+    }
+
+    [data-theme='dark'] #themeToggleBtn .moon-icon {
+      display: block;
+    }
+
+    [data-theme='dark'] #themeToggleBtn .sun-icon {
+      display: none;
+    }
+
 
     #mobileMenuBtn {
       display: none;
@@ -137,12 +177,14 @@
       width: 100%;
       height: 120px;
       padding: 15px;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-main);
       border-right: none;
       border-radius: 6px 0 0 6px;
       font-family: Raleway, sans-serif;
       resize: vertical;
       box-sizing: border-box;
+      background-color: var(--bg-main);
+      color: var(--text-main);
     }
 
     textarea#pnrInput:focus {
@@ -175,9 +217,9 @@
     }
 
     .control-icon-btn {
-      background-color: var(--light-bg);
-      color: var(--text-light);
-      border: 1px solid var(--border-color);
+      background-color: var(--bg-input);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-main);
       border-left: none;
       padding: 10px;
       min-width: 50px;
@@ -190,19 +232,19 @@
     }
 
     .control-icon-btn:hover {
-      background-color: var(--light-hover);
-      color: var(--text-dark);
+      background-color: var(--bg-hover);
+      color: var(--text-main);
       z-index: 1;
     }
 
     #pasteBtn {
       border-radius: 0 6px 0 0;
-      border-bottom: 0.5px solid var(--border-color);
+      border-bottom: 0.5px solid var(--border-main);
     }
 
     #clearBtn {
       border-radius: 0 0 6px 0;
-      border-top: 0.5px solid var(--border-color);
+      border-top: 0.5px solid var(--border-main);
     }
 
     .input-actions-group {
@@ -226,9 +268,11 @@
     #currencySelect {
       width: 100px;
       padding: 8px;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-main);
       border-radius: 4px;
       font-size: 14px;
+      background-color: var(--bg-card);
+      color: var(--text-main);
     }
 
     .itinerary-leg-header {
@@ -239,7 +283,7 @@
       margin-top: 10px;
       margin-bottom: 10px;
       padding-bottom: 8px;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--border-main);
       text-transform: uppercase;
     }
 
@@ -262,7 +306,7 @@
     .toggle-switch-label {
       font-size: 14px;
       font-weight: 500;
-      color: var(--text-light);
+      color: var(--text-secondary);
       cursor: pointer;
     }
 
@@ -281,6 +325,10 @@
       border-radius: 100px;
       position: relative;
       transition: background-color 0.2s;
+    }
+
+    [data-theme='dark'] .toggle-switch .switch-body {
+      background: var(--secondary-dark);
     }
 
     .toggle-switch .switch-body::after {
@@ -380,16 +428,18 @@
     .fare-group label {
       font-size: 14px;
       font-weight: 500;
-      color: var(--text-light);
+      color: var(--text-secondary);
     }
 
     .fare-group input,
     .fare-group select {
       padding: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-main);
       border-radius: 4px;
       width: 100%;
       box-sizing: border-box;
+      background-color: var(--bg-card);
+      color: var(--text-main);
     }
 
     .fare-group .count-fare-wrapper {
@@ -408,7 +458,6 @@
       gap: 10px 20px;
     }
 
-    /* === NEW: Custom Combobox Styles === */
     .combobox-container {
       position: relative;
       width: 90px;
@@ -417,11 +466,12 @@
     .combobox-input {
       width: 100%;
       padding: 4px 24px 4px 8px;
-      /* Space for the arrow */
       border-radius: 4px;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-main);
       text-align: center;
       box-sizing: border-box;
+      background-color: var(--bg-card);
+      color: var(--text-main);
     }
 
     .combobox-arrow {
@@ -442,7 +492,7 @@
       content: '';
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
-      border-top: 5px solid var(--text-light);
+      border-top: 5px solid var(--text-secondary);
     }
 
     .combobox-dropdown {
@@ -450,15 +500,14 @@
       top: 100%;
       left: 0;
       width: 100%;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-main);
       border-radius: 4px;
-      background: var(--card-bg);
+      background: var(--bg-card);
       z-index: 100;
       max-height: 150px;
       overflow-y: auto;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       display: none;
-      /* Hidden by default */
     }
 
     .combobox-dropdown.open {
@@ -471,10 +520,8 @@
     }
 
     .combobox-option:hover {
-      background-color: var(--light-hover);
+      background-color: var(--bg-hover);
     }
-
-    /* === END of Combobox Styles === */
 
     #allTheWayInputs {
       display: none;
@@ -501,6 +548,38 @@
       margin: 15px 0 200px 0;
     }
 
+    #output .output-container {
+      background: #FFFFFF !important;
+      border: 1px solid #E0E6EC !important;
+    }
+
+    #output .output-container * {
+      color: #34495E !important;
+    }
+
+    #output .output-container .itinerary-leg-header,
+    #output .output-container .transit-item.transit-short,
+    #output .output-container .transit-item.transit-minimum,
+    #output .output-container .transit-item.transit-long {
+      color: var(--primary-blue) !important;
+    }
+
+    #output .output-container .transit-item.transit-short {
+      color: var(--danger-red) !important;
+    }
+
+    #output .output-container .transit-item.transit-minimum {
+      color: var(--success-green) !important;
+    }
+
+    #output .output-container .transit-item.transit-long {
+      color: var(--history-purple) !important;
+    }
+
+    [data-theme='dark'] #output .flight-detail strong {
+      color: #8395a7 !important;
+    }
+
     #output[contenteditable="true"] {
       border: 2px dashed var(--primary-blue);
       padding: 10px;
@@ -524,125 +603,14 @@
       border-radius: 8px;
     }
 
-    /* --- Itinerary & Output Styles --- */
-    .output-container {
-      border: 1px solid var(--border-color);
-      background: var(--card-bg);
-      box-sizing: border-box
-    }
-
     .itinerary-main-logo-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 5px 10px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .itinerary-main-logo {
-      max-width: 150px;
-      max-height: 45px;
-      object-fit: contain
-    }
-
-    .itinerary-logo-text {
-      font-size: .8em;
-      color: var(--text-light);
-      text-align: right;
-      line-height: 1.3;
-      white-space: pre-line
+      border-bottom: 1px solid var(--border-main);
     }
 
     .itinerary-header {
-      padding: 15px;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-main);
     }
 
-    .itinerary-header p {
-      margin: 0;
-      font-size: 14px
-    }
-
-    .flight-item {
-      padding: 7px 15px 0px;
-      border-bottom: 1px dashed #ccc
-    }
-
-    .flight-item:last-child {
-      border-bottom: none
-    }
-
-    .transit-item {
-      font-style: italic;
-      text-align: center;
-      padding: 8px 0;
-      margin-top: -1px;
-      background: #fff;
-      font-size: 15px;
-      font-weight: bold;
-    }
-
-    .transit-item.transit-short {
-      color: var(--danger-red);
-    }
-
-    .transit-item.transit-minimum {
-      color: var(--success-green);
-    }
-
-    .transit-item.transit-long {
-      color: var(--history-purple);
-    }
-
-    .airline-logo {
-      width: 95px;
-      height: 65px;
-      object-fit: contain;
-      border-radius: 5px
-    }
-
-    .flight-header {
-      font-weight: 600;
-      font-size: 14px;
-      margin-bottom: 10px
-    }
-
-    .flight-detail {
-      font-size: 13px;
-      color: var(--secondary-dark);
-      margin-bottom: 5px
-    }
-
-    .flight-detail.notes-detail {
-      white-space: pre-wrap;
-      word-break: break-word
-    }
-
-    .flight-detail strong {
-      color: var(--text-light);
-      margin-right: 5px
-    }
-
-    .flight-content {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .fare-summary {
-      font-weight: 500;
-      margin: -1px 0 5px 10px;
-      padding-top: 15px;
-      border-top: 1px solid var(--border-color);
-      font-size: 14px;
-      white-space: pre-line
-    }
-
-    .fare-summary strong {
-      font-size: 1.1em
-    }
-
-    /* --- Sidebar & Modal Styles --- */
     .sidebar {
       position: sticky;
       top: 20px;
@@ -656,7 +624,7 @@
 
     .sidebar h4 {
       margin: 20px 0 10px;
-      color: var(--text-dark);
+      color: var(--text-main);
     }
 
     .options label {
@@ -693,7 +661,7 @@
     #customBrandingSection {
       margin-top: 20px;
       padding-top: 20px;
-      border-top: 1px solid var(--border-color)
+      border-top: 1px solid var(--border-main)
     }
 
     #customBrandingSection.hidden {
@@ -716,7 +684,9 @@
       box-sizing: border-box;
       padding: 8px;
       border-radius: 4px;
-      border: 1px solid #ccc
+      border: 1px solid var(--border-main);
+      background-color: var(--bg-card);
+      color: var(--text-main);
     }
 
     .custom-logo-preview {
@@ -751,7 +721,7 @@
     }
 
     .modal-content {
-      background: #fff;
+      background: var(--bg-card);
       padding: 25px;
       border-radius: 8px;
       box-shadow: 0 5px 20px rgba(0, 0, 0, .3);
@@ -774,7 +744,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-main);
       padding-bottom: 15px;
       margin-bottom: 15px
     }
@@ -784,7 +754,7 @@
       border: none;
       font-size: 2.5rem;
       line-height: 1;
-      color: #888;
+      color: var(--text-secondary);
       cursor: pointer;
       padding: 0;
       margin: 0
@@ -799,9 +769,11 @@
     #historySearchInput,
     #historySortSelect {
       padding: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-main);
       border-radius: 4px;
-      flex-grow: 1
+      flex-grow: 1;
+      background-color: var(--bg-card);
+      color: var(--text-main);
     }
 
     .history-list {
@@ -814,29 +786,24 @@
       justify-content: space-between;
       align-items: center;
       padding: 15px;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--border-main);
       transition: background-color .2s, transform .2s
     }
 
     .history-item:hover {
-      background-color: #f8f9fa;
+      background-color: var(--bg-hover);
       transform: translateX(5px)
-    }
-
-    .history-item-info {
-      cursor: pointer;
-      flex-grow: 1
     }
 
     .history-item-pax {
       font-weight: 700;
-      color: var(--secondary-dark);
+      color: var(--text-main);
       margin-bottom: 5px
     }
 
     .history-item-details {
       font-size: .9em;
-      color: #7f8c8d
+      color: var(--text-secondary);
     }
 
     #historyPreviewPanel {
@@ -845,7 +812,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: #fff;
+      background: var(--bg-card);
       display: flex;
       flex-direction: column;
       transition: transform .3s ease;
@@ -858,34 +825,11 @@
     }
 
     .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 25px;
-      border-bottom: 1px solid var(--border-color);
-      flex-shrink: 0
-    }
-
-    .preview-content {
-      padding: 20px;
-      overflow: auto;
-      flex-grow: 1
-    }
-
-    .preview-content img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-      border: 1px solid #ddd
+      border-bottom: 1px solid var(--border-main);
     }
 
     .preview-content pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      background: #f4f4f4;
-      padding: 15px;
-      border-radius: 4px
+      background: var(--bg-main);
     }
 
     .popup-notification-container {
@@ -919,7 +863,7 @@
       width: 40px;
       height: 40px;
       margin: 20px auto;
-      border: 4px solid #f3f3f3;
+      border: 4px solid var(--bg-hover);
       border-top: 4px solid var(--primary-blue);
       border-radius: 50%;
       animation: spin 1s linear infinite
@@ -946,7 +890,7 @@
 
       textarea#pnrInput {
         border-radius: 6px;
-        border-right: 1px solid var(--border-color);
+        border-right: 1px solid var(--border-main);
         width: 100%;
         flex-basis: 100%;
         margin-bottom: 8px;
@@ -955,7 +899,7 @@
       #convertBtn {
         flex-basis: 100%;
         border-radius: 6px !important;
-        border-left: 1px solid var(--border-color) !important;
+        border-left: 1px solid var(--border-main) !important;
         margin-bottom: 8px;
       }
 
@@ -967,7 +911,7 @@
       .control-icon-btn {
         flex-grow: 1;
         border-radius: 6px !important;
-        border: 1px solid var(--border-color) !important;
+        border: 1px solid var(--border-main) !important;
       }
 
       .container {
@@ -1007,16 +951,35 @@
           <h3>Input PNR Data</h3>
           <div class="header-actions">
             <button id="historyBtn" class="header-btn" title="View history">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
               History
             </button>
+            <!-- === NEW: Theme Toggle Icon Button === -->
+            <button id="themeToggleBtn" class="header-btn" title="Toggle Theme">
+              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </button>
             <button id="mobileMenuBtn" class="header-btn" title="Open Menu">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -1095,7 +1058,6 @@
           <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
             for="baggageParticular">Per segment</label>
 
-          <!-- === UPDATED: Custom Combobox Component === -->
           <div class="combobox-container" id="baggageCombobox">
             <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23">
             <button class="combobox-arrow" type="button"></button>
@@ -1248,7 +1210,7 @@ Contact Info"></textarea>
         overlay.addEventListener('click', closeSidebar);
       }
 
-      // --- UPDATED: Baggage Combobox Script ---
+      // --- Baggage Combobox Script ---
       const unitToggle = document.getElementById('unit-selector-checkbox');
       const baggageInput = document.getElementById('baggageAmountInput');
       const baggageDropdown = document.getElementById('baggageDropdown');
@@ -1277,32 +1239,40 @@ Contact Info"></textarea>
           baggageInput.value = isPcMode ? '2' : '23';
         };
 
-        // Initial setup
         updateBaggageOptions(unitToggle.checked);
-
-        // Event listener for the toggle
-        unitToggle.addEventListener('change', function () {
-          updateBaggageOptions(this.checked);
-        });
-
-        // Show/hide dropdown logic
+        unitToggle.addEventListener('change', () => updateBaggageOptions(unitToggle.checked));
         comboboxContainer.addEventListener('click', (e) => {
           if (e.target.classList.contains('combobox-arrow') || e.target === baggageInput) {
             baggageDropdown.classList.toggle('open');
           }
         });
-
-        baggageInput.addEventListener('focus', () => {
-          baggageDropdown.classList.add('open');
-        });
-
-        // Hide dropdown when clicking outside
+        baggageInput.addEventListener('focus', () => baggageDropdown.classList.add('open'));
         document.addEventListener('click', (e) => {
           if (!comboboxContainer.contains(e.target)) {
             baggageDropdown.classList.remove('open');
           }
         });
       }
+
+      // --- Dark Mode Script ---
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+      const docElement = document.documentElement;
+
+      const applyTheme = (theme) => {
+        docElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+      };
+
+      // Check for saved theme
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      applyTheme(savedTheme);
+
+      // Add event listener for the new theme button
+      themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = docElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+      });
     });
   </script>
 </body>
