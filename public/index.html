@@ -283,8 +283,8 @@ Contact Info"></textarea>
       const comboboxContainer = document.getElementById('baggageCombobox');
 
       if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
-        const kgOptions = ['', '15', '23', '40'];
-        const pcOptions = ['', '1', '2', '3'];
+        const kgOptions = [null, '15', '23', '40'];
+        const pcOptions = [null, '1', '2', '3'];
 
         // This function simulates a manual input event.
         // It's the key to making the dropdown selection trigger the auto-converter.
@@ -316,7 +316,7 @@ Contact Info"></textarea>
           });
 
           // Set a default value when toggling units
-          baggageInput.value = isPcMode ? '1' : '23';
+          baggageInput.value = isPcMode ? '2' : '23';
 
           // If the unit toggle itself should trigger an update, fire the event
           if (shouldTriggerUpdate) {
