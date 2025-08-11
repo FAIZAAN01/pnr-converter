@@ -78,7 +78,7 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    /* --- UPDATED: Card Header Layout --- */
+    /* --- Card Header Layout --- */
     .card-header {
       display: flex;
       justify-content: space-between;
@@ -101,7 +101,6 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      /* Space between icon and text */
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
@@ -118,8 +117,6 @@
       width: 18px;
       height: 18px;
     }
-
-    /* --- END OF HEADER STYLES --- */
 
     #inputControls {
       display: flex;
@@ -951,8 +948,8 @@
 
         <div class="card-header">
           <h3>Input PNR Data</h3>
-          <!-- === UPDATED: History Button with Icon and Text === -->
           <button id="historyBtn" title="View history">
+            <!-- === UPDATED: New History Icon and Text === -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
@@ -971,17 +968,16 @@
             <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2">
-                </path>
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
               </svg>
             </button>
             <button id="clearBtn" class="control-icon-btn" title="Clear input">
+              <!-- === UPDATED: SVG stroke color set to red variable === -->
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                </path>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
               </svg>
             </button>
           </div>
