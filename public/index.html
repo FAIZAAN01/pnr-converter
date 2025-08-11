@@ -408,6 +408,13 @@
       gap: 10px 20px;
     }
 
+    #baggageAmountSelect {
+      width: 70px;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
     #allTheWayInputs {
       display: none;
       align-items: center;
@@ -574,7 +581,7 @@
       font-size: 1.1em
     }
 
-    /* --- Sidebar & Modal Styles (unchanged) --- */
+    /* --- Sidebar & Modal Styles --- */
     .sidebar {
       position: sticky;
       top: 20px;
@@ -992,6 +999,7 @@
         <div class="fare-options-grid">
           <div class="fare-group"><label>ADLT</label>
             <div class="count-fare-wrapper">
+              <!-- === UPDATED: Input type is now "text" === -->
               <div><input id="adultCountInput" type="text" inputmode="decimal" value="1" title="Number of Adults"></div>
               <div><input id="adultFareInput" type="text" inputmode="decimal" placeholder="Fare" title="Fare"></div>
             </div>
@@ -1026,7 +1034,11 @@
           <input type="radio" id="baggageNone" name="baggageOption" value="none"> <label for="baggageNone">None</label>
           <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
             for="baggageParticular">Per segment</label>
-          <input id="baggageAmountInput" type="number" min="1" value="23" style="width: 35px; height: 20px;">
+
+          <!-- === UPDATED: Back to Select Dropdown === -->
+          <select id="baggageAmountSelect">
+            <!-- Options will be dynamically populated by JS -->
+          </select>
 
           <div class="c-unit-toggle">
             <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
@@ -1174,20 +1186,47 @@ Contact Info"></textarea>
         overlay.addEventListener('click', closeSidebar);
       }
 
-      // --- NEW: Baggage toggle script ---
+      // --- UPDATED: Baggage toggle script for dropdown ---
       const unitToggle = document.getElementById('unit-selector-checkbox');
-      const baggageAmountInput = document.getElementById('baggageAmountInput');
+      const baggageSelect = document.getElementById('baggageAmountSelect');
 
-      if (unitToggle && baggageAmountInput) {
+      if (unitToggle && baggageSelect) {
+        const kgOptions = [
+          { value: '15', text: '15' },
+          { value: '23', text: '23', selected: true },
+          { value: '40', text: '40' }
+        ];
+        const pcOptions = [
+          { value: '1', text: '1' },
+          { value: '2', text: '2', selected: true },
+          { value: '3', text: '3' }
+        ];
+
+        const updateBaggageOptions = (isPcMode) => {
+          // 1. Clear current options
+          baggageSelect.innerHTML = '';
+
+          // 2. Determine which options to add
+          const optionsArray = isPcMode ? pcOptions : kgOptions;
+
+          // 3. Populate select with new options
+          optionsArray.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.value;
+            option.textContent = opt.text;
+            if (opt.selected) {
+              option.selected = true;
+            }
+            baggageSelect.appendChild(option);
+          });
+        };
+
+        // Set the initial state when the page loads
+        updateBaggageOptions(unitToggle.checked);
+
+        // Add event listener for any changes to the toggle
         unitToggle.addEventListener('change', function () {
-          // Assuming 'unchecked' is KG and 'checked' is PC based on the prompt's logic.
-          if (this.checked) {
-            // Switched to PC
-            baggageAmountInput.value = '2';
-          } else {
-            // Switched to KG
-            baggageAmountInput.value = '23';
-          }
+          updateBaggageOptions(this.checked);
         });
       }
     });
