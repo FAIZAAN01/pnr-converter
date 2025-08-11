@@ -21,7 +21,6 @@
       --history-purple: #D4AF37;
       --history-purple-hover: #BC9B31;
       --transit-long-yellow: #f39c12;
-      /* Original itinerary color */
 
       /* Light Theme (Default) */
       --bg-main: #F5F7FA;
@@ -523,29 +522,29 @@
     }
 
     #output[contenteditable="true"] {
-      border: 2px dashed var(--primary-blue);
+      border: 2px dashed #3498db;
       padding: 10px;
       border-radius: 8px;
       background-color: #fafdff;
     }
 
     .info {
-      color: var(--primary-blue);
+      color: #3498db;
       padding: 15px;
       background-color: #f0f7ff;
-      border: 1px solid var(--primary-blue-hover);
+      border: 1px solid #2980b9;
       border-radius: 8px;
     }
 
     .error {
-      color: var(--danger-red);
+      color: #e74c3c;
       padding: 15px;
       background-color: #fdecea;
       border: 1px solid #ef9a9a;
       border-radius: 8px;
     }
 
-    /* === CORRECTED AND ISOLATED ITINERARY STYLES === */
+    /* === FULLY CORRECTED AND ISOLATED ITINERARY STYLES === */
     #output .output-container {
       border: 1px solid #e0e6ec !important;
       background: #ffffff !important;
@@ -553,6 +552,7 @@
     }
 
     #output .output-container * {
+      /* Base text color */
       color: #2c3e50 !important;
     }
 
@@ -588,6 +588,23 @@
       font-size: 14px;
     }
 
+    #output .itinerary-leg-header {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e0e6ec !important;
+      text-transform: uppercase;
+      color: #3498db !important;
+      /* Original blue from first file */
+    }
+
+    #output .itinerary-leg-header:first-of-type {
+      margin-top: 10px;
+    }
+
     #output .flight-item {
       padding: 7px 15px 0px;
       border-bottom: 1px dashed #ccc !important;
@@ -609,14 +626,17 @@
 
     #output .transit-item.transit-short {
       color: #e74c3c !important;
+      /* Original red */
     }
 
     #output .transit-item.transit-minimum {
       color: #27ae60 !important;
+      /* Original green */
     }
 
     #output .transit-item.transit-long {
       color: #f39c12 !important;
+      /* Original yellow */
     }
 
     #output .airline-logo {
@@ -666,7 +686,6 @@
     #output .fare-summary strong {
       font-size: 1.1em;
     }
-
 
     /* --- Sidebar & Modal Styles --- */
     .sidebar {
