@@ -14,8 +14,6 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const AIRLINES_FILE = path.join(DATA_DIR, 'airlines.json');
 const AIRCRAFT_TYPES_FILE = path.join(DATA_DIR, 'aircraftTypes.json');
 const AIRPORT_DATABASE_FILE = path.join(DATA_DIR, 'airportDatabase.json');
-const AIRLINE_FARE_CLASSES_FILE = path.join(DATA_DIR, 'airlineFareClasses.json');
-let airlineFareClasses = {};
 
 app.use(express.json());
 
@@ -38,7 +36,6 @@ function loadAllDatabases() {
     airlineDatabase = loadDbFromFile(AIRLINES_FILE, {});
     aircraftTypes = loadDbFromFile(AIRCRAFT_TYPES_FILE, {});
     airportDatabase = loadDbFromFile(AIRPORT_DATABASE_FILE, {});
-    airlineFareClasses = loadDbFromFile(AIRLINE_FARE_CLASSES_FILE, {});
 }
 
 loadAllDatabases();
@@ -103,26 +100,18 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
     // Return the formatted string instead of assigning it to another variable
     return `${paddedHours}h ${paddedMinutes}m`;
 }
-function getTravelClassName(classCode, airlineCode) {
+function getTravelClassName(classCode) {
     if (!classCode) return 'Unknown';
-
-    const upperClassCode = classCode.toUpperCase();
-    const airlineFareInfo = airlineFareClasses[airlineCode] || airlineFareClasses['default'];
-
-    if (airlineFareInfo.first && airlineFareInfo.first.includes(upperClassCode)) {
-        return 'First';
-    }
-    if (airlineFareInfo.business && airlineFareInfo.business.includes(upperClassCode)) {
-        return 'Business';
-    }
-    if (airlineFareInfo.premium_economy && airlineFareInfo.premium_economy.includes(upperClassCode)) {
-        return 'Premium Economy';
-    }
-    if (airlineFareInfo.economy && airlineFareInfo.economy.includes(upperClassCode)) {
-        return 'Economy';
-    }
-
-    return `Class ${upperClassCode}`;
+    const code = classCode.toUpperCase();
+    const firstCodes = ['F', 'A'];
+    const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
+    const premiumEconomyCodes = [];
+    const economyCodes = ['Y', 'B', 'H', 'K', 'L', 'M', 'N', 'O', 'Q', 'S', 'U', 'V', 'X', 'G', 'W', 'E', 'T', 'R'];
+    if (firstCodes.includes(code)) return 'First';
+    if (businessCodes.includes(code)) return 'Business';
+    if (premiumEconomyCodes.includes(code)) return 'Premium Economy';
+    if (economyCodes.includes(code)) return 'Economy';
+    return `Class ${code}`;
 }
 
 function getMealDescription(mealCode) {
@@ -331,10 +320,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 segment: parseInt(segmentNumStr, 10) || flightIndex,
                 airline: { code: airlineCode, name: airlineDatabase[airlineCode] || `Unknown Airline (${airlineCode})` },
                 flightNumber: flightNumRaw,
-                travelClass: {
-                    code: travelClass || '',
-                    name: getTravelClassName(travelClass, airlineCode) // Pass the airlineCode here
-                },
+                travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
                 departure: {
                     airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name,

@@ -7,31 +7,32 @@
   <title>PNR Converter SV</title>
   <link rel="shortcut icon" href="pass.png" type="image/x-icon">
   <style>
+    /* --- "Corporate Slate" Professional Color Theme --- */
     :root {
-      --primary-blue: #3498db;
-      --primary-blue-hover: #2980b9;
-      --secondary-dark: #34495e;
-      --secondary-dark-hover: #2c3e50;
-      --danger-red: #e74c3c;
-      --danger-red-hover: #c0392b;
-      --success-green: #27ae60;
-      --success-green-hover: #229954;
-      --history-purple: #8e44ad;
-      --history-purple-hover: #7d3c98;
-      --light-bg: #f4f7f9;
-      --card-bg: #ffffff;
-      --text-dark: #2c3e50;
-      --text-light: #5f6c7b;
-      --border-color: #e0e6ec;
+      --primary-blue: #4A69BD;
+      --primary-blue-hover: #415C9E;
+      --secondary-dark: #8395A7;
+      --secondary-dark-hover: #748392;
+      --danger-red: #E57373;
+      --danger-red-hover: #D35454;
+      --success-green: #2ECC71;
+      --success-green-hover: #28B463;
+      --history-purple: #D4AF37;
+      --history-purple-hover: #BC9B31;
+      --light-bg: #F5F7FA;
+      --card-bg: #FFFFFF;
+      --text-dark: #34495E;
+      --text-light: #8395a7;
+      --border-color: #E0E6EC;
+      --light-hover: #e9ecef;
     }
 
     /* --- BASE STYLES --- */
     body {
       font-family: Raleway, sans-serif;
-      max-width: auto;
       margin: 0 auto;
       padding: 20px;
-      background-color: #f5f5f5;
+      background-color: var(--light-bg);
     }
 
     h1,
@@ -67,7 +68,6 @@
       min-width: 0;
     }
 
-    /* --- "LIVING" INTERFACE: INTERACTIVE CARDS --- */
     .input-area,
     .output-area,
     .sidebar {
@@ -78,13 +78,62 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    /* --- Input Area --- */
+    /* --- UPDATED: Card Header Layout --- */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-header h3 {
+      margin: 0;
+    }
+
+    #historyBtn {
+      background-color: var(--light-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-light);
+      padding: 8px 12px;
+      border-radius: 20px;
+      /* Pill shape */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      /* Space between icon and text */
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #historyBtn:hover {
+      background-color: var(--light-hover);
+      color: var(--text-dark);
+      border-color: #d1d9e0;
+    }
+
+    #historyBtn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* --- END OF HEADER STYLES --- */
+
+    #inputControls {
+      display: flex;
+      align-items: stretch;
+    }
+
     textarea#pnrInput {
+      flex-grow: 1;
       width: 100%;
       height: 120px;
       padding: 15px;
       border: 1px solid var(--border-color);
-      border-radius: 5px 0px 0px 5px;
+      border-right: none;
+      border-radius: 6px 0 0 6px;
       font-family: Raleway, sans-serif;
       resize: vertical;
       box-sizing: border-box;
@@ -93,55 +142,72 @@
     textarea#pnrInput:focus {
       outline: none;
       border-color: var(--primary-blue);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+      position: relative;
+      z-index: 2;
     }
 
-    #inputControls {
-      display: flex;
+    #convertBtn {
+      background-color: var(--primary-blue);
+      color: white;
+      font-size: 16px;
       margin: 0;
+      border-radius: 0;
+      border: 1px solid var(--primary-blue);
+      border-left: none;
+      padding: 10px 18px;
+      cursor: pointer;
+    }
+
+    #convertBtn:hover {
+      background-color: var(--primary-blue-hover);
+    }
+
+    .vertical-icon-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .control-icon-btn {
+      background-color: var(--light-bg);
+      color: var(--text-light);
+      border: 1px solid var(--border-color);
+      border-left: none;
+      padding: 10px;
+      min-width: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      flex: 1;
+    }
+
+    .control-icon-btn:hover {
+      background-color: var(--light-hover);
+      color: var(--text-dark);
+      z-index: 1;
+    }
+
+    #pasteBtn {
+      border-radius: 0 6px 0 0;
+      border-bottom: 0.5px solid var(--border-color);
+    }
+
+    #clearBtn {
+      border-radius: 0 0 6px 0;
+      border-top: 0.5px solid var(--border-color);
     }
 
     .input-actions-group {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       margin-top: 15px;
     }
 
-    .input-buttons button {
-      margin-top: 0;
-    }
-
-    /* --- ENHANCED BUTTONS --- */
     button {
-      padding: 10px 18px;
-      color: white;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    button:hover {
-      opacity: 1;
-      transform: translateY(-2px);
-      filter: brightness(1.1);
-    }
-
-    button:active {
-      transform: translateY(0);
-      filter: brightness(0.95);
-    }
-
-    .input-buttons button,
-    .output-area button {
-      margin-right: 10px;
     }
 
     #adultCountInput,
@@ -159,45 +225,28 @@
       font-size: 14px;
     }
 
-    /* --- START: NEW HEADING STYLES --- */
-
-    /* Style for the "OUTBOUND" / "INBOUND" headings */
     .itinerary-leg-header {
       text-align: center;
-      /* Center the text */
       font-weight: bold;
-      /* Make it bold */
       font-size: 1.1em;
-      /* Make it slightly larger */
       color: var(--primary-blue);
-      /* Use the theme's primary color */
       margin-top: 10px;
-      /* Add space above the heading */
       margin-bottom: 10px;
-      /* Add space below the heading */
       padding-bottom: 8px;
-      /* Add padding below the text */
       border-bottom: 2px solid var(--border-color);
-      /* Create a separator line */
       text-transform: uppercase;
-      /* Ensure it's always in capital letters */
     }
 
-    /* Add extra space for the very first heading to separate it from the passenger list */
     .itinerary-leg-header:first-of-type {
       margin-top: 10px;
     }
-
-    /* --- END: NEW HEADING STYLES --- */
 
     .leg-header-icon {
       width: 24px;
       height: 24px;
       margin: 0 0 -6px 10px;
-      /* This puts space to the left of the icon */
     }
 
-    /* --- NEW: TOGGLE SWITCH STYLES --- */
     .toggle-switch {
       display: flex;
       align-items: center;
@@ -249,9 +298,6 @@
       transform: translateX(-100%);
     }
 
-    /* --- Generic Unit Toggle Component Styles --- */
-
-    /* The main component container */
     .c-unit-toggle {
       position: relative;
       display: inline-block;
@@ -259,14 +305,12 @@
       height: 24px;
     }
 
-    /* The actual checkbox input, which we hide */
     .c-unit-toggle__input {
       opacity: 0;
       width: 0;
       height: 0;
     }
 
-    /* The visible label that acts as the switch track */
     .c-unit-toggle__label {
       position: absolute;
       cursor: pointer;
@@ -274,13 +318,11 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #007bff;
-      /* State 1: 'kg' */
+      background-color: var(--primary-blue);
       border-radius: 40px;
       transition: background-color 0.3s;
     }
 
-    /* The moving circle, created using a pseudo-element */
     .c-unit-toggle__label::before {
       position: absolute;
       content: "";
@@ -293,7 +335,6 @@
       transition: transform 0.3s;
     }
 
-    /* The container for the text options (kg/pcs) */
     .c-unit-toggle__options {
       display: flex;
       justify-content: space-around;
@@ -305,67 +346,12 @@
       font-size: 10px;
     }
 
-    /* --- Logic for the checked state --- */
-
-    /* When the input is checked, change the label's background */
     .c-unit-toggle__input:checked+.c-unit-toggle__label {
-      background-color: #28a745;
-      /* State 2: 'pcs' */
-    }
-
-    /* When the input is checked, move the white circle */
-    .c-unit-toggle__input:checked+.c-unit-toggle__label::before {
-      transform: translateX(21px);
-    }
-
-    /* Button Color Theme */
-    #convertBtn {
-      background-color: var(--primary-blue);
-      font-size: 16px;
-      margin: 0;
-      border-radius: 0px 5px 5px 0px;
-    }
-
-    #convertBtn:hover {
-      background-color: var(--primary-blue-hover);
-    }
-
-    #pasteBtn {
       background-color: var(--success-green);
     }
 
-    #pasteBtn:hover {
-      background-color: var(--success-green-hover);
-    }
-
-    #clearBtn,
-    .clear-btn {
-      background-color: var(--danger-red);
-    }
-
-    #clearBtn:hover,
-    .clear-btn:hover {
-      background-color: var(--danger-red-hover);
-    }
-
-    #historyBtn {
-      background-color: var(--history-purple);
-    }
-
-    #historyBtn:hover {
-      background-color: var(--history-purple-hover);
-    }
-
-    #screenshotBtn,
-    #copyTextBtn,
-    .use-history-btn {
-      background: var(--secondary-dark);
-    }
-
-    #screenshotBtn:hover,
-    #copyTextBtn:hover,
-    .use-history-btn:hover {
-      background: var(--secondary-dark-hover);
+    .c-unit-toggle__input:checked+.c-unit-toggle__label::before {
+      transform: translateX(21px);
     }
 
     .fare-options-grid {
@@ -464,7 +450,7 @@
       border-radius: 8px;
     }
 
-    /* Itinerary Styles */
+    /* --- Itinerary & Output Styles --- */
     .output-container {
       border: 1px solid var(--border-color);
       background: var(--card-bg);
@@ -476,7 +462,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 5px 10px;
-      border-bottom: 1px solid #eee
+      border-bottom: 1px solid var(--border-color);
     }
 
     .itinerary-main-logo {
@@ -495,7 +481,7 @@
 
     .itinerary-header {
       padding: 15px;
-      border-bottom: 1px solid #eee
+      border-bottom: 1px solid var(--border-color);
     }
 
     .itinerary-header p {
@@ -527,11 +513,11 @@
     }
 
     .transit-item.transit-minimum {
-      color: #27ae60
+      color: var(--success-green);
     }
 
     .transit-item.transit-long {
-      color: #f39c12
+      color: var(--history-purple);
     }
 
     .airline-logo {
@@ -582,7 +568,7 @@
       font-size: 1.1em
     }
 
-    /* Sidebar Styles */
+    /* --- Sidebar & Modal Styles (unchanged) --- */
     .sidebar {
       position: sticky;
       top: 20px;
@@ -669,7 +655,6 @@
       border-radius: 4px
     }
 
-    /* Modal and Other Styles (Unchanged) */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -715,7 +700,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border-color);
       padding-bottom: 15px;
       margin-bottom: 15px
     }
@@ -803,7 +788,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 15px 25px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border-color);
       flex-shrink: 0
     }
 
@@ -885,6 +870,36 @@
         padding: 10px
       }
 
+      #inputControls {
+        flex-wrap: wrap;
+      }
+
+      textarea#pnrInput {
+        border-radius: 6px;
+        border-right: 1px solid var(--border-color);
+        width: 100%;
+        flex-basis: 100%;
+        margin-bottom: 8px;
+      }
+
+      #convertBtn {
+        flex-basis: 100%;
+        border-radius: 6px !important;
+        border-left: 1px solid var(--border-color) !important;
+        margin-bottom: 8px;
+      }
+
+      .vertical-icon-group {
+        flex-direction: row;
+        width: 100%;
+      }
+
+      .control-icon-btn {
+        flex-grow: 1;
+        border-radius: 6px !important;
+        border: 1px solid var(--border-color) !important;
+      }
+
       .container {
         gap: 20px
       }
@@ -933,18 +948,46 @@
   <div class="container">
     <div class="main-content">
       <div class="input-area card">
-        <h3>Input PNR Data</h3>
+
+        <div class="card-header">
+          <h3>Input PNR Data</h3>
+          <!-- === UPDATED: History Button with Icon and Text === -->
+          <button id="historyBtn" title="View history">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            History
+          </button>
+        </div>
+
         <div id="inputControls">
           <textarea id="pnrInput" placeholder="Enter PNR data here..."></textarea>
+
           <button id="convertBtn">Convert PNR</button>
+
+          <div class="vertical-icon-group">
+            <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2">
+                </path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+            </button>
+            <button id="clearBtn" class="control-icon-btn" title="Clear input">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                </path>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="input-actions-group">
-          <div class="input-buttons">
-            <button id="pasteBtn">Paste</button>
-            <button id="clearBtn">Clear</button>
-            <button id="historyBtn">📜 History</button>
-          </div>
           <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
             <span class="toggle-switch-label">(When this feature is "ON" only click "Paste" button) Auto
               Convert</span>
@@ -990,14 +1033,10 @@
           <input type="radio" id="baggageNone" name="baggageOption" value="none"> <label for="baggageNone">None</label>
           <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
             for="baggageParticular">Per segment</label>
-          <!-- The Refactored Toggle Switch HTML -->
           <input id="baggageAmountInput" type="number" min="1" value="23" style="width: 35px; height: 20px;">
 
           <div class="c-unit-toggle">
-            <!-- The ID is now 'unit-selector-checkbox' -->
             <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
-
-            <!-- The 'for' attribute must match the input's ID -->
             <label class="c-unit-toggle__label" for="unit-selector-checkbox">
               <span class="c-unit-toggle__options">
                 <span style="padding-right: 4px; padding-left:-5px">PC</span>
