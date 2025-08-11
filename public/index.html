@@ -141,6 +141,11 @@
       stroke: currentColor;
     }
 
+    #themeToggleBtn {
+      padding: 8px;
+      /* Make it more circular */
+    }
+
     #themeToggleBtn .moon-icon {
       display: none;
     }
@@ -250,18 +255,7 @@
     }
 
     button {
-      padding: 10px 18px;
-      color: white;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
 
     #adultCountInput,
@@ -279,13 +273,6 @@
       font-size: 14px;
       background-color: var(--bg-card);
       color: var(--text-main);
-    }
-
-    .leg-header-icon {
-      width: 24px;
-      height: 24px;
-      margin: 0 0 -6px 10px;
-      /* This puts space to the left of the icon */
     }
 
     .toggle-switch {
@@ -570,7 +557,6 @@
     }
 
     #output .output-container * {
-      /* Base text color */
       color: #2c3e50 !important;
     }
 
@@ -616,7 +602,6 @@
       border-bottom: 2px solid #e0e6ec !important;
       text-transform: uppercase;
       color: #3498db !important;
-      /* Original blue from first file */
     }
 
     #output .itinerary-leg-header:first-of-type {
@@ -644,17 +629,14 @@
 
     #output .transit-item.transit-short {
       color: #e74c3c !important;
-      /* Original red */
     }
 
     #output .transit-item.transit-minimum {
       color: #27ae60 !important;
-      /* Original green */
     }
 
     #output .transit-item.transit-long {
       color: #f39c12 !important;
-      /* Original yellow */
     }
 
     #output .airline-logo {
@@ -861,18 +843,6 @@
       margin-bottom: 15px
     }
 
-    #screenshotBtn,
-    #copyTextBtn,
-    .use-history-btn {
-        background: var(--secondary-dark);
-    }
-
-    #screenshotBtn:hover,
-    #copyTextBtn:hover,
-    .use-history-btn:hover {
-        background: var(--secondary-dark-hover);
-    }
-
     #historySearchInput,
     #historySortSelect {
       padding: 8px;
@@ -932,34 +902,11 @@
     }
 
     .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 25px;
       border-bottom: 1px solid var(--border-main);
-      flex-shrink: 0
-    }
-
-    .preview-content {
-      padding: 20px;
-      overflow: auto;
-      flex-grow: 1
-    }
-
-    .preview-content img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-      border: 1px solid #ddd
     }
 
     .preview-content pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
       background: var(--bg-main);
-      padding: 15px;
-      border-radius: 4px
     }
 
     .popup-notification-container {
@@ -1346,12 +1293,12 @@ Contact Info"></textarea>
       const comboboxContainer = document.getElementById('baggageCombobox');
 
       if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
-        const kgOptions = ['1', '2', '3'];
-        const pcOptions = ['15', '23', '40'];
+        const kgOptions = ['15', '23', '40'];
+        const pcOptions = ['1', '2', '3'];
 
         const updateBaggageOptions = (isPcMode) => {
           baggageDropdown.innerHTML = '';
-          const optionsArray = isPcMode ? kgOptions : pcOptions;
+          const optionsArray = isPcMode ? pcOptions : kgOptions;
 
           optionsArray.forEach(value => {
             const optionDiv = document.createElement('div');
