@@ -615,7 +615,8 @@ const historyManager = {
             }
         });
         document.getElementById('closePreviewBtn')?.addEventListener('click', (e) => {
-            e.stopPropagation(); document.getElementById('historyPreviewPanel').classList.add('hidden');
+            e.stopPropagation(); 
+            document.getElementById('historyPreviewPanel').classList.add('hidden');
 
         });
     }
