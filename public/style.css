@@ -616,7 +616,7 @@ button {
 
 #output .flight-item {
     padding: 7px 15px 0px;
-    border-bottom: 1px dashed #ccc !important;
+    /* border-bottom: 1px dashed #ccc !important; */
 }
 
 #output .flight-item:last-child {
