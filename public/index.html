@@ -7,111 +7,6 @@
   <title>PNR Converter SV</title>
   <link rel="shortcut icon" href="pass.png" type="image/x-icon">
   <link rel="stylesheet" href="style.css">
-  <style>
-    .hidden {
-      display: none;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1020;
-    }
-
-    .modal-content {
-      background: var(--card-bg-color);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
-      position: relative;
-    }
-
-    #settingsModal .modal-content {
-      max-width: 800px;
-      width: 90%;
-    }
-
-    .settings-layout {
-      display: flex;
-      gap: 20px;
-    }
-
-    .settings-controls {
-      flex: 1;
-    }
-
-    .itinerary-preview-container {
-      flex: 1.2;
-      background-color: var(--input-bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      padding: 15px;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 10px;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-      font-size: 1.4em;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 2em;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--text-color);
-    }
-
-    .setting-group {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .setting-group label {
-      margin-right: 10px;
-      white-space: nowrap;
-    }
-
-    #itineraryPreview {
-      font-size: 16px;
-    }
-
-    #itineraryPreview .segment {
-      background-color: var(--card-bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-
-    #itineraryPreview .transit-time {
-      text-align: center;
-      padding: 8px;
-      margin-bottom: 10px;
-      font-family: 'Courier New', monospace;
-    }
-  </style>
 </head>
 
 <body>
@@ -129,15 +24,6 @@
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
               History
-            </button>
-            <button id="settingsBtn" class="header-btn" title="Advanced Settings">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path
-                  d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.33-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.44,0.17-0.48,0.41L9.22,5.72C8.63,5.96,8.1,6.29,7.6,6.67L5.21,5.71C5,5.63,4.74,5.7,4.63,5.9L2.71,9.22 c-0.12,0.21-0.07,0.47,0.12,0.61l2.03,1.58C4.82,11.69,4.8,12,4.8,12.33c0,0.33,0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.38,2.91 c0.04,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.48-0.41l0.38-2.91c0.59-0.24,1.12-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0.01,0.59-0.22l1.92-3.32c0.12-0.21,0.07-0.47-0.12-0.61L19.14,12.94z">
-                </path>
-                <circle cx="12" cy="12" r="3.5"></circle>
-              </svg>
             </button>
             <button id="themeToggleBtn" class="header-btn" title="Toggle Theme">
               <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
@@ -170,27 +56,33 @@
 
         <div id="inputControls">
           <textarea id="pnrInput" placeholder="Enter PNR data here..."></textarea>
+
           <button id="convertBtn">Convert PNR</button>
+
           <div class="vertical-icon-group">
-            <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard"><svg
-                xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-              </svg></button>
-            <button id="clearBtn" class="control-icon-btn" title="Clear input"><svg xmlns="http://www.w3.org/2000/svg"
-                width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger-red)" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
+              </svg>
+            </button>
+            <button id="clearBtn" class="control-icon-btn" title="Clear input">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg></button>
+              </svg>
+            </button>
           </div>
         </div>
 
         <div class="input-actions-group">
           <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
-            <span class="toggle-switch-label">(When this feature is "ON" only click "Paste" button) Auto Convert</span>
-            <input type="checkbox" id="autoConvertToggle"><span class="switch-body"></span>
+            <span class="toggle-switch-label">(When this feature is "ON" only click "Paste" button) Auto
+              Convert</span>
+            <input type="checkbox" id="autoConvertToggle">
+            <span class="switch-body"></span>
           </label>
         </div>
 
@@ -232,30 +124,40 @@
             for="baggageNone" style="display: none;">None</label>
           <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked
             style="display: none;"> <label for="baggageParticular" style="display: none;">Per segment</label>
-          <div class="combobox-container" id="baggageCombobox"><input type="text" inputmode="decimal"
-              class="combobox-input" id="baggageAmountInput" value="23"><button class="combobox-arrow"
-              type="button"></button>
+
+          <div class="combobox-container" id="baggageCombobox">
+            <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23">
+            <button class="combobox-arrow" type="button"></button>
             <div class="combobox-dropdown" id="baggageDropdown"></div>
           </div>
-          <div class="c-unit-toggle"><input type="checkbox" id="unit-selector-checkbox"
-              class="c-unit-toggle__input" /><label class="c-unit-toggle__label" for="unit-selector-checkbox"><span
-                class="c-unit-toggle__options"><span style="padding-right: 4px; padding-left:-5px">PC</span><span>
-                  KG</span></span></label></div>
+
+          <div class="c-unit-toggle">
+            <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
+            <label class="c-unit-toggle__label" for="unit-selector-checkbox">
+              <span class="c-unit-toggle__options">
+                <span style="padding-right: 4px; padding-left:-5px">PC</span>
+                <span> KG</span>
+              </span>
+            </label>
+          </div>
         </div>
         <div class="loading-spinner" id="loadingSpinner"></div>
       </div>
       <div class="output-area card">
         <div class="output-actions">
           <div>
-            <h3>Converted Itinerary</h3><button id="screenshotBtn" style="display:none;">📷 Copy
-              Screenshot</button><button id="copyTextBtn" style="display:none;">📋 Copy Text</button>
+            <h3>Converted Itinerary</h3>
+            <button id="screenshotBtn" style="display:none;">📷 Copy Screenshot</button>
+            <button id="copyTextBtn" style="display:none;">📋 Copy Text</button>
           </div>
-          <label class="toggle-switch" title="Enable to make small text corrections directly in the output."><span
-              class="toggle-switch-label">Enable Editing</span><input type="checkbox" id="editableToggle"><span
-              class="switch-body"></span></label>
+          <label class="toggle-switch" title="Enable to make small text corrections directly in the output.">
+            <span class="toggle-switch-label">Enable Editing</span>
+            <input type="checkbox" id="editableToggle">
+            <span class="switch-body"></span>
+          </label>
         </div>
         <div id="output">
-          <div class="info">Enter PNR data and click Convert to begin. The final output will appear here.</div>
+          <div class="info">Enter PNR data and click Convert to begin.</div>
         </div>
       </div>
     </div>
@@ -269,107 +171,79 @@
         <label><input type="checkbox" id="showClass"> Show Cabin</label>
         <label><input type="checkbox" id="showMeal"> Show Meal</label>
         <label style="display: none;"><input type="checkbox" id="showNotes" style="display: none;"> Show Notes</label>
+
         <hr>
         <h4>Segment Time Format</h4>
-        <div class="time-format-group"><label><input type="radio" id="segmentTime12" name="segmentTimeFormat"
-              value="12h"> 12-Hour</label><label><input type="radio" id="segmentTime24" name="segmentTimeFormat"
-              value="24h" checked> 24-Hour</label></div>
-        <label style="display: none;"><input type="checkbox" id="showTransit" checked> Show Transit Times</label>
-        <div id="transitSymbolContainer" class="custom-transit-input"><label
-            for="transitSymbolInput">Separator:</label><input type="text" id="transitSymbolInput" placeholder=":::::::"
-            style="width: 120px; padding: 5px;"></div>
+        <div class="time-format-group">
+          <label><input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour</label>
+          <label><input type="radio" id="segmentTime24" name="segmentTimeFormat" value="24h" checked>
+            24-Hour</label>
+        </div>
+
+        <label style="display: none;"><input type="checkbox" id="showTransit" checked> Show Transit
+          Times</label>
+        <div id="transitSymbolContainer" class="custom-transit-input">
+          <label for="transitSymbolInput">Separator:</label>
+          <input type="text" id="transitSymbolInput" placeholder=":::::::" style="width: 120px; padding: 5px;">
+        </div>
+
         <hr>
         <h4>Fare Display Options</h4>
         <label><input type="checkbox" id="showTaxes" checked> Show Taxes</label>
         <label><input type="checkbox" id="showFees" checked> Show Fees</label>
+
         <hr>
         <h4>Branding</h4>
         <label><input type="checkbox" id="showItineraryLogo" checked>Show Main Itinerary Logo</label>
         <div id="customBrandingSection">
-          <div class="custom-branding-input"><label for="customLogoInput">Custom Logo:</label><input type="file"
-              id="customLogoInput" accept="image/png, image/jpeg, image/gif"><img id="customLogoPreview"
-              alt="Logo Preview" class="custom-logo-preview"></div>
-          <div class="custom-branding-input"><label for="customTextInput">Custom Text:</label><textarea
-              id="customTextInput" rows="3" placeholder="Your Company Name&#10;Contact Info"></textarea></div>
+          <div class="custom-branding-input">
+            <label for="customLogoInput">Custom Logo:</label>
+            <input type="file" id="customLogoInput" accept="image/png, image/jpeg, image/gif">
+            <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
+          </div>
+          <div class="custom-branding-input">
+            <label for="customTextInput">Custom Text:</label>
+            <textarea id="customTextInput" rows="3" placeholder="Your Company Name
+Contact Info"></textarea>
+          </div>
           <button id="clearCustomBrandingBtn" class="clear-btn">Clear Branding</button>
+        </div>
+        <div style="display: none;">
+          <h4>Transit Time Format</h4>
+          <div class="time-format-group">
+            <label><input type="radio" id="transitTime12" name="transitTimeFormat" value="12h">
+              12-Hour</label>
+            <label><input type="radio" id="transitTime24" name="transitTimeFormat" value="24h" checked>
+              24-Hour</label>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- History Modal -->
   <div id="historyModal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Conversion History</h2><button id="closeHistoryBtn" class="close-btn">×</button>
+        <h2>Conversion History</h2>
+        <button id="closeHistoryBtn" class="close-btn">×</button>
       </div>
-      <div class="history-controls"><input type="text" id="historySearchInput"
-          placeholder="Search by passenger or route..."><select id="historySortSelect">
+      <div class="history-controls">
+        <input type="text" id="historySearchInput" placeholder="Search by passenger or route...">
+        <select id="historySortSelect">
           <option value="newest">Sort by Newest First</option>
           <option value="oldest">Sort by Oldest First</option>
-        </select></div>
+        </select>
+      </div>
       <div id="historyList" class="history-list"></div>
       <div id="historyPreviewPanel" class="hidden">
         <div class="preview-header">
-          <h3>Preview</h3><button id="closePreviewBtn" class="close-btn">×</button>
+          <h3>Preview</h3>
+          <button id="closePreviewBtn" class="close-btn">×</button>
         </div>
         <div id="previewContent" class="preview-content"></div>
       </div>
     </div>
   </div>
-
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Advanced Settings & Preview</h2>
-        <button id="closeSettingsBtn" class="close-btn">×</button>
-      </div>
-      <div class="settings-layout">
-        <div class="settings-controls">
-          <div class="setting-group"><label for="mainFontFamily">Itinerary Font:</label><select id="mainFontFamily">
-              <option value="Arial, sans-serif">Arial</option>
-              <option value="Verdana, sans-serif">Verdana</option>
-              <option value="Tahoma, sans-serif">Tahoma</option>
-              <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
-              <option value="Georgia, serif">Georgia</option>
-              <option value="Garamond, serif">Garamond</option>
-              <option value="Courier New, monospace">Courier New</option>
-              <option value="Brush Script MT, cursive">Brush Script MT</option>
-            </select></div>
-          <div class="setting-group"><label for="mainFontSize">Itinerary Size:</label><input type="number"
-              id="mainFontSize" value="16" min="8" max="32"></div>
-          <hr>
-          <div class="setting-group"><label for="segmentFontFamily">Segment Font:</label><select id="segmentFontFamily">
-              <option value="Arial, sans-serif">Arial</option>
-              <option value="Verdana, sans-serif">Verdana</option>
-              <option value="Tahoma, sans-serif">Tahoma</option>
-              <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
-              <option value="Georgia, serif">Georgia</option>
-              <option value="Garamond, serif">Garamond</option>
-              <option value="Courier New, monospace">Courier New</option>
-              <option value="Brush Script MT, cursive">Brush Script MT</option>
-            </select></div>
-          <div class="setting-group"><label for="segmentFontSize">Segment Size:</label><input type="number"
-              id="segmentFontSize" value="14" min="8" max="28"></div>
-          <hr>
-          <div class="setting-group"><label for="transitTimeFontSize">Transit Size:</label><input type="number"
-              id="transitTimeFontSize" value="12" min="8" max="24"></div>
-          <div class="setting-group"><label for="shortTransitColor">Short Layover:</label><input type="color"
-              id="shortTransitColor" value="#008000"></div>
-          <div class="setting-group"><label for="mediumTransitColor">Medium Layover:</label><input type="color"
-              id="mediumTransitColor" value="#ffa500"></div>
-          <div class="setting-group"><label for="longTransitColor">Long Layover:</label><input type="color"
-              id="longTransitColor" value="#ff0000"></div>
-        </div>
-        <div class="itinerary-preview-container">
-          <!-- The content of this div is now generated by JavaScript -->
-          <div id="itineraryPreview"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
   <div id="popupContainer" class="popup-notification-container"></div>
 
@@ -377,125 +251,6 @@
   <script src="/js/main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // --- Element References ---
-      const pnrInput = document.getElementById('pnrInput');
-      const outputDiv = document.getElementById('output');
-      const settingsBtn = document.getElementById('settingsBtn');
-      const settingsModal = document.getElementById('settingsModal');
-      const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-      const itineraryPreview = document.getElementById('itineraryPreview');
-      const settingsInputs = document.querySelectorAll('.settings-controls select, .settings-controls input');
-
-      // --- Helper Functions ---
-
-      /**
-       * Returns the HTML for a default dummy itinerary.
-       */
-      function getDummyItineraryHTML() {
-        return `
-          <div class="segment"><b>1. United Airlines UA242</b> | 15 Aug | Boeing 777<br><b>Depart:</b> New York (JFK) 08:00<br><b>Arrive:</b> San Francisco (SFO) 11:30<br><b>Cabin:</b> Economy | <b>Meal:</b> Meal</div>
-          <div class="transit-time short">Layover in SFO: 2h 30m</div>
-          <div class="segment"><b>2. United Airlines UA115</b> | 15 Aug | Airbus A320<br><b>Depart:</b> San Francisco (SFO) 14:00<br><b>Arrive:</b> Honolulu (HNL) 16:45<br><b>Cabin:</b> Economy | <b>Meal:</b> Meal</div>
-          <div class="transit-time long">Layover in HNL: 10h 15m</div>
-          <div class="segment"><b>3. Hawaiian Airlines HA451</b> | 16 Aug | Boeing 717<br><b>Depart:</b> Honolulu (HNL) 03:00<br><b>Arrive:</b> Lihue (LIH) 03:40<br><b>Cabin:</b> First | <b>Meal:</b> Snack</div>
-        `;
-      }
-
-      /**
-       * A simplified "parser" to generate itinerary HTML from raw text.
-       * In a real app, this would be a complex PNR parsing engine.
-       * @param {string} text - The raw PNR text.
-       * @returns {string} - The generated HTML for the itinerary.
-       */
-      function generateItineraryHTML(text) {
-        if (!text || text.trim() === "") {
-          return getDummyItineraryHTML();
-        }
-        // Simple simulation: We'll just wrap each line in a segment div.
-        const lines = text.trim().split('\n');
-        return lines.map(line => {
-          // A bit of logic to make it look like a real segment
-          if (line.trim()) {
-            return `<div class="segment">${line.replace(/\n/g, '<br>')}</div>`;
-          }
-          return '';
-        }).join('<div class="transit-time medium">---</div>'); // Add a separator between lines
-      }
-
-      /**
-       * Applies the currently selected advanced styles to a target element (either preview or final output).
-       * @param {HTMLElement} targetElement - The element to apply styles to.
-       */
-      function applyAdvancedStyles(targetElement) {
-        if (!targetElement) return;
-
-        const mainFont = document.getElementById('mainFontFamily').value;
-        const mainSize = document.getElementById('mainFontSize').value + 'px';
-        const segmentFont = document.getElementById('segmentFontFamily').value;
-        const segmentSize = document.getElementById('segmentFontSize').value + 'px';
-        const transitSize = document.getElementById('transitTimeFontSize').value + 'px';
-        const shortColor = document.getElementById('shortTransitColor').value;
-        const mediumColor = document.getElementById('mediumTransitColor').value;
-        const longColor = document.getElementById('longTransitColor').value;
-
-        targetElement.style.fontFamily = mainFont;
-        targetElement.style.fontSize = mainSize;
-
-        targetElement.querySelectorAll('.segment').forEach(el => {
-          el.style.fontFamily = segmentFont;
-          el.style.fontSize = segmentSize;
-        });
-
-        targetElement.querySelectorAll('.transit-time').forEach(el => {
-          el.style.fontSize = transitSize;
-        });
-        targetElement.querySelectorAll('.transit-time.short').forEach(el => el.style.color = shortColor);
-        targetElement.querySelectorAll('.transit-time.medium').forEach(el => el.style.color = mediumColor);
-        targetElement.querySelectorAll('.transit-time.long').forEach(el => el.style.color = longColor);
-      }
-
-      /**
-       * Updates the content of the preview pane based on the main input.
-       */
-      function updateAndStylePreview() {
-        const pnrText = pnrInput.value;
-        itineraryPreview.innerHTML = generateItineraryHTML(pnrText);
-        applyAdvancedStyles(itineraryPreview);
-      }
-
-      // --- Event Listeners ---
-
-      // Open/Close Settings Modal
-      settingsBtn.addEventListener('click', () => {
-        updateAndStylePreview(); // Generate preview when opening
-        settingsModal.classList.remove('hidden');
-      });
-      closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
-      settingsModal.addEventListener('click', (e) => {
-        if (e.target === settingsModal) {
-          settingsModal.classList.add('hidden');
-        }
-      });
-
-      // Live update the preview if the modal is open and user types in the main input
-      pnrInput.addEventListener('input', () => {
-        if (!settingsModal.classList.contains('hidden')) {
-          updateAndStylePreview();
-        }
-      });
-
-      // When any setting is changed, update the preview styles
-      settingsInputs.forEach(input => {
-        input.addEventListener('input', () => applyAdvancedStyles(itineraryPreview));
-      });
-
-      // Main "Convert" button logic
-      document.getElementById('convertBtn').addEventListener('click', () => {
-        const finalHTML = generateItineraryHTML(pnrInput.value);
-        outputDiv.innerHTML = finalHTML;
-        applyAdvancedStyles(outputDiv); // Apply the same styles to the final output
-      });
-
       // --- Mobile sidebar script ---
       const mobileMenuBtn = document.getElementById('mobileMenuBtn');
       const sidebar = document.querySelector('.sidebar');
@@ -522,100 +277,94 @@
         overlay.addEventListener('click', closeSidebar);
       }
 
-      if (settingsBtn && settingsModal && closeSettingsBtn) {
-        settingsBtn.addEventListener('click', () => {
-          settingsModal.classList.remove('hidden');
-          applyAdvancedSettingsToPreview(); // Apply styles when opening
-        });
-        closeSettingsBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
-        settingsModal.addEventListener('click', (e) => {
-          if (e.target === settingsModal) {
-            settingsModal.classList.add('hidden');
-          }
-        });
-      }
-
       // --- Baggage Combobox Script ---
       const unitToggle = document.getElementById('unit-selector-checkbox');
       const baggageInput = document.getElementById('baggageAmountInput');
       const baggageDropdown = document.getElementById('baggageDropdown');
       const comboboxContainer = document.getElementById('baggageCombobox');
+
       if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
-        const kgOptions = [null, '15', '23', '40'], pcOptions = [null, '1', '2', '3'];
-        const triggerManualInput = () => { const event = new Event('input', { bubbles: true }); baggageInput.dispatchEvent(event); };
-        const updateBaggageOptions = (isPc, trigger) => {
-          baggageDropdown.innerHTML = '';
-          (isPc ? pcOptions : kgOptions).forEach(val => {
-            const opt = document.createElement('div');
-            opt.className = 'combobox-option'; opt.textContent = val;
-            opt.addEventListener('mousedown', e => { e.preventDefault(); baggageInput.value = val; baggageDropdown.classList.remove('open'); triggerManualInput(); });
-            baggageDropdown.appendChild(opt);
+        const kgOptions = [null, '15', '23', '40'];
+        const pcOptions = [null, '1', '2', '3'];
+
+        // This function simulates a manual input event.
+        // It's the key to making the dropdown selection trigger the auto-converter.
+        const triggerManualInput = () => {
+          const inputEvent = new Event('input', {
+            bubbles: true,
+            cancelable: true,
           });
-          baggageInput.value = isPc ? '2' : '23';
-          if (trigger) triggerManualInput();
+          baggageInput.dispatchEvent(inputEvent);
         };
+
+        const updateBaggageOptions = (isPcMode, shouldTriggerUpdate = false) => {
+          baggageDropdown.innerHTML = '';
+          const optionsArray = isPcMode ? pcOptions : kgOptions;
+
+          optionsArray.forEach(value => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'combobox-option';
+            optionDiv.textContent = value;
+            optionDiv.addEventListener('mousedown', (e) => {
+              e.preventDefault();
+              baggageInput.value = value;
+              baggageDropdown.classList.remove('open');
+
+              // Simulate manual input to trigger itinerary update
+              triggerManualInput();
+            });
+            baggageDropdown.appendChild(optionDiv);
+          });
+
+          // Set a default value when toggling units
+          baggageInput.value = isPcMode ? '2' : '23';
+
+          // If the unit toggle itself should trigger an update, fire the event
+          if (shouldTriggerUpdate) {
+            triggerManualInput();
+          }
+        };
+
+        // Initial setup
         updateBaggageOptions(unitToggle.checked, false);
-        unitToggle.addEventListener('change', () => updateBaggageOptions(unitToggle.checked, true));
-        comboboxContainer.addEventListener('click', e => { if (e.target.classList.contains('combobox-arrow') || e.target === baggageInput) baggageDropdown.classList.toggle('open'); });
+
+        // When the KG/PC toggle changes...
+        unitToggle.addEventListener('change', () => {
+          // ...update the options and trigger the conversion automatically.
+          updateBaggageOptions(unitToggle.checked, true);
+        });
+
+        // --- Event listeners for showing/hiding the dropdown ---
+        comboboxContainer.addEventListener('click', (e) => {
+          if (e.target.classList.contains('combobox-arrow') || e.target === baggageInput) {
+            baggageDropdown.classList.toggle('open');
+          }
+        });
         baggageInput.addEventListener('focus', () => baggageDropdown.classList.add('open'));
-        document.addEventListener('click', e => { if (!comboboxContainer.contains(e.target)) baggageDropdown.classList.remove('open'); });
+        document.addEventListener('click', (e) => {
+          if (!comboboxContainer.contains(e.target)) {
+            baggageDropdown.classList.remove('open');
+          }
+        });
       }
 
       // --- Dark Mode Script ---
       const themeToggleBtn = document.getElementById('themeToggleBtn');
       const docElement = document.documentElement;
-      const applyTheme = (theme) => { docElement.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); };
+
+      const applyTheme = (theme) => {
+        docElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+      };
+
       const savedTheme = localStorage.getItem('theme') || 'light';
       applyTheme(savedTheme);
+
       themeToggleBtn.addEventListener('click', () => {
-        const newTheme = docElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        const currentTheme = docElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         applyTheme(newTheme);
       });
-
-      // --- Advanced Settings Application ---
-      function applyAdvancedSettingsToPreview() {
-        const preview = document.getElementById('itineraryPreview');
-        if (!preview) return;
-
-        const mainFont = document.getElementById('mainFontFamily').value;
-        const mainSize = document.getElementById('mainFontSize').value + 'px';
-        const segmentFont = document.getElementById('segmentFontFamily').value;
-        const segmentSize = document.getElementById('segmentFontSize').value + 'px';
-        const transitSize = document.getElementById('transitTimeFontSize').value + 'px';
-        const shortColor = document.getElementById('shortTransitColor').value;
-        const mediumColor = document.getElementById('mediumTransitColor').value;
-        const longColor = document.getElementById('longTransitColor').value;
-
-        preview.style.fontFamily = mainFont;
-        preview.style.fontSize = mainSize;
-
-        preview.querySelectorAll('.segment').forEach(el => {
-          el.style.fontFamily = segmentFont;
-          el.style.fontSize = segmentSize;
-        });
-
-        preview.querySelectorAll('.transit-time').forEach(el => {
-          el.style.fontSize = transitSize;
-        });
-        preview.querySelectorAll('.transit-time.short').forEach(el => el.style.color = shortColor);
-        preview.querySelectorAll('.transit-time.medium').forEach(el => el.style.color = mediumColor);
-        preview.querySelectorAll('.transit-time.long').forEach(el => el.style.color = longColor);
-      }
-
-      // This is the function that will apply the chosen styles to the FINAL output area.
-      // It should be called when the PNR is converted.
-      function applyStylesToFinalOutput() {
-        // This is a placeholder. In your main.js, when you generate the output,
-        // you would call a similar function to style the elements in the real #output div.
-        console.log("Applying styles to the final converted itinerary.");
-      }
-
-      settingsInputs.forEach(input => {
-        input.addEventListener('input', applyAdvancedSettingsToPreview);
-        input.addEventListener('change', applyAdvancedSettingsToPreview);
-      });
-
-      applyAdvancedSettingsToPreview(); // Apply initial settings to the preview on load
     });
   </script>
 </body>
