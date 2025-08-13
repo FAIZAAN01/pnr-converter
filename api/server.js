@@ -1,14 +1,15 @@
 const express = require('express');
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser'); // replaced with express.json/urlencoded
 const moment = require('moment-timezone');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const morgan = 'morgan';
+const morgan = require('morgan');
 
 const app = express();
+app.set('trust proxy', 1); // trust first proxy
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const AIRLINES_FILE = path.join(DATA_DIR, 'airlines.json');
@@ -40,11 +41,30 @@ function loadAllDatabases() {
 
 loadAllDatabases();
 
-app.use(require('morgan')('dev'));
-app.use(cors());
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(morgan('dev'));
+// To restrict, set CORS_ORIGINS="https://app.example.com,https://admin.example.com"
+const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',').map(o => o.trim()) : null;
+app.use(cors(allowedOrigins ? {
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true); // same-origin or non-browser
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true
+} : {}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(helmet({
+    contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+            "img-src": ["'self'", "data:", "blob:"],
+            "script-src": ["'self'", "'unsafe-inline'"],
+            "style-src": ["'self'", "'unsafe-inline'"],
+            "connect-src": ["'self'", "*"]
+        }
+    }
+}));
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -54,7 +74,7 @@ const limiter = rateLimit({
     message: { success: false, error: "Too many requests, please try again later.", result: { flights: [] } }
 });
 
-app.post('/api/convert', (req, res) => {
+app.post('/api/convert', limiter, (req, res) => {
     try {
         const { pnrText, options } = req.body;
 
@@ -75,7 +95,7 @@ app.post('/api/convert', (req, res) => {
 
     } catch (err) {
         console.error("Error during PNR conversion:", err.stack);
-        return res.status(400).json({ success: false, error: err.message, result: { flights: [] } });
+        return res.status(500).json({ success: false, error: err.message, result: { flights: [] } });
     }
 });
 
@@ -84,6 +104,14 @@ app.post('/api/upload-logo', limiter, async (req, res) => {
     console.error("Logo upload is not supported on Vercel's read-only filesystem.");
     return res.status(400).json({ success: false, error: "This feature is disabled on the live deployment." });
 });
+
+function normalizeTerminal(term) {
+    if (!term) return null;
+    const t = String(term).trim();
+    if (!t) return null;
+    const bare = t.replace(/^T/i, '');
+    return 'T' + bare;
+}
 
 function formatMomentTime(momentObj, use24 = false) {
     if (!momentObj || !momentObj.isValid()) return '';
@@ -240,7 +268,11 @@ function parseGalileoEnhanced(pnrText, options) {
             // --- END OF THE FIX ---
 
             const validMealCharsRegex = /^[BLDSMFHCVKOPRWYNG]+$/i;
-            const mealCode = detailsParts.find(p => validMealCharsRegex.test(p));  //edit
+            let mealCode = null;
+            for (const p of detailsParts) {
+                const tok = p.replace(/[^A-Za-z]/g, '');
+                if (validMealCharsRegex.test(tok)) { mealCode = tok; break; }
+            }
 
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
@@ -325,13 +357,13 @@ function parseGalileoEnhanced(pnrText, options) {
                 departure: {
                     airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name,
                     time: formatMomentTime(departureMoment, use24hSegment),
-                    terminal: depTerminal || null
+                    terminal: normalizeTerminal(depTerminal)
                 },
                 arrival: {
                     airport: arrAirport, city: arrAirportInfo.city, name: arrAirportInfo.name,
                     time: formatMomentTime(arrivalMoment, use24hSegment),
                     dateString: arrivalDateString,
-                    terminal: arrTerminal || null
+                    terminal: normalizeTerminal(arrTerminal)
                 },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
                 // This line now correctly uses the found aircraftCodeKey
