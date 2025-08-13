@@ -200,7 +200,8 @@ function parseGalileoEnhanced(pnrText, options) {
 
     for (const line of lines) {
         if (!line) continue;
-
+        line = line.replace(/^\s*\*/, '');
+        
         let flightMatch = line.match(flightSegmentRegexCompact);
         let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator, depTerminal, arrTerminal;
 
