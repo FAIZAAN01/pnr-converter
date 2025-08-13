@@ -357,7 +357,13 @@ function parseGalileoEnhanced(pnrText, options) {
                     let depMoment = moment(depDateStr, "DDMMM"); // no year yet
                     let daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
                     depMoment.add(daysToAdd, 'days');
-                    arrivalDateString = depMoment.format("DDMMM").toUpperCase();
+                    if (arrivalMoment.isValid() && departureMoment.isValid()) {
+                        if (!arrivalMoment.isSame(departureMoment, 'day')) {
+                            arrivalDateString = arrivalMoment.format("DDMMM").toUpperCase();
+                        } else {
+                            arrivalDateString = null; // same day, don't show
+                        }
+                    }
                 } else {
                     arrivalDateString = arrDateStrOrNextDayIndicator.toUpperCase();
                 }
