@@ -110,7 +110,7 @@ function normalizeTerminal(term) {
     const t = String(term).trim();
     if (!t) return null;
     const bare = t.replace(/^T/i, '');
-    return 'T' + bare;
+    return '' + bare;
 }
 
 function formatMomentTime(momentObj, use24 = false) {
