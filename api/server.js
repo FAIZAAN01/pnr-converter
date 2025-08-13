@@ -314,64 +314,44 @@ function parseGalileoEnhanced(pnrText, options) {
 
             if (arrDateStrOrNextDayIndicator) {
                 if (arrDateStrOrNextDayIndicator.startsWith('+')) {
+                    // +1 or +n day logic
                     const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
-                    arrivalMoment = departureMoment.clone().tz(arrAirportInfo.timezone)
-                        .add(daysToAdd, 'day')
-                        .set({ hour: parseInt(arrTimeStr.substring(0, 2)), minute: parseInt(arrTimeStr.substring(2, 4)) });
+                    arrivalMoment = departureMoment.clone().add(daysToAdd, 'days')
+                        .set({
+                            hour: parseInt(arrTimeStr.substring(0, 2)),
+                            minute: parseInt(arrTimeStr.substring(2, 4))
+                        });
                 } else {
-                    // Handles explicit arrival date (e.g., 02JAN)
+                    // Explicit arrival date
                     const arrDateMoment = moment.utc(arrDateStrOrNextDayIndicator, "DDMMM");
-                    let arrivalYear = currentYear;
-                    if (arrDateMoment.month() < departureMoment.month()) {
-                        arrivalYear++;
-                    }
-                    const fullArrDateStr = `${arrDateStrOrNextDayIndicator}${arrivalYear}`;
-                    arrivalMoment = moment.tz(`${fullArrDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
+                    let arrivalYear = departureMoment.year();
+                    if (arrDateMoment.month() < departureMoment.month()) arrivalYear++;
+                    arrivalMoment = moment.tz(`${arrDateStrOrNextDayIndicator}${arrivalYear} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 }
             } else {
-                // Only add 1 day if arrival time is before departure and no explicit arrival date
-                arrivalMoment = moment.tz(`${fullDepDateStr} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
-                if (departureMoment.isValid() && arrivalMoment.isValid() && arrivalMoment.isBefore(departureMoment)) {
-                    arrivalMoment.add(1, 'day');
-                }
+                // No explicit date, check if arrival time < departure time
+                arrivalMoment = moment.tz(`${depDateStr}${currentYear} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
+                if (arrivalMoment.isBefore(departureMoment)) arrivalMoment.add(1, 'day');
             }
 
             if (previousArrivalMoment && previousArrivalMoment.isValid() && departureMoment && departureMoment.isValid()) {
                 const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
-                const totalMinutes = transitDuration.asMinutes();
-                if (totalMinutes > 30 && totalMinutes < 1440) {
-                    const hours = Math.floor(transitDuration.asHours());
-                    const minutes = transitDuration.minutes();
+                const transitMinutes = transitDuration.asMinutes();
+
+                if (transitMinutes > 30 && transitMinutes < 1440) { // filter very short/long
+                    const hours = Math.floor(transitMinutes / 60);
+                    const minutes = Math.floor(transitMinutes % 60);
                     precedingTransitTimeForThisSegment = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
-                    transitDurationInMinutes = Math.round(totalMinutes);
+                    transitDurationInMinutes = transitMinutes;
                     formattedNextDepartureTime = formatMomentTime(departureMoment, use24hTransit);
                 }
             }
             previousArrivalMoment = arrivalMoment.clone();
 
             let arrivalDateString = null;
-
-            if (arrDateStrOrNextDayIndicator) {
-                if (arrDateStrOrNextDayIndicator.startsWith('+')) {
-                    // Parse dep date and add that many days
-                    let depMoment = moment(depDateStr, "DDMMM"); // no year yet
-                    let daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
-                    depMoment.add(daysToAdd, 'days');
-                    if (arrivalMoment.isValid() && departureMoment.isValid()) {
-                        if (!arrivalMoment.isSame(departureMoment, 'day')) {
-                            arrivalDateString = arrivalMoment.format("DDMMM").toUpperCase();
-                        } else {
-                            arrivalDateString = null; // same day, don't show
-                        }
-                    }
-                } else {
-                    if (arrivalMoment.isValid() && departureMoment.isValid()) {
-                        if (!arrivalMoment.isSame(departureMoment, 'day')) {
-                            arrivalDateString = arrivalMoment.format("DDMMM").toUpperCase();
-                        } else {
-                            arrivalDateString = null; // same day, don't show
-                        }
-                    }
+            if (arrivalMoment.isValid() && departureMoment.isValid()) {
+                if (!arrivalMoment.isSame(departureMoment, 'day')) {
+                    arrivalDateString = arrivalMoment.format("DDMMM").toUpperCase();
                 }
             }
 
