@@ -365,7 +365,13 @@ function parseGalileoEnhanced(pnrText, options) {
                         }
                     }
                 } else {
-                    arrivalDateString = arrDateStrOrNextDayIndicator.toUpperCase();
+                    if (arrivalMoment.isValid() && departureMoment.isValid()) {
+                        if (!arrivalMoment.isSame(departureMoment, 'day')) {
+                            arrivalDateString = arrivalMoment.format("DDMMM").toUpperCase();
+                        } else {
+                            arrivalDateString = null; // same day, don't show
+                        }
+                    }
                 }
             }
 
