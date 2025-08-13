@@ -386,13 +386,13 @@ function parseGalileoEnhanced(pnrText, options) {
     }
     if (currentFlight) flights.push(currentFlight);
 
-    // --- START: REFINED LOGIC FOR OUTBOUND/INBOUND LEG DETECTION ---
+    // --- START: REFINED LOGIC FOR / LEG DETECTION ---
 
     if (flights.length > 0) {
         for (const flight of flights) {
             flight.direction = null;
         }
-        flights[0].direction = 'Outbound';
+        flights[0].direction = '';
 
         const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
 
@@ -434,7 +434,7 @@ function parseGalileoEnhanced(pnrText, options) {
                     const finalDestination = flights[flights.length - 1].arrival.airport;
                     const isRoundTrip = originalOrigin === finalDestination;
 
-                    currentFlight.direction = isRoundTrip ? 'Inbound' : 'Outbound';
+                    currentFlight.direction = isRoundTrip ? '' : '';
                 }
             } else {
                 // This else block is for debugging and can be removed later
