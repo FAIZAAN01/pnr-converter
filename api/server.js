@@ -336,15 +336,17 @@ function parseGalileoEnhanced(pnrText, options) {
                 }
             }
 
-            if (previousArrivalMoment && previousArrivalMoment.isValid() && departureMoment && departureMoment.isValid()) {
-                const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
-                const totalMinutes = transitDuration.asMinutes();
-                if (totalMinutes > 30 && totalMinutes < 1440) {
-                    const hours = Math.floor(transitDuration.asHours());
-                    const minutes = transitDuration.minutes();
-                    precedingTransitTimeForThisSegment = `${hours < 10 ? '0' : ''}${hours}h ${minutes < 10 ? '0' : ''}${minutes}m`;
-                    transitDurationInMinutes = Math.round(totalMinutes);
-                    formattedNextDepartureTime = formatMomentTime(departureMoment, use24hTransit);
+            if (previousArrivalDate && previousArrivalMoment && currentDepartureDate && currentDepartureMonthIndex) {
+                let arrMoment = moment(`${previousArrivalDate} ${previousArrivalMoment}`, "DDMMM HHmm");
+                let depMoment = moment(`${currentDepartureDate} ${currentDepartureMonthIndex}`, "DDMMM HHmm");
+
+                const transitMinutes = depMoment.diff(arrMoment, 'minutes');
+                if (transitMinutes > 30 && transitMinutes < 1440) {
+                    const hours = Math.floor(transitMinutes / 60);
+                    const minutes = transitMinutes % 60;
+                    precedingTransitTimeForThisSegment = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
+                    transitDurationInMinutes = transitMinutes;
+                    formattedNextDepartureTime = formatMomentTime(depMoment, use24hTransit);
                 }
             }
 
