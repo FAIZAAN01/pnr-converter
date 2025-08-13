@@ -346,8 +346,20 @@ function parseGalileoEnhanced(pnrText, options) {
             }
 
             let arrivalDateString = null;
-            if (departureMoment.isValid() && arrivalMoment.isValid() && !arrivalMoment.isSame(departureMoment, 'day')) {
-                arrivalDateString = arrivalMoment.format('DD MMM');
+            if (arrDateStrOrNextDayIndicator) {
+                if (arrDateStrOrNextDayIndicator.startsWith('+')) {
+                    arrivalDateString = `+${parseInt(arrDateStrOrNextDayIndicator.substring(1), 10)}`;
+                } else {
+                    // Explicit date like "09JAN"
+                    if (arrDateStrOrNextDayIndicator !== depDateStr) {
+                        arrivalDateString = arrDateStrOrNextDayIndicator; // keep as in PNR
+                    }
+                }
+            } else {
+                // No explicit arrival date given, check time to see if next day
+                if (arrTimeStr < depTimeStr) {
+                    arrivalDateString = "+1";
+                }
             }
 
             currentFlight = {
@@ -362,8 +374,10 @@ function parseGalileoEnhanced(pnrText, options) {
                     terminal: normalizeTerminal(depTerminal)
                 },
                 arrival: {
-                    airport: arrAirport, city: arrAirportInfo.city, name: arrAirportInfo.name,
-                    time: formatMomentTime(arrivalMoment, use24hSegment),
+                    airport: arrAirport,
+                    city: arrAirportInfo.city,
+                    name: arrAirportInfo.name,
+                    time: arrTimeStr.substring(0, 2) + ':' + arrTimeStr.substring(2, 4), // raw, no moment
                     dateString: arrivalDateString,
                     terminal: normalizeTerminal(arrTerminal)
                 },
