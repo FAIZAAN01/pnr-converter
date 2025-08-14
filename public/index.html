@@ -120,10 +120,10 @@
 
         <div class="baggage-options">
           <label>Baggage:</label>
-          <input type="radio" id="baggageNone" name="baggageOption" value="none" style="display: none;"> <label
-            for="baggageNone" style="display: none;">None</label>
-          <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked
-            style="display: none;"> <label for="baggageParticular" style="display: none;">Per segment</label>
+          <input type="radio" id="baggageNone" name="baggageOption" value="none"> <label
+            for="baggageNone">None</label>
+          <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
+            for="baggageParticular">Per segment</label>
 
           <div class="combobox-container" id="baggageCombobox">
             <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23">
@@ -284,8 +284,8 @@ Contact Info"></textarea>
       const comboboxContainer = document.getElementById('baggageCombobox');
 
       if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
-        const kgOptions = [null, '15', '23', '40'];
-        const pcOptions = [null, '1', '2', '3'];
+        const kgOptions = [null, null, '15', '23', '40'];
+        const pcOptions = [null, null, '1', '2', '3'];
 
         // This function simulates a manual input event.
         // It's the key to making the dropdown selection trigger the auto-converter.
