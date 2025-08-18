@@ -300,14 +300,16 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
 
 // --- REMOVED THE SEPARATE, UNUSED TOGGLE SWITCH CODE THAT WAS HERE ---
 
+// --- MODIFIED FUNCTION ---
 function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted) {
-    // ... (This function remains unchanged)
     const output = document.getElementById('output');
     const screenshotBtn = document.getElementById('screenshotBtn');
     const copyTextBtn = document.getElementById('copyTextBtn');
     output.innerHTML = '';
 
-    const { flights = [], passengers = [] } = pnrResult || {};
+    // --- CHANGE START: Destructure recordLocator from the pnrResult object ---
+    const { flights = [], passengers = [], recordLocator = '' } = pnrResult || {};
+    // --- CHANGE END ---
 
     if (flights.length > 0) {
         screenshotBtn.style.display = 'inline-block';
@@ -333,12 +335,28 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         logoContainer.appendChild(logoText);
         outputContainer.appendChild(logoContainer);
     }
+
+    // --- CHANGE START: Modify the header section to include the recordLocator ---
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
-        headerDiv.innerHTML = `<h4>Itinerary for:</h4><p>${passengers.join('<br>')}</p>${passengers.length > 1 ? `<p style="margin-top: 8px; font-style: italic;">Total Passengers: ${passengers.length}</p>` : ''}`;
+
+        let headerHTML = `<h4>Itinerary for:</h4><p>${passengers.join('<br>')}</p>`;
+
+        // If a record locator (PNR code) was found, display it
+        if (recordLocator) {
+            headerHTML += `<h4 style="margin-top: 10px;">Booking Ref:</h4><p>${recordLocator}</p>`;
+        }
+
+        if (passengers.length > 1) {
+            headerHTML += `<p style="margin-top: 8px; font-style: italic;">Total Passengers: ${passengers.length}</p>`;
+        }
+
+        headerDiv.innerHTML = headerHTML;
         outputContainer.appendChild(headerDiv);
     }
+    // --- CHANGE END ---
+
 
     if (flights.length > 0) {
         const itineraryBlock = document.createElement('div');
@@ -615,7 +633,7 @@ const historyManager = {
             }
         });
         document.getElementById('closePreviewBtn')?.addEventListener('click', (e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             document.getElementById('historyPreviewPanel').classList.add('hidden');
 
         });
