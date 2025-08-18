@@ -181,6 +181,11 @@ function getMealDescription(mealCode) {
 function parseGalileoEnhanced(pnrText, options) {
     const flights = [];
     const passengers = [];
+    // --- ADDITION START ---
+    // 1. Initialize a variable to hold our record locator
+    let recordLocator = '';
+    // --- ADDITION END ---
+
     const lines = pnrText.split('\n').map(line => line.trim());
     let currentFlight = null;
     let flightIndex = 0;
@@ -198,8 +203,23 @@ function parseGalileoEnhanced(pnrText, options) {
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
 
+    // --- ADDITION START ---
+    // 2. Define a new regex to find the PNR code pattern like "WB/88LGZF"
+    const recordLocatorRegex = /\s([A-Z0-9]{2})\/([A-Z0-9]{6})\b/;
+    // --- ADDITION END ---
+
+
     for (let rawLine of lines) {
         if (!rawLine) continue;
+
+        // --- ADDITION START ---
+        // 3. Check each line for the record locator before doing anything else
+        const recordLocatorMatch = rawLine.match(recordLocatorRegex);
+        if (recordLocatorMatch && !recordLocator) {
+            // We found it. The code is the second captured group.
+            recordLocator = recordLocatorMatch[2];
+        }
+        // --- ADDITION END ---
 
         // Remove any leading "*" for codeshare/indicator flights
         let line = rawLine.replace(/^\s*\*/, '');
@@ -253,22 +273,17 @@ function parseGalileoEnhanced(pnrText, options) {
             const flightDetailsPart = line.substring(flightMatch[0].length).trim();
             const detailsParts = flightDetailsPart.split(/\s+/);
 
-            // --- START OF THE FIX ---
             let aircraftCodeKey = null;
-            // We loop through the leftover parts of the line to find the aircraft code.
             for (let part of detailsParts) {
                 let potentialCode = part.toUpperCase();
-                // If the part contains a slash (like "E0/7M8"), we isolate the part after the slash.
                 if (potentialCode.includes('/')) {
                     potentialCode = potentialCode.split('/').pop();
                 }
-                // Now we check if this corrected code ("7M8") is a valid aircraft type.
                 if (potentialCode in aircraftTypes) {
-                    aircraftCodeKey = potentialCode; // We found it!
-                    break; // Stop searching.
+                    aircraftCodeKey = potentialCode;
+                    break;
                 }
             }
-            // --- END OF THE FIX ---
 
             const validMealCharsRegex = /^[BLDSMFHCVKOPRWYNG]+$/i;
             let mealCode = null;
@@ -281,55 +296,37 @@ function parseGalileoEnhanced(pnrText, options) {
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
 
             if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
-
             if (!moment.tz.zone(arrAirportInfo.timezone)) arrAirportInfo.timezone = 'UTC';
 
             const depDateMoment = moment.utc(depDateStr, "DDMMM");
-
-            const currentDepartureMonthIndex = depDateMoment.month(); // December is 11, January is 0
+            const currentDepartureMonthIndex = depDateMoment.month();
 
             if (currentYear === null) {
                 currentYear = new Date().getFullYear();
-                // Heuristic: If the flight date is more than 3 months in the past,
-                // assume the PNR is for next year.
                 const prospectiveDate = depDateMoment.year(currentYear);
                 if (prospectiveDate.isBefore(moment().subtract(3, 'months'))) {
                     currentYear++;
                 }
-            }
-
-            // Step C: If the current month is earlier than the previous one, we've rolled over the year
-            else if (currentDepartureMonthIndex < previousDepartureMonthIndex) {
+            } else if (currentDepartureMonthIndex < previousDepartureMonthIndex) {
                 currentYear++;
             }
-
             previousDepartureMonthIndex = currentDepartureMonthIndex;
-
-            // const departureMoment = moment.tz(`${depDateStr} ${depTimeStr}`, "DDMMM HHmm", true, depAirportInfo.timezone);
 
             const fullDepDateStr = `${depDateStr}${currentYear}`;
             const departureMoment = moment.tz(fullDepDateStr + " " + depTimeStr, "DDMMMYYYY HHmm", true, depAirportInfo.timezone);
 
             let arrivalMoment;
-
             if (arrDateStrOrNextDayIndicator) {
                 if (arrDateStrOrNextDayIndicator.startsWith('+')) {
-                    // +1 or +n day logic
                     const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
-                    arrivalMoment = departureMoment.clone().add(daysToAdd, 'days')
-                        .set({
-                            hour: parseInt(arrTimeStr.substring(0, 2)),
-                            minute: parseInt(arrTimeStr.substring(2, 4))
-                        });
+                    arrivalMoment = departureMoment.clone().add(daysToAdd, 'days').set({ hour: parseInt(arrTimeStr.substring(0, 2)), minute: parseInt(arrTimeStr.substring(2, 4)) });
                 } else {
-                    // Explicit arrival date
                     const arrDateMoment = moment.utc(arrDateStrOrNextDayIndicator, "DDMMM");
                     let arrivalYear = departureMoment.year();
                     if (arrDateMoment.month() < departureMoment.month()) arrivalYear++;
                     arrivalMoment = moment.tz(`${arrDateStrOrNextDayIndicator}${arrivalYear} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 }
             } else {
-                // No explicit date, check if arrival time < departure time
                 arrivalMoment = moment.tz(`${depDateStr}${currentYear} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 if (arrivalMoment.isBefore(departureMoment)) arrivalMoment.add(1, 'day');
             }
@@ -338,7 +335,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
                 const transitMinutes = transitDuration.asMinutes();
 
-                if (transitMinutes > 30 && transitMinutes < 1440) { // filter very short/long
+                if (transitMinutes > 30 && transitMinutes < 1440) {
                     const hours = Math.floor(transitMinutes / 60);
                     const minutes = Math.floor(transitMinutes % 60);
                     precedingTransitTimeForThisSegment = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
@@ -355,31 +352,17 @@ function parseGalileoEnhanced(pnrText, options) {
                 }
             }
 
-
             currentFlight = {
                 segment: parseInt(segmentNumStr, 10) || flightIndex,
                 airline: { code: airlineCode, name: airlineDatabase[airlineCode] || `Unknown Airline (${airlineCode})` },
                 flightNumber: flightNumRaw,
                 travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
-                departure: {
-                    airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, countryCode: depAirportInfo.countryCode,
-                    time: formatMomentTime(departureMoment, use24hSegment),
-                    terminal: normalizeTerminal(depTerminal)
-                },
-                arrival: {
-                    airport: arrAirport,
-                    city: arrAirportInfo.city,
-                    name: arrAirportInfo.name,
-                    countryCode: arrAirportInfo.countryCode,
-                    time: formatMomentTime(arrivalMoment, use24hSegment),
-                    dateString: arrivalDateString,
-                    terminal: normalizeTerminal(arrTerminal)
-                },
+                departure: { airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, countryCode: depAirportInfo.countryCode, time: formatMomentTime(departureMoment, use24hSegment), terminal: normalizeTerminal(depTerminal) },
+                arrival: { airport: arrAirport, city: arrAirportInfo.city, name: arrAirportInfo.name, countryCode: arrAirportInfo.countryCode, time: formatMomentTime(arrivalMoment, use24hSegment), dateString: arrivalDateString, terminal: normalizeTerminal(arrTerminal) },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
-                // This line now correctly uses the found aircraftCodeKey
                 aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
-                meal: getMealDescription(mealCode),//-------edit
+                meal: getMealDescription(mealCode),
                 notes: [],
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
@@ -395,17 +378,14 @@ function parseGalileoEnhanced(pnrText, options) {
     }
     if (currentFlight) flights.push(currentFlight);
 
-    // --- START: REFINED LOGIC FOR / LEG DETECTION ---
-
+    // This section for leg/direction detection remains the same
     if (flights.length > 0) {
         for (const flight of flights) {
             flight.direction = null;
         }
         flights[0].direction = 'OUTBOUND';
 
-        const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
-
-        // Define both possible time formats
+        const STOPOVER_THRESHOLD_MINUTES = 1440;
         const format12h = "DD MMM YYYY hh:mm A";
         const format24h = "DD MMM YYYY HH:mm";
 
@@ -415,47 +395,36 @@ function parseGalileoEnhanced(pnrText, options) {
 
             const prevArrAirportInfo = airportDatabase[prevFlight.arrival.airport] || { timezone: 'UTC' };
             if (!moment.tz.zone(prevArrAirportInfo.timezone)) prevArrAirportInfo.timezone = 'UTC';
-
             const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
             if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
 
-            // --- Start of the fix ---
-
-            // Determine the correct format string for the previous flight's arrival time
             const prevTimeFormat = prevFlight.arrival.time.includes('M') ? format12h : format24h;
-            // Determine the correct format string for the current flight's departure time
             const currTimeFormat = currentFlight.departure.time.includes('M') ? format12h : format24h;
-
-            // --- End of the fix ---
 
             const prevYear = prevFlight.date.split(', ')[1].split(' ')[2];
             const prevArrivalDateStr = prevFlight.arrival.dateString ? `${prevFlight.arrival.dateString} ${prevYear}` : prevFlight.date.split(', ')[1];
 
-            // Use the detected format for parsing
             const arrivalOfPreviousFlight = moment.tz(`${prevArrivalDateStr} ${prevFlight.arrival.time}`, prevTimeFormat, true, prevArrAirportInfo.timezone);
             const departureOfCurrentFlight = moment.tz(`${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`, currTimeFormat, true, currDepAirportInfo.timezone);
 
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
                 const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
-
                 if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
                     const originalOrigin = flights[0].departure.airport;
                     const finalDestination = flights[flights.length - 1].arrival.airport;
                     const isRoundTrip = originalOrigin === finalDestination;
-
                     currentFlight.direction = isRoundTrip ? 'INBOUND' : 'OUTBOUND';
                 }
             } else {
-                // This else block is for debugging and can be removed later
                 console.error("Moment.js parsing failed! Check formats.");
                 console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
                 console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
             }
         }
     }
-    // --- END: CORRECTED LOGIC ---
 
-    return { flights, passengers };
+    // --- ADDITION START ---
+    // 4. Return the complete object, including the recordLocator
+    return { flights, passengers, recordLocator };
+    // --- ADDITION END ---
 }
-
-module.exports = app;
