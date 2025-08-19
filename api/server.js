@@ -363,7 +363,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
                 departure: {
-                    airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, country: depAirportInfo.country,
+                    airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, countryCode: depAirportInfo.countryCode,
                     time: formatMomentTime(departureMoment, use24hSegment),
                     terminal: normalizeTerminal(depTerminal)
                 },
@@ -371,7 +371,7 @@ function parseGalileoEnhanced(pnrText, options) {
                     airport: arrAirport,
                     city: arrAirportInfo.city,
                     name: arrAirportInfo.name,
-                    country: arrAirportInfo.country,
+                    countryCode: arrAirportInfo.countryCode,
                     time: formatMomentTime(arrivalMoment, use24hSegment),
                     dateString: arrivalDateString,
                     terminal: normalizeTerminal(arrTerminal)
