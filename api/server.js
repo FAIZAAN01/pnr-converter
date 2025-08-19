@@ -274,10 +274,7 @@ function parseGalileoEnhanced(pnrText, options) {
             let mealCode = null;
             for (const p of detailsParts) {
                 const tok = p.replace(/[^A-Za-z]/g, '');
-                if (validMealCharsRegex.test(tok)) { 
-                    mealCode = tok; 
-                    break; 
-                }
+                if (validMealCharsRegex.test(tok)) { mealCode = tok; break; }
             }
 
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
@@ -366,7 +363,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
                 departure: {
-                    airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, countryCode: depAirportInfo.countryCode,
+                    airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name,
                     time: formatMomentTime(departureMoment, use24hSegment),
                     terminal: normalizeTerminal(depTerminal)
                 },
@@ -374,7 +371,6 @@ function parseGalileoEnhanced(pnrText, options) {
                     airport: arrAirport,
                     city: arrAirportInfo.city,
                     name: arrAirportInfo.name,
-                    countryCode: arrAirportInfo.countryCode,
                     time: formatMomentTime(arrivalMoment, use24hSegment),
                     dateString: arrivalDateString,
                     terminal: normalizeTerminal(arrTerminal)
@@ -446,7 +442,7 @@ function parseGalileoEnhanced(pnrText, options) {
                     const finalDestination = flights[flights.length - 1].arrival.airport;
                     const isRoundTrip = originalOrigin === finalDestination;
 
-                    currentFlight.direction = isRoundTrip ? 'INBOUND' : 'OUTBOUND';
+                    currentFlight.direction = isRoundTrip ? 'INBOUND' : '';
                 }
             } else {
                 // This else block is for debugging and can be removed later
