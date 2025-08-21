@@ -562,7 +562,7 @@ button {
 
 #output .output-container * {
     /* Base text color */
-    color: #2c3e50 !important;
+    color: #000000;
 }
 
 #output .itinerary-main-logo-container {
@@ -1070,7 +1070,7 @@ button {
 }
 #notes-header {
     padding-left: 15px;
-    color: red;
+    color: red !important;
 }
 
 .itinerary-notes {
