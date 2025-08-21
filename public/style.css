@@ -1069,22 +1069,17 @@ button {
     }
 }
 
-.ticket-conditions {
-    margin-top: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: #f9f9f9;
+.options {
+    margin: 20px;
 }
 
-.ticket-conditions h3 {
-    margin: 0 0 8px 0;
-    font-size: 14px;
-}
-
-.ticket-conditions ul {
-    margin: 0;
-    padding-left: 18px;
+#result {
+    margin-top: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    color: darkgreen;
+    white-space: pre-line;
+    /* allows line breaks to show */
 }
 
 footer{
