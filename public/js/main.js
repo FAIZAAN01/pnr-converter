@@ -471,11 +471,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             notesHtml += `<p>- Date Change Allowed.</p>`;
         }
 
-        if (notesHtml) {
-            notesContainer.innerHTML = `<strong>Ticket Conditions:</strong>\n${notesHtml}`;
-            itineraryBlock.appendChild(notesContainer);
-        }
-
         const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
         const adultCountNum = parseInt(adultCount) || 0;
         const childCountNum = parseInt(childCount) || 0;
@@ -513,6 +508,10 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 fareDiv.innerHTML = fareLines.join('<br>');
                 itineraryBlock.appendChild(fareDiv);
             }
+        }
+        if (notesHtml) {
+            notesContainer.innerHTML = `<p style="color: red;"><strong>Ticket Conditions:</strong></p>\n${notesHtml}`;
+            itineraryBlock.appendChild(notesContainer);
         }
         outputContainer.appendChild(itineraryBlock);
     }
