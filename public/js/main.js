@@ -465,7 +465,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             notesHtml += `<p> <strong>&#9830</strong> Non Refundable.</p>`;
         }
         if (checkboxOutputs.showTravelInsurance) {
-            notesHtml += `<p> <strong>&#9830</strong> Before Departure Change Allowed.</p>`;
+            notesHtml += `<p> <strong>&#9830</strong> Before Departure Changes Are Allowed.</p>`;
         }
         if (checkboxOutputs.showCovidNotice) {
             notesHtml += `<p> <strong>&#9830</strong> Date Change Allowed.</p>`;
