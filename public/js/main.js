@@ -459,7 +459,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         let notesHtml = '';
 
         if (checkboxOutputs.showVisaInfo) {
-            notesHtml += `<p>- With Aplicable Penalties.</p>`;
+            notesHtml += `<p>- Refundable With Aplicable Penalties.</p>`;
         }
         if (checkboxOutputs.showHealthDocs) {
             notesHtml += `<p>- Non Refundable.</p>`;
