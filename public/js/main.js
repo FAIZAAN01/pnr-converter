@@ -291,7 +291,6 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
     const baggageDetails = {
         option: baggageOption,
         amount: (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '',
-        // --- MODIFIED: Use the new helper function instead of the old dropdown ---
         unit: (baggageOption === 'particular') ? getSelectedUnit() : ''
     };
 
@@ -308,15 +307,13 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
 // --- REMOVED THE SEPARATE, UNUSED TOGGLE SWITCH CODE THAT WAS HERE ---
 
 // --- MODIFIED FUNCTION ---
-function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted) {
+function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted) {
     const output = document.getElementById('output');
     const screenshotBtn = document.getElementById('screenshotBtn');
     const copyTextBtn = document.getElementById('copyTextBtn');
     output.innerHTML = '';
 
-    // --- CHANGE START: Destructure recordLocator from the pnrResult object ---
     const { flights = [], passengers = [], recordLocator = '' } = pnrResult || {};
-    // --- CHANGE END ---
 
     if (flights.length > 0) {
         screenshotBtn.style.display = 'inline-block';
@@ -343,14 +340,12 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         outputContainer.appendChild(logoContainer);
     }
 
-    // --- CHANGE START: Modify the header section to include the recordLocator ---
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
 
         let headerHTML = `<h4>Itinerary for:</h4><p>${passengers.join('<br>')}</p>`;
 
-        // If a record locator (PNR code) was found, display it
         if (recordLocator) {
             headerHTML += `<h4 style="margin-top: 10px;">Booking Ref:</h4><p>${recordLocator}</p>`;
         }
@@ -362,7 +357,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         headerDiv.innerHTML = headerHTML;
         outputContainer.appendChild(headerDiv);
     }
-    // --- CHANGE END ---
 
 
     if (flights.length > 0) {
@@ -373,32 +367,24 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             let currentHeadingDisplayed = null;
 
-            // --- START: REVISED HEADING CREATION LOGIC (TEXT FIRST) ---
-
             if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
 
-                // 1. Determine which icon to use (this logic remains the same)
                 const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
                     ? '/icons/takeoff.png'
                     : '/icons/landing.png';
 
-                // 2. Create the heading element
                 const headingDiv = document.createElement('div');
                 headingDiv.className = 'itinerary-leg-header';
 
-                // 3. Build the inner HTML with the TEXT first, then the ICON
                 headingDiv.innerHTML = `
                     <span>${flight.direction.toUpperCase()}</span>
                     <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
                 `;
 
-                // 4. Add the new heading to the itinerary block
                 itineraryBlock.appendChild(headingDiv);
 
-                // Remember the heading we just displayed
                 currentHeadingDisplayed = flight.direction.toUpperCase();
             }
-            // --- END: REVISED HEADING CREATION LOGIC (TEXT FIRST) ---
 
             if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
                 const transitDiv = document.createElement('div');
@@ -540,7 +526,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         output.innerHTML = '<div class="info">Enter PNR data and click Convert to begin.</div>';
     }
 }
-
 
 function getMealDescription(mealCode) {
     // ... (This function remains unchanged)
