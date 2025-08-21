@@ -1074,6 +1074,10 @@ button {
     border-top: 1px solid var(--border-main);
 }
 
+.itinerary-notes {
+    color: red;
+}
+
 footer{
     height: 200px;
     width: 100%;
