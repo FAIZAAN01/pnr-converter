@@ -459,16 +459,16 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         let notesHtml = '';
 
         if (checkboxOutputs.showVisaInfo) {
-            notesHtml += `<p><strong>Refundable With Aplicable Penalties.</strong></p>`;
+            notesHtml += `<p>- With Aplicable Penalties.</p>`;
         }
         if (checkboxOutputs.showHealthDocs) {
-            notesHtml += `<p><strong>Non Refundable.</strong></p>`;
+            notesHtml += `<p>- Non Refundable.</p>`;
         }
         if (checkboxOutputs.showTravelInsurance) {
-            notesHtml += `<p><strong>Before Departure Change Allowed.</strong></p>`;
+            notesHtml += `<p>- Before Departure Change Allowed.</p>`;
         }
         if (checkboxOutputs.showCovidNotice) {
-            notesHtml += `<p><strong>Date Change Allowed.</strong></p>`;
+            notesHtml += `<p>- Date Change Allowed.</p>`;
         }
 
         if (notesHtml) {
