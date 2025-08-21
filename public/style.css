@@ -1071,6 +1071,7 @@ button {
 #itinerary-header {
     padding: 15px;
     border-top: 1px solid var(--border-main);
+    color: red;
 }
 
 #itinerary-notes {
