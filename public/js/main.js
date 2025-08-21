@@ -472,7 +472,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         }
 
         if (notesHtml) {
-            notesContainer.innerHTML = notesHtml;
+            notesContainer.innerHTML = `<strong>Ticket Conditions:</strong>\n${notesHtml}`;
             itineraryBlock.appendChild(notesContainer);
         }
 
