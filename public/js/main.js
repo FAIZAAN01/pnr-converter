@@ -498,24 +498,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 itineraryBlock.appendChild(fareDiv);
             }
         }
-        const checkboxes = document.querySelectorAll('input[name="opt"]');
-        const result = document.getElementById('result');
-
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', () => {
-                // Collect all checked values
-                const selected = Array.from(checkboxes)
-                    .filter(box => box.checked)
-                    .map(box => box.value);
-
-                // Update result display with line breaks
-                if (selected.length > 0) {
-                    result.textContent = "Selected:\n" + selected.join("\n");
-                } else {
-                    result.textContent = "No option selected";
-                }
-            });
-        });
         outputContainer.appendChild(itineraryBlock);
     }
     else if (pnrProcessingAttempted) {
