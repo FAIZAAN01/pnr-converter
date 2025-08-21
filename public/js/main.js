@@ -459,16 +459,16 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         let notesHtml = '';
 
         if (checkboxOutputs.showVisaInfo) {
-            notesHtml += `<p>- Refundable With Aplicable Penalties.</p>`;
+            notesHtml += `<p> <strong>&#9830</strong> Refundable With Aplicable Penalties.</p>`;
         }
         if (checkboxOutputs.showHealthDocs) {
-            notesHtml += `<p>- Non Refundable.</p>`;
+            notesHtml += `<p> <strong>&#9830</strong> Non Refundable.</p>`;
         }
         if (checkboxOutputs.showTravelInsurance) {
-            notesHtml += `<p>- Before Departure Change Allowed.</p>`;
+            notesHtml += `<p> <strong>&#9830</strong> Before Departure Change Allowed.</p>`;
         }
         if (checkboxOutputs.showCovidNotice) {
-            notesHtml += `<p>- Date Change Allowed.</p>`;
+            notesHtml += `<p> <strong>&#9830</strong> Date Change Allowed.</p>`;
         }
 
         const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
@@ -510,7 +510,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             }
         }
         if (notesHtml) {
-            notesContainer.innerHTML = `<hr><p style="color: red;"><strong>Ticket Conditions:</strong></p>\n${notesHtml}`;
+            notesContainer.innerHTML = `<hr><strong style="color: rgb(255,0,0); margin-left: 10px;">Ticket Conditions:</strong>\n${notesHtml}`;
             itineraryBlock.appendChild(notesContainer);
         }
         outputContainer.appendChild(itineraryBlock);
