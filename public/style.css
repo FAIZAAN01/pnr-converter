@@ -1068,9 +1068,13 @@ button {
         transform: translateX(0)
     }
 }
+#itinerary-header {
+    padding: 15px;
+    border-top: 1px solid var(--border-main);
+}
 
 #itinerary-notes {
-    padding: 15px;
+    padding-left: 15px;
     border-top: 1px solid var(--border-main);
 }
 footer{
