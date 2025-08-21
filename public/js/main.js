@@ -28,6 +28,31 @@ function debounce(func, wait) {
     };
 }
 
+const ticketConditionsMap = {
+    refundableWithPenalties: "Refundable with penalties",
+    beforeDepartureChangesAllowed: "Changes allowed before departure",
+    dateChangeAllowed: "Date change allowed",
+    nonRefundable: "Non-refundable"
+};
+
+// Collect Ticket Conditions
+const selectedConditions = Object.keys(ticketConditionsMap)
+    .filter(id => document.getElementById(id)?.checked)
+    .map(id => ticketConditionsMap[id]);
+
+if (selectedConditions.length > 0) {
+    const conditionsHtml = `
+    <div class="ticket-conditions">
+      <h3>Ticket Conditions</h3>
+      <ul>
+        ${selectedConditions.map(c => `<li>${c}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+    output.innerHTML += conditionsHtml;
+}
+
+
 // --- START: NEW FUNCTION TO RESET FARE & BAGGAGE INPUTS ---
 
 function resetFareAndBaggageInputs() {
@@ -147,11 +172,13 @@ function loadOptions() {
 
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
-            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
+            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees',
+            'refundableWithPenalties', 'beforeDepartureChangesAllowed', 'dateChangeAllowed','nonRefundable'
         ];
         const defaultValues = {
             showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
-            showTransit: true, showTaxes: true, showFees: true
+            showTransit: true, showTaxes: true, showFees: true,
+            refundableWithPenalties: false, beforeDepartureChangesAllowed: false, dateChangeAllowed: false, nonRefundable: false
         };
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
@@ -271,6 +298,10 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showNotes: document.getElementById('showNotes').checked,
         showTransit: document.getElementById('showTransit').checked,
         transitSymbol: document.getElementById('transitSymbolInput').value || ':::::::',
+        refundableWithPenalties: document.getElementById('refundableWithPenalties').checked,
+        beforeDepartureChangesAllowed: document.getElementById('beforeDepartureChangesAllowed').checked,
+        dateChangeAllowed: document.getElementById('dateChangeAllowed').checked,
+        nonRefundable: document.getElementById('nonRefundable').checked,
     };
 
     const fareDetails = {
