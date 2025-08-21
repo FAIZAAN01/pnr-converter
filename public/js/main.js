@@ -295,7 +295,14 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         unit: (baggageOption === 'particular') ? getSelectedUnit() : ''
     };
 
-    displayResults(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, pnrProcessingAttempted);
+    const checkboxOutputs = {
+        showVisaInfo: document.getElementById('showVisaInfo').checked,
+        showHealthDocs: document.getElementById('showHealthDocs').checked,
+        showTravelInsurance: document.getElementById('showTravelInsurance').checked,
+        showCovidNotice: document.getElementById('showCovidNotice').checked,
+    };
+
+    displayResults(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted);
 }
 
 // --- REMOVED THE SEPARATE, UNUSED TOGGLE SWITCH CODE THAT WAS HERE ---
@@ -459,6 +466,29 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             flightItem.innerHTML = `<div class="flight-content">${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" alt="${flight.airline.name} logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}<div><div class="flight-header">${headerText}</div>${detailsHtml}</div></div>`;
             itineraryBlock.appendChild(flightItem);
         });
+
+        // Display checkbox outputs
+        const notesContainer = document.createElement('div');
+        notesContainer.className = 'itinerary-notes';
+        let notesHtml = '';
+
+        if (checkboxOutputs.showVisaInfo) {
+            notesHtml += `<p><strong>Visa Requirement:</strong> Passengers are responsible for ensuring they have the correct visa for their destination and any transit countries. Please check with the respective embassies.</p>`;
+        }
+        if (checkboxOutputs.showHealthDocs) {
+            notesHtml += `<p><strong>Health Documents:</strong> Some destinations may require specific health documents or vaccinations. Consult your doctor or a travel clinic well in advance of your departure.</p>`;
+        }
+        if (checkboxOutputs.showTravelInsurance) {
+            notesHtml += `<p><strong>Travel Insurance:</strong> We strongly recommend that all passengers have comprehensive travel insurance for their journey.</p>`;
+        }
+        if (checkboxOutputs.showCovidNotice) {
+            notesHtml += `<p><strong>COVID-19 Notice:</strong> Travel requirements related to COVID-19 can change at short notice. Please check the latest government advice for your destination and any transit points.</p>`;
+        }
+
+        if (notesHtml) {
+            notesContainer.innerHTML = notesHtml;
+            itineraryBlock.appendChild(notesContainer);
+        }
 
         const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
         const adultCountNum = parseInt(adultCount) || 0;
