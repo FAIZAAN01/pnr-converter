@@ -172,8 +172,7 @@ function loadOptions() {
 
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
-            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees',
-            'refundableWithPenalties', 'beforeDepartureChangesAllowed', 'dateChangeAllowed','nonRefundable'
+            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
         ];
         const defaultValues = {
             showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
@@ -297,11 +296,7 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showMeal: document.getElementById('showMeal').checked,
         showNotes: document.getElementById('showNotes').checked,
         showTransit: document.getElementById('showTransit').checked,
-        transitSymbol: document.getElementById('transitSymbolInput').value || ':::::::',
-        refundableWithPenalties: document.getElementById('refundableWithPenalties').checked,
-        beforeDepartureChangesAllowed: document.getElementById('beforeDepartureChangesAllowed').checked,
-        dateChangeAllowed: document.getElementById('dateChangeAllowed').checked,
-        nonRefundable: document.getElementById('nonRefundable').checked,
+        transitSymbol: document.getElementById('transitSymbolInput').value || ':::::::'
     };
 
     const fareDetails = {
