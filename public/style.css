@@ -1068,3 +1068,12 @@ button {
         transform: translateX(0)
     }
 }
+
+footer{
+    height: 200px;
+    width: 100%;
+    background-color: var(--bg-footer);
+    border-top: 1px solid var(--border-main);
+    margin-top: 20px;
+
+}
