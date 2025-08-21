@@ -510,7 +510,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             }
         }
         if (notesHtml) {
-            notesContainer.innerHTML = `<hr><strong class="notes-header">Ticket Conditions:</strong>\n${notesHtml}`;
+            notesContainer.innerHTML = `<hr><strong id="notes-header">Ticket Conditions:</strong>\n${notesHtml}`;
             itineraryBlock.appendChild(notesContainer);
         }
         outputContainer.appendChild(itineraryBlock);
