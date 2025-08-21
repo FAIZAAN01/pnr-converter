@@ -459,16 +459,16 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         let notesHtml = '';
 
         if (checkboxOutputs.showVisaInfo) {
-            notesHtml += `<p><strong>Visa Requirement:</strong> Passengers are responsible for ensuring they have the correct visa for their destination and any transit countries. Please check with the respective embassies.</p>`;
+            notesHtml += `<p><strong>Refundable With Aplicable Penalties.</strong></p>`;
         }
         if (checkboxOutputs.showHealthDocs) {
-            notesHtml += `<p><strong>Health Documents:</strong> Some destinations may require specific health documents or vaccinations. Consult your doctor or a travel clinic well in advance of your departure.</p>`;
+            notesHtml += `<p><strong>Non Refundable.</strong></p>`;
         }
         if (checkboxOutputs.showTravelInsurance) {
-            notesHtml += `<p><strong>Travel Insurance:</strong> We strongly recommend that all passengers have comprehensive travel insurance for their journey.</p>`;
+            notesHtml += `<p><strong>Before Departure Change Allowed.</strong></p>`;
         }
         if (checkboxOutputs.showCovidNotice) {
-            notesHtml += `<p><strong>COVID-19 Notice:</strong> Travel requirements related to COVID-19 can change at short notice. Please check the latest government advice for your destination and any transit points.</p>`;
+            notesHtml += `<p><strong>Date Change Allowed.</strong></p>`;
         }
 
         if (notesHtml) {
