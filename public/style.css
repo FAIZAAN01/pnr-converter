@@ -1069,14 +1069,12 @@ button {
     }
 }
 #notes-header {
-    padding: 15px;
-    border-top: 1px solid var(--border-main);
+    padding-left: 15px;
     color: red;
 }
 
 .itinerary-notes {
     padding-left: 15px;
-    border-top: 1px solid var(--border-main);
 }
 footer{
     height: 200px;
