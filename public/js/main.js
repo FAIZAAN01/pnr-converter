@@ -464,11 +464,11 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         if (checkboxOutputs.showTravelInsurance) {
             notesHtml += `<p> <strong>&#9830</strong> Before Departure Changes Are Allowed.</p>`;
         }
-        if (checkboxOutputs.showVisaInfo) {
-            notesHtml += `<p> <strong>&#9830</strong> Refundable With Aplicable Penalties.</p>`;
-        }
         if (checkboxOutputs.dontShowTravelInsurance) {
             notesHtml += `<p> <strong>&#9830</strong> After Departure Non Refundable.</p>`;
+        }
+        if (checkboxOutputs.showVisaInfo) {
+            notesHtml += `<p> <strong>&#9830</strong> Refundable With Aplicable Penalties.</p>`;
         }
         if (checkboxOutputs.showHealthDocs) {
             notesHtml += `<p> <strong>&#9830</strong> Non Refundable.</p>`;
