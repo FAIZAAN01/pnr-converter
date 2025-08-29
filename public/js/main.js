@@ -345,7 +345,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
 
-        let headerHTML = `<h4>Itinerary for:</h4><p>${passengers.join('<br>')}</p>`;
+        let headerHTML = `<h4 style="margin-top: 0;">Itinerary for:</h4><p>${passengers.join('<br>')}</p>`;
 
         if (recordLocator) {
             headerHTML += `<h4 style="margin-top: 10px;">Booking Ref:</h4><p>${recordLocator}</p>`;
