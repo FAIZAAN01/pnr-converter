@@ -387,7 +387,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 currentHeadingDisplayed = flight.direction.toUpperCase();
             }
 
-            if (displayPnrOptions.showTransit && i > 0) {
+           if (displayPnrOptions.showTransit && i > 0) {
                 if (flight.transitTime && flight.transitDurationMinutes) {
                     const transitDiv = document.createElement('div');
                     const minutes = flight.transitDurationMinutes;
@@ -413,23 +413,29 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitDiv.className = `transit-item ${transitClassName}`;
                     transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
                     itineraryBlock.appendChild(transitDiv);
-                }else {
-                    // Call server to get "Inbound" label
-                    fetch(`/getInbound?flightId=${flight.segment}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const inboundDiv = document.createElement('div');
-                            inboundDiv.className = 'transit-item inbound';
-                            inboundDiv.style.textAlign = 'center';
-                            inboundDiv.style.fontWeight = 'bold';
-                            inboundDiv.style.color = '#555';
-                            inboundDiv.textContent = data.inboundLabel || '';
-                            itineraryBlock.appendChild(inboundDiv);
-                        })
-                        .catch(err => {
-                            console.error('Error fetching inbound info:', err);
-                        });
+                } else {
+                    // Instead of returning null, append separator line centered
+                    const separatorDiv = document.createElement('div');
+                    separatorDiv.textContent = 'INBOUND';
+                    separatorDiv.className = 'transit-separator';
+                    separatorDiv.style.textAlign = 'center';
+                    separatorDiv.style.fontWeight = 'bold';
+                    separatorDiv.style.color = '#555'; // optional styling
+                    itineraryBlock.appendChild(separatorDiv);
                 }
+            }
+
+            const flightItem = document.createElement('div');
+            flightItem.className = 'flight-item';
+
+            let detailsHtml = '';
+            let baggageText = '';
+            if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
+                const baggageInfo = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
+                if (baggageDetails.option === 'particular') {
+                    baggageText = baggageInfo;
+                }
+            }
             
             const flightItem = document.createElement('div');
             flightItem.className = 'flight-item';
