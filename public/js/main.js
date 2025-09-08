@@ -387,39 +387,50 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 currentHeadingDisplayed = flight.direction.toUpperCase();
             }
 
-            if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
-                const transitDiv = document.createElement('div');
-                const minutes = flight.transitDurationMinutes;
-                const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
+            if (displayPnrOptions.showTransit && i > 0) {
+                if (flight.transitTime && flight.transitDurationMinutes) {
+                    const transitDiv = document.createElement('div');
+                    const minutes = flight.transitDurationMinutes;
+                    const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
 
-                const startSeparator = rawSymbol.replace(/ /g, ' ');
-                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
+                    const startSeparator = rawSymbol.replace(/ /g, ' ');
+                    const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
 
-                const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
+                    const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
 
-                let transitLabel, transitClassName;
-                if (minutes <= 120) {
-                    transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-short';
-                } else if (minutes > 300) {
-                    transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-long';
-                } else {
-                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-minimum'
+                    let transitLabel, transitClassName;
+                    if (minutes <= 120) {
+                        transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                        transitClassName = 'transit-short';
+                    } else if (minutes > 300) {
+                        transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                        transitClassName = 'transit-long';
+                    } else {
+                        transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                        transitClassName = 'transit-minimum';
+                    }
+
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                    itineraryBlock.appendChild(transitDiv);
+                }else {
+                    // Call server to get "Inbound" label
+                    fetch(`/getInbound?flightId=${flight.segment}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const inboundDiv = document.createElement('div');
+                            inboundDiv.className = 'transit-item inbound';
+                            inboundDiv.style.textAlign = 'center';
+                            inboundDiv.style.fontWeight = 'bold';
+                            inboundDiv.style.color = '#555';
+                            inboundDiv.textContent = data.inboundLabel || '';
+                            itineraryBlock.appendChild(inboundDiv);
+                        })
+                        .catch(err => {
+                            console.error('Error fetching inbound info:', err);
+                        });
                 }
-
-                transitDiv.className = `transit-item ${transitClassName}`;
-                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                itineraryBlock.appendChild(transitDiv);
-            } else {
-                // Add Inbound label when transit info is not shown
-                const inboundDiv = document.createElement('div');
-                inboundDiv.className = 'transit-item inbound';
-                inboundDiv.textContent = 'Inbound';
-                itineraryBlock.appendChild(inboundDiv);
-            }
-
+            
             const flightItem = document.createElement('div');
             flightItem.className = 'flight-item';
 
