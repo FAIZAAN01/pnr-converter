@@ -412,6 +412,12 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 transitDiv.className = `transit-item ${transitClassName}`;
                 transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
                 itineraryBlock.appendChild(transitDiv);
+            } else {
+                // Add Inbound label when transit info is not shown
+                const inboundDiv = document.createElement('div');
+                inboundDiv.className = 'transit-item inbound';
+                inboundDiv.textContent = 'Inbound';
+                itineraryBlock.appendChild(inboundDiv);
             }
 
             const flightItem = document.createElement('div');
