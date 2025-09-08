@@ -397,62 +397,49 @@ function parseGalileoEnhanced(pnrText, options) {
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
 
-    if (flights.length > 0) {
-        for (const flight of flights) {
-            flight.direction = null;
-        }
-        flights[0].direction = 'OUTBOUND';
+   // --- START: OUTBOUND / INBOUND LOGIC ---
+if (flights.length > 0) {
+    const originalOrigin = flights[0].departure.airport;
+    const finalDestination = flights[flights.length - 1].arrival.airport;
+    const isRoundTrip = originalOrigin === finalDestination;
 
-        const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
+    flights[0].direction = 'OUTBOUND'; // first flight always OUTBOUND
 
-        // Define both possible time formats
-        const format12h = "DD MMM YYYY hh:mm A";
-        const format24h = "DD MMM YYYY HH:mm";
+    for (let i = 1; i < flights.length; i++) {
+        const prevFlight = flights[i - 1];
+        const currentFlight = flights[i];
 
-        for (let i = 1; i < flights.length; i++) {
-            const prevFlight = flights[i - 1];
-            const currentFlight = flights[i];
+        let markInbound = false;
 
-            const prevArrAirportInfo = airportDatabase[prevFlight.arrival.airport] || { timezone: 'UTC' };
-            if (!moment.tz.zone(prevArrAirportInfo.timezone)) prevArrAirportInfo.timezone = 'UTC';
+        if (isRoundTrip) {
+            // If the current flight departs from an airport that's on the way back to origin
+            // OR stopover > 24h (optional)
+            const prevArrivalMoment = moment.tz(
+                `${prevFlight.arrival.dateString || prevFlight.date.split(', ')[1]} ${prevFlight.arrival.time}`,
+                prevFlight.arrival.time.includes('M') ? "DD MMM YYYY hh:mm A" : "DD MMM YYYY HH:mm",
+                true,
+                (airportDatabase[prevFlight.arrival.airport]?.timezone || 'UTC')
+            );
 
-            const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
-            if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
+            const currDepartureMoment = moment.tz(
+                `${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`,
+                currentFlight.departure.time.includes('M') ? "DD MMM YYYY hh:mm A" : "DD MMM YYYY HH:mm",
+                true,
+                (airportDatabase[currentFlight.departure.airport]?.timezone || 'UTC')
+            );
 
-            // --- Start of the fix ---
+            const stopoverMinutes = currDepartureMoment.diff(prevArrivalMoment, 'minutes');
 
-            // Determine the correct format string for the previous flight's arrival time
-            const prevTimeFormat = prevFlight.arrival.time.includes('M') ? format12h : format24h;
-            // Determine the correct format string for the current flight's departure time
-            const currTimeFormat = currentFlight.departure.time.includes('M') ? format12h : format24h;
-
-            // --- End of the fix ---
-
-            const prevYear = prevFlight.date.split(', ')[1].split(' ')[2];
-            const prevArrivalDateStr = prevFlight.arrival.dateString ? `${prevFlight.arrival.dateString} ${prevYear}` : prevFlight.date.split(', ')[1];
-
-            // Use the detected format for parsing
-            const arrivalOfPreviousFlight = moment.tz(`${prevArrivalDateStr} ${prevFlight.arrival.time}`, prevTimeFormat, true, prevArrAirportInfo.timezone);
-            const departureOfCurrentFlight = moment.tz(`${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`, currTimeFormat, true, currDepAirportInfo.timezone);
-
-            if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
-                const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
-
-                if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
-                    const originalOrigin = flights[0].departure.airport;
-                    const finalDestination = flights[flights.length - 1].arrival.airport;
-                    const isRoundTrip = originalOrigin === finalDestination;
-
-                    currentFlight.direction = isRoundTrip ? 'INBOUND' : 'INBOUND';
-                }
-            } else {
-                // This else block is for debugging and can be removed later
-                console.error("Moment.js parsing failed! Check formats.");
-                console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
-                console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
+            // Mark INBOUND if part of round-trip (always) OR if stopover > 24h
+            if (stopoverMinutes > 1440 || true) { 
+                markInbound = true;
             }
         }
+
+        currentFlight.direction = markInbound ? 'INBOUND' : '';
     }
+}
+
     // --- END: CORRECTED LOGIC ---
 
     return { flights, passengers };
