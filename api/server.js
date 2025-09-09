@@ -436,7 +436,10 @@ function parseGalileoEnhanced(pnrText, options) {
             const departureOfCurrentFlight = moment.tz(`${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`, currTimeFormat, true, currDepAirportInfo.timezone);
 
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
-                const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
+                // const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
+                // Replace the whole "refined logic" stopover calculation with:
+                const stopoverMinutes = currentFlight.departure.moment.diff(prevFlight.arrival.moment, 'minutes');
+
 
                 if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
                     const originalOrigin = flights[0].departure.airport;
