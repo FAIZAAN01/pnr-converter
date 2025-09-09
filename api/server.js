@@ -363,9 +363,13 @@ function parseGalileoEnhanced(pnrText, options) {
                 travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
                 departure: {
-                    airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, country: depAirportInfo.country,
+                    airport: depAirport, 
+                    city: depAirportInfo.city, 
+                    name: depAirportInfo.name, 
+                    country: depAirportInfo.country,
                     time: formatMomentTime(departureMoment, use24hSegment),
-                    terminal: normalizeTerminal(depTerminal)
+                    terminal: normalizeTerminal(depTerminal),
+                    moment: departureMoment.clone() 
                 },
                 arrival: {
                     airport: arrAirport,
@@ -374,7 +378,8 @@ function parseGalileoEnhanced(pnrText, options) {
                     country: arrAirportInfo.country,
                     time: formatMomentTime(arrivalMoment, use24hSegment),
                     dateString: arrivalDateString,
-                    terminal: normalizeTerminal(arrTerminal)
+                    terminal: normalizeTerminal(arrTerminal),
+                    moment: arrivalMoment.clone() 
                 },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
                 // This line now correctly uses the found aircraftCodeKey
@@ -438,17 +443,22 @@ function parseGalileoEnhanced(pnrText, options) {
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
                 // const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
                 // Replace the whole "refined logic" stopover calculation with:
+                // const stopoverMinutes = currentFlight.departure.moment.diff(prevFlight.arrival.moment, 'minutes');
+
+
+                // if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
+                    // const originalOrigin = flights[0].departure.airport;
+            //         const finalDestination = flights[flights.length - 1].arrival.airport;
+            //         const isRoundTrip = originalOrigin === finalDestination;
+
+            //         currentFlight.direction = isRoundTrip ? 'INBOUND' : 'INBOUND';
+            //     }
+            // } 
+            
                 const stopoverMinutes = currentFlight.departure.moment.diff(prevFlight.arrival.moment, 'minutes');
-
-
                 if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
-                    const originalOrigin = flights[0].departure.airport;
-                    const finalDestination = flights[flights.length - 1].arrival.airport;
-                    const isRoundTrip = originalOrigin === finalDestination;
-
-                    currentFlight.direction = isRoundTrip ? 'INBOUND' : 'INBOUND';
-                }
-            } else {
+                    currentFlight.direction = 'INBOUND';
+                } else {
                 // This else block is for debugging and can be removed later
                 console.error("Moment.js parsing failed! Check formats.");
                 console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
