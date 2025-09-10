@@ -443,7 +443,7 @@ function parseGalileoEnhanced(pnrText, options) {
                     const finalDestination = flights[flights.length - 1].arrival.airport;
                     const isRoundTrip = originalOrigin === finalDestination;
 
-                    currentFlight.direction = isRoundTrip ? 'INBOUND' : 'INBOUND';
+                    currentFlight.direction = isRoundTrip ? 'INBOUND' : '';
                 }
             } else {
                 // This else block is for debugging and can be removed later
