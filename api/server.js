@@ -437,13 +437,9 @@ function parseGalileoEnhanced(pnrText, options) {
 
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
                 const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
-
+            
                 if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
-                    const originalOrigin = flights[0].departure.airport;
-                    const finalDestination = flights[flights.length - 1].arrival.airport;
-                    const isRoundTrip = originalOrigin === finalDestination;
-
-                    currentFlight.direction = isRoundTrip ? 'INBOUND' : '';
+                    currentFlight.direction = 'INBOUND';
                 }
             } else {
                 // This else block is for debugging and can be removed later
@@ -451,6 +447,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
                 console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
             }
+
         }
     }
     // --- END: CORRECTED LOGIC ---
