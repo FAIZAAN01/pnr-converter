@@ -525,7 +525,7 @@ button {
 #output {
     width: fit-content;
     min-width: 300px;
-    max-width: 300px;
+    max-width: 100%;
     overflow-x: auto;
     margin: 15px 0 200px 0;
 }
