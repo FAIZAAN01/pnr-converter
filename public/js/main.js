@@ -68,25 +68,21 @@ function reverseString(str) {
 async function generateItineraryCanvas(element) {
     if (!element) throw new Error("Element not found");
 
-    const scaleFactor = 3; // high resolution
-    const originalWidth = element.offsetWidth;
-    const originalHeight = element.offsetHeight;
+    const scaleFactor = window.devicePixelRatio*2 || 2;
 
-    // Render high-res canvas
     const highResCanvas = await html2canvas(element, {
         scale: scaleFactor,
         backgroundColor: '#ffffff',
-        useCORS: true
+        useCORS: true,
+        allowTaint: true
     });
 
-    // Create a new canvas with original element dimensions
     const canvas = document.createElement('canvas');
-    canvas.width = originalWidth;
-    canvas.height = originalHeight;
+    canvas.width = element.offsetWidth;
+    canvas.height = element.offsetHeight;
     const ctx = canvas.getContext('2d');
 
-    // Draw high-res canvas onto the smaller canvas
-    ctx.drawImage(highResCanvas, 0, 0, originalWidth, originalHeight);
+    ctx.drawImage(highResCanvas, 0, 0, canvas.width, canvas.height);
 
     return canvas;
 }
