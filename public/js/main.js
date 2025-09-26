@@ -66,19 +66,29 @@ function reverseString(str) {
 }
 
 async function generateItineraryCanvas(element) {
-    if (!element) throw new Error("Element for canvas generation not found.");
+    if (!element) throw new Error("Element not found");
 
-    // Use a high scale for ultra-clear images (e.g., 3 or 4)
-    const scaleFactor = (window.devicePixelRatio || 2) * 2; // 2x your device pixel ratio
+    const scaleFactor = 3; // high resolution
+    const originalWidth = element.offsetWidth;
+    const originalHeight = element.offsetHeight;
 
-    const options = {
+    // Render high-res canvas
+    const highResCanvas = await html2canvas(element, {
         scale: scaleFactor,
         backgroundColor: '#ffffff',
-        useCORS: true,
-        allowTaint: true
-    };
+        useCORS: true
+    });
 
-    return await html2canvas(element, options);
+    // Create a new canvas with original element dimensions
+    const canvas = document.createElement('canvas');
+    canvas.width = originalWidth;
+    canvas.height = originalHeight;
+    const ctx = canvas.getContext('2d');
+
+    // Draw high-res canvas onto the smaller canvas
+    ctx.drawImage(highResCanvas, 0, 0, originalWidth, originalHeight);
+
+    return canvas;
 }
 
 // --- ADDED: Helper function to get the unit from the new toggle ---
