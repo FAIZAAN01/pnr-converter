@@ -67,7 +67,11 @@ function reverseString(str) {
 
 async function generateItineraryCanvas(element) {
     if (!element) throw new Error("Element for canvas generation not found.");
-    const options = { scale: 0.7, backgroundColor: '#ffffff', useCORS: true };
+    const options = {
+        scale: window.devicePixelRatio || 2,
+        backgroundColor: '#ffffff',
+        useCORS: true
+    };
     return await html2canvas(element, options);
 }
 
