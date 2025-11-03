@@ -131,17 +131,17 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
 function getTravelClassName(classCode, airlineCode = null) {
     if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
+    const airline = airlineCode ? airlineCode.toUpperCase() : null;
 
-    // Airline-specific overrides
+    // Airline-specific overrides: 2-letter IATA codes
     const airlineOverrides = {
-        'EK': { 'Z': 'Premium Economy', 'O': 'Business' }, // example: XYZ airline
-        'QR': { 'U': 'Business', 'V': 'Economy' }          // example: ABC airline
-        // Add more airlines and their custom codes here
+        'EK': { 'O': 'Business', 'P': 'First' }, // Emirates example      
+        // Qatar Airways example
+        // Add more airline-specific mappings here
     };
 
-    if (airlineCode && airlineOverrides[airlineCode]) {
-        const airlineMapping = airlineOverrides[airlineCode];
-        if (airlineMapping[code]) return airlineMapping[code];
+    if (airline && airlineOverrides[airline] && airlineOverrides[airline][code]) {
+        return airlineOverrides[airline][code];
     }
 
     // Default mapping
@@ -157,6 +157,7 @@ function getTravelClassName(classCode, airlineCode = null) {
 
     return `Class ${code}`;
 }
+
 
 
 function getMealDescription(mealCode) {
