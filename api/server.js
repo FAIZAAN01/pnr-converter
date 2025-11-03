@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 // const bodyParser = require('body-parser'); // replaced with express.json/urlencoded
 const moment = require('moment-timezone');
 const helmet = require('helmet');
@@ -10,6 +10,32 @@ const morgan = require('morgan');
 
 const app = express();
 app.set('trust proxy', 1); // trust first proxy
+
+require('dotenv').config();
+const axios = require('axios');
+
+// Simple helper for Telegram alerts
+async function sendTelegramAlert(message) {
+  try {
+    const token = process.env.TELEGRAM_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) {
+      console.error('Telegram credentials missing in .env');
+      return;
+    }
+
+    await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+      chat_id: chatId,
+      text: message,
+      parse_mode: 'Markdown'
+    });
+
+    console.log('✅ Telegram alert sent.');
+  } catch (err) {
+    console.error('❌ Failed to send Telegram alert:', err.message);
+  }
+}
+
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const AIRLINES_FILE = path.join(DATA_DIR, 'airlines.json');
@@ -84,6 +110,31 @@ app.post('/api/convert', limiter, (req, res) => {
         const result = pnrTextForProcessing
             ? parseGalileoEnhanced(pnrTextForProcessing, serverOptions)
             : { flights: [], passengers: [] };
+            // --- Detect suspicious/unrecognized PNR results ---
+        const resultStr = JSON.stringify(result);
+        const suspicious = (
+            result.flights.length === 0 ||
+            resultStr.includes('Unknown Airline') ||
+            resultStr.includes('undefined') ||
+            resultStr.includes('Unrecognized')
+        );
+
+        if (suspicious) {
+            const alertMessage = `
+        ⚠️ *PNR Conversion Issue Detected*
+
+        *PNR Input:*
+        \`${pnrText}\`
+
+        *Detected Problem:*
+        ${result.flights.length === 0 ? 'No flights found' : 'Unrecognized or undefined data'}
+
+        *Snippet:*
+        \`${resultStr.slice(0, 500)}...\`
+        `;
+            sendTelegramAlert(alertMessage);
+        }
+
 
         const responsePayload = {
             success: true,
@@ -128,37 +179,19 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
     // Return the formatted string instead of assigning it to another variable
     return `${paddedHours}h ${paddedMinutes}m`;
 }
-function getTravelClassName(classCode, airlineCode = null) {
+function getTravelClassName(classCode) {
     if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
-    const airline = airlineCode ? airlineCode.toUpperCase() : null;
-
-    // Airline-specific overrides: 2-letter IATA codes
-    const airlineOverrides = {
-        'EK': { 'O': 'Business', 'P': 'First' }, // Emirates example      
-        // Qatar Airways example
-        // Add more airline-specific mappings here
-    };
-
-    if (airline && airlineOverrides[airline] && airlineOverrides[airline][code]) {
-        return airlineOverrides[airline][code];
-    }
-
-    // Default mapping
     const firstCodes = ['F', 'A'];
     const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
     const premiumEconomyCodes = [];
     const economyCodes = ['Y', 'B', 'H', 'K', 'L', 'M', 'N', 'O', 'Q', 'S', 'U', 'V', 'X', 'G', 'W', 'E', 'T', 'R'];
-
     if (firstCodes.includes(code)) return 'First';
     if (businessCodes.includes(code)) return 'Business';
     if (premiumEconomyCodes.includes(code)) return 'Premium Economy';
     if (economyCodes.includes(code)) return 'Economy';
-
     return `Class ${code}`;
 }
-
-
 
 function getMealDescription(mealCode) {
     if (!mealCode) return null;
@@ -378,7 +411,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 segment: parseInt(segmentNumStr, 10) || flightIndex,
                 airline: { code: airlineCode, name: airlineDatabase[airlineCode] || `Unknown Airline (${airlineCode})` },
                 flightNumber: flightNumRaw,
-                travelClass: { code: travelClass || '', name: getTravelClassName(travelClass, airlineCode) },
+                travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
                 departure: {
                     airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, country: depAirportInfo.country,
