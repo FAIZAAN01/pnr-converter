@@ -1,4 +1,12 @@
 {
+    "KIN": {
+  "city": "Kingston",
+  "name": "Norman Manley International Airport",
+  "timezone": "America/Jamaica",
+  "countryCode": "JM",
+  "country": "Jamaica"
+},
+
   "BGY": { 
       "city": "Bergamo", 
       "name": "Orio al Serio International Airport", 
