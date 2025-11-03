@@ -128,19 +128,36 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
     // Return the formatted string instead of assigning it to another variable
     return `${paddedHours}h ${paddedMinutes}m`;
 }
-function getTravelClassName(classCode) {
+function getTravelClassName(classCode, airlineCode = null) {
     if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
+
+    // Airline-specific overrides
+    const airlineOverrides = {
+        'EK': { 'Z': 'Premium Economy', 'O': 'Business' }, // example: XYZ airline
+        'QR': { 'U': 'Business', 'V': 'Economy' }          // example: ABC airline
+        // Add more airlines and their custom codes here
+    };
+
+    if (airlineCode && airlineOverrides[airlineCode]) {
+        const airlineMapping = airlineOverrides[airlineCode];
+        if (airlineMapping[code]) return airlineMapping[code];
+    }
+
+    // Default mapping
     const firstCodes = ['F', 'A'];
     const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
     const premiumEconomyCodes = [];
     const economyCodes = ['Y', 'B', 'H', 'K', 'L', 'M', 'N', 'O', 'Q', 'S', 'U', 'V', 'X', 'G', 'W', 'E', 'T', 'R'];
+
     if (firstCodes.includes(code)) return 'First';
     if (businessCodes.includes(code)) return 'Business';
     if (premiumEconomyCodes.includes(code)) return 'Premium Economy';
     if (economyCodes.includes(code)) return 'Economy';
+
     return `Class ${code}`;
 }
+
 
 function getMealDescription(mealCode) {
     if (!mealCode) return null;
