@@ -378,7 +378,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 segment: parseInt(segmentNumStr, 10) || flightIndex,
                 airline: { code: airlineCode, name: airlineDatabase[airlineCode] || `Unknown Airline (${airlineCode})` },
                 flightNumber: flightNumRaw,
-                travelClass: { code: travelClass || '', name: getTravelClassName(travelClass) },
+                travelClass: { code: travelClass || '', name: getTravelClassName(travelClass, airlineCode) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
                 departure: {
                     airport: depAirport, city: depAirportInfo.city, name: depAirportInfo.name, country: depAirportInfo.country,
