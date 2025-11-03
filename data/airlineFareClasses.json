@@ -20,6 +20,10 @@
     "business": [],
     "economy": ["Y", "B", "H", "K", "L", "M", "N", "O", "Q", "S", "U", "V", "X", "G", "W", "E", "T", "R"]
   },
+  "EK":{
+      "business": ["O"]
+  },
+
   "default": {
     "first": ["F", "A", "P"],
     "business": ["J", "C", "D", "I", "Z"],
