@@ -1,4 +1,25 @@
 {
+  "BGY": { 
+      "city": "Bergamo", 
+      "name": "Orio al Serio International Airport", 
+      "timezone": "Europe/Rome", 
+      "countryCode": "IT", 
+      "country": "Italy" 
+  },
+  "MEX": { 
+      "city": "Mexico City", 
+      "name": "Benito Juárez International Airport", 
+      "timezone": "America/Mexico_City", 
+      "countryCode": "MX", 
+      "country": "Mexico" 
+  },
+  "PTY": { 
+      "city": "Panama City",
+      "name": "Tocumen International Airport", 
+      "timezone": "America/Panama", 
+      "countryCode": "PA", 
+      "country": "Panama" 
+  },  
   "SLC": {
     "city": "Salt Lake City",
     "name": "Salt Lake City International Airport",
