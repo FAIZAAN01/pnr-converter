@@ -1,4 +1,18 @@
 {
+  "SLC": {
+    "city": "Salt Lake City",
+    "name": "Salt Lake City International Airport",
+    "timezone": "America/Denver",
+    "countryCode": "US",
+    "country": "United States"
+  },
+  "DFW": {
+    "city": "Dallas-Fort Worth",
+    "name": "Dallas/Fort Worth International Airport",
+    "timezone": "America/Chicago",
+    "countryCode": "US",
+    "country": "United States"
+  },
   "UTK": {
     "city": "Utirik Island",
     "name": "Utirik Airport",
