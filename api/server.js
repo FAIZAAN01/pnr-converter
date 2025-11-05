@@ -14,6 +14,9 @@ app.set('trust proxy', 1); // trust first proxy
 require('dotenv').config();
 const axios = require('axios');
 
+console.log('Loaded Telegram Token:', process.env.TELEGRAM_TOKEN ? '✅ Present' : '❌ Missing');
+console.log('Loaded Chat ID:', process.env.TELEGRAM_CHAT_ID ? '✅ Present' : '❌ Missing');
+
 // Simple helper for Telegram alerts
 async function sendTelegramAlert(message) {
   try {
