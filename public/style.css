@@ -929,7 +929,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .history-item:hover {
     background-color: var(--bg-hover);
-    transform: translateX(5px)
+    transform: translateX(-2px)
 }
 
 .history-item-pax {
