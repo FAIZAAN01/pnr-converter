@@ -334,9 +334,15 @@ function parseGalileoEnhanced(pnrText, options) {
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
             const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
 
-            if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
+            if (!moment.tz.zone(depAirportInfo.timezone)) {
+                console.error("⚠️ Invalid departure timezone:", depAirportInfo.timezone, "for", depAirport);
+                depAirportInfo.timezone = 'UTC';
+            }
 
-            if (!moment.tz.zone(arrAirportInfo.timezone)) arrAirportInfo.timezone = 'UTC';
+            if (!moment.tz.zone(arrAirportInfo.timezone)) {
+                console.error("⚠️ Invalid arrival timezone:", arrAirportInfo.timezone, "for", arrAirport);
+                arrAirportInfo.timezone = 'UTC';
+            }
 
             const depDateMoment = moment.utc(depDateStr, "DDMMM");
 
@@ -361,8 +367,18 @@ function parseGalileoEnhanced(pnrText, options) {
 
             // const departureMoment = moment.tz(`${depDateStr} ${depTimeStr}`, "DDMMM HHmm", true, depAirportInfo.timezone);
 
-            const fullDepDateStr = `${depDateStr}${currentYear}`;
-            const departureMoment = moment.tz(fullDepDateStr + " " + depTimeStr, "DDMMMYYYY HHmm", true, depAirportInfo.timezone);
+            const cleanDepDate = depDateStr.trim().toUpperCase().padStart(5, '0');
+            const fullDepDateStr = `${cleanDepDate}${currentYear}`;
+            const departureMoment = moment.tz(fullDepDateStr + " " + depTimeStr, "DDMMMYYYY HHmm", depAirportInfo.timezone);
+            if (!departureMoment.isValid()) {
+                console.error("Invalid departure moment:", {
+                    depAirport,
+                    depDateStr,
+                    depTimeStr,
+                    fullDepDateStr,
+                    timezone: depAirportInfo.timezone
+                });
+            }
 
             let arrivalMoment;
 
