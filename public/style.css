@@ -890,7 +890,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .close-btn {
-    color: var(--primary-blue-hover);
+    color: white;
     font-size: 35px;
     background: transparent;
 }
