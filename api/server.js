@@ -510,3 +510,5 @@ function parseGalileoEnhanced(pnrText, options) {
 }
 
 module.exports = app;
+
+console.log(moment.tz.zone('America/New_York'));

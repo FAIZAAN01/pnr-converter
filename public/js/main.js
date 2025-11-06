@@ -775,4 +775,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }).catch(() => showPopup('Failed to copy text.'));
     });
 });
-console.log(moment.tz.zone('America/New_York'));
