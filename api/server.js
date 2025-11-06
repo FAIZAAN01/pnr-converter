@@ -8,6 +8,31 @@ const fs = require('fs');
 const path = require('path');
 const morgan = require('morgan');
 
+/**
+ * Safely parses a local airport time string into a Moment object.
+ * Handles ambiguous DST times (duplicate 01:00–02:00 hour).
+ * @param {string} dateStr - The local date/time string (e.g., "03NOV2024 0130")
+ * @param {string} format - The input format (e.g., "DDMMMYYYY HHmm")
+ * @param {string} tz - The IANA timezone name (e.g., "America/New_York")
+ * @returns {object} moment object with corrected offset
+ */
+function parseLocalTime(dateStr, format, tz) {
+  let m = moment.tz(dateStr, format, tz);
+
+  if (!m.isValid()) return m; // skip invalids
+
+  // Handle ambiguous DST time (e.g., 01:30 appears twice)
+  // We detect if shifting -1 hour results in same local clock time
+  const minus1 = m.clone().subtract(1, "hour");
+  if (minus1.format("HHmm") === m.format("HHmm") && minus1.tz() === tz) {
+    // Prefer the *later* occurrence (standard time)
+    m.add(1, "hour");
+  }
+
+  return m;
+}
+
+
 const app = express();
 app.set('trust proxy', 1); // trust first proxy
 
