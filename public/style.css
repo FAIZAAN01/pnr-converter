@@ -1117,3 +1117,12 @@ footer {
     margin-top: 20px;
 
 }
+
+#refreshBtn {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: transparent;
+    cursor: pointer;
+    display: none;
+    margin: 0;
+    padding: 0;
+}

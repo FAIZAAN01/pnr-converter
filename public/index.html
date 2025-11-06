@@ -2,400 +2,478 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PNR Converter SV-H</title>
-  <link rel="shortcut icon" href="pass.png" type="image/x-icon">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNR Converter SV-H</title>
+    <link rel="shortcut icon" href="pass.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="container">
-    <div class="main-content">
-      <div class="input-area card">
+    <div class="container">
+        <div class="main-content">
+            <div class="input-area card">
 
-        <div class="card-header">
-          <h3>Input PNR Data</h3>
-          <div class="header-actions">
-            <button id="historyBtn" class="header-btn" title="View history">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              History
-            </button>
-            <button id="themeToggleBtn" class="header-btn" title="Toggle Theme">
-              <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
-              <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
-            </button>
-            <button id="mobileMenuBtn" class="header-btn" title="Open Menu">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
+                <div class="card-header">
+                    <h3>Input PNR Data</h3>
+                    <div id="refreshTimer" class="popup-notification-refresh header-btn">
+                        <span id="timer">06:00:00</span>
+                        <button id="refreshBtn" style="display:none;">Refresh Now</button>
+                    </div>
 
-        <div id="inputControls">
-          <textarea id="pnrInput" placeholder="Enter PNR data here..."></textarea>
+                    <div class="header-actions">
+                        <button id="historyBtn" class="header-btn" title="View history">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            History
+                        </button>
+                        <button id="themeToggleBtn" class="header-btn" title="Toggle Theme">
+                            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                        </button>
+                        <button id="mobileMenuBtn" class="header-btn" title="Open Menu">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
 
-          <button id="convertBtn">Convert PNR</button>
+                <div id="inputControls">
+                    <textarea id="pnrInput" placeholder="Enter PNR data here..."></textarea>
 
-          <div class="vertical-icon-group">
-            <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-              </svg>
-            </button>
-            <button id="clearBtn" class="control-icon-btn" title="Clear input">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
+                    <button id="convertBtn">Convert PNR</button>
 
-        <div class="input-actions-group">
-          <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
-            <span class="toggle-switch-label">(When this feature is "ON" only click "Paste" button) Auto
-              Convert</span>
-            <input type="checkbox" id="autoConvertToggle">
-            <span class="switch-body"></span>
-          </label>
-        </div>
+                    <div class="vertical-icon-group">
+                        <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2">
+                                </path>
+                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                            </svg>
+                        </button>
+                        <button id="clearBtn" class="control-icon-btn" title="Clear input">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
 
-        <div class="fare-options-grid">
-          <div class="fare-group"><label>ADLT</label>
-            <div class="count-fare-wrapper">
-              <div><input id="adultCountInput" type="text" inputmode="decimal" value="1" title="Number of Adults"></div>
-              <div><input id="adultFareInput" type="text" inputmode="decimal" placeholder="Fare" title="Fare"></div>
+                <div class="input-actions-group">
+                    <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
+                        <span class="toggle-switch-label">(When this feature is "ON" only click "Paste" button) Auto
+                            Convert</span>
+                        <input type="checkbox" id="autoConvertToggle">
+                        <span class="switch-body"></span>
+                    </label>
+                </div>
+
+                <div class="fare-options-grid">
+                    <div class="fare-group"><label>ADLT</label>
+                        <div class="count-fare-wrapper">
+                            <div><input id="adultCountInput" type="text" inputmode="decimal" value="1"
+                                    title="Number of Adults"></div>
+                            <div><input id="adultFareInput" type="text" inputmode="decimal" placeholder="Fare"
+                                    title="Fare"></div>
+                        </div>
+                    </div>
+                    <div class="fare-group"><label>CHLD</label>
+                        <div class="count-fare-wrapper">
+                            <div><input id="childCountInput" type="text" inputmode="decimal" value="0"
+                                    title="Number of Children">
+                            </div>
+                            <div><input id="childFareInput" type="text" inputmode="decimal" placeholder="Fare"
+                                    title="Fare"></div>
+                        </div>
+                    </div>
+                    <div class="fare-group"><label>INFT</label>
+                        <div class="count-fare-wrapper">
+                            <div><input id="infantCountInput" type="text" inputmode="decimal" value="0"
+                                    title="Number of Infants">
+                            </div>
+                            <div><input id="infantFareInput" type="text" inputmode="decimal" placeholder="Fare"></div>
+                        </div>
+                    </div>
+                    <div class="fare-group" id="taxInputContainer"><label>Tax (per person)</label><input id="taxInput"
+                            type="text" inputmode="decimal" placeholder="Tax"></div>
+                    <div class="fare-group" id="feeInputContainer"><label>Fee (per person)</label><input id="feeInput"
+                            type="text" inputmode="decimal" placeholder="Fee"></div>
+                    <div class="fare-group"><label for="currencySelect">Currency</label><select id="currencySelect">
+                            <option value="USD" selected>USD $</option>
+                            <option value="EUR">EUR €</option>
+                            <option value="INR">INR ₹</option>
+                            <option value="RWF">RWF</option>
+                        </select></div>
+                </div>
+
+                <div class="baggage-options">
+                    <label>Baggage:</label>
+                    <input type="radio" id="baggageNone" name="baggageOption" value="none"> <label
+                        for="baggageNone">None</label>
+                    <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
+                        for="baggageParticular">Per segment</label>
+
+                    <div class="combobox-container" id="baggageCombobox">
+                        <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
+                            value="23">
+                        <button class="combobox-arrow" type="button"></button>
+                        <div class="combobox-dropdown" id="baggageDropdown"></div>
+                    </div>
+
+                    <div class="c-unit-toggle">
+                        <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
+                        <label class="c-unit-toggle__label" for="unit-selector-checkbox">
+                            <span class="c-unit-toggle__options">
+                                <span style="padding-right: 4px; padding-left:-5px">PC</span>
+                                <span> KG</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <div class="loading-spinner" id="loadingSpinner"></div>
             </div>
-          </div>
-          <div class="fare-group"><label>CHLD</label>
-            <div class="count-fare-wrapper">
-              <div><input id="childCountInput" type="text" inputmode="decimal" value="0" title="Number of Children">
-              </div>
-              <div><input id="childFareInput" type="text" inputmode="decimal" placeholder="Fare" title="Fare"></div>
+            <div class="output-area card">
+                <div class="output-actions">
+                    <div>
+                        <h3>Converted Itinerary</h3>
+                        <button id="screenshotBtn" style="display:none;">📷 Copy Screenshot</button>
+                        <button id="copyTextBtn" style="display:none;">📋 Copy Text</button>
+                    </div>
+                    <label class="toggle-switch" title="Enable to make small text corrections directly in the output.">
+                        <span class="toggle-switch-label">Enable Editing</span>
+                        <input type="checkbox" id="editableToggle">
+                        <span class="switch-body"></span>
+                    </label>
+                </div>
+                <div id="output">
+                    <div class="info">Enter PNR data and click Convert to begin.</div>
+                </div>
             </div>
-          </div>
-          <div class="fare-group"><label>INFT</label>
-            <div class="count-fare-wrapper">
-              <div><input id="infantCountInput" type="text" inputmode="decimal" value="0" title="Number of Infants">
-              </div>
-              <div><input id="infantFareInput" type="text" inputmode="decimal" placeholder="Fare"></div>
-            </div>
-          </div>
-          <div class="fare-group" id="taxInputContainer"><label>Tax (per person)</label><input id="taxInput" type="text"
-              inputmode="decimal" placeholder="Tax"></div>
-          <div class="fare-group" id="feeInputContainer"><label>Fee (per person)</label><input id="feeInput" type="text"
-              inputmode="decimal" placeholder="Fee"></div>
-          <div class="fare-group"><label for="currencySelect">Currency</label><select id="currencySelect">
-              <option value="USD" selected>USD $</option>
-              <option value="EUR">EUR €</option>
-              <option value="INR">INR ₹</option>
-              <option value="RWF">RWF</option>
-            </select></div>
         </div>
 
-        <div class="baggage-options">
-          <label>Baggage:</label>
-          <input type="radio" id="baggageNone" name="baggageOption" value="none"> <label
-            for="baggageNone">None</label>
-          <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
-            for="baggageParticular">Per segment</label>
+        <div class="sidebar card">
+            <div class="options">
+                <h3>Display Options</h3>
+                <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
+                <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
+                <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
+                <label><input type="checkbox" id="showClass"> Show Cabin</label>
+                <label><input type="checkbox" id="showMeal"> Show Meal</label>
+                <label style="display: none;"><input type="checkbox" id="showNotes" style="display: none;"> Show
+                    Notes</label>
 
-          <div class="combobox-container" id="baggageCombobox">
-            <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23">
-            <button class="combobox-arrow" type="button"></button>
-            <div class="combobox-dropdown" id="baggageDropdown"></div>
-          </div>
+                <hr>
+                <h4>Segment Time Format</h4>
+                <div class="time-format-group">
+                    <label><input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour</label>
+                    <label><input type="radio" id="segmentTime24" name="segmentTimeFormat" value="24h" checked>
+                        24-Hour</label>
+                </div>
 
-          <div class="c-unit-toggle">
-            <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
-            <label class="c-unit-toggle__label" for="unit-selector-checkbox">
-              <span class="c-unit-toggle__options">
-                <span style="padding-right: 4px; padding-left:-5px">PC</span>
-                <span> KG</span>
-              </span>
-            </label>
-          </div>
-        </div>
-        <div class="loading-spinner" id="loadingSpinner"></div>
-      </div>
-      <div class="output-area card">
-        <div class="output-actions">
-          <div>
-            <h3>Converted Itinerary</h3>
-            <button id="screenshotBtn" style="display:none;">📷 Copy Screenshot</button>
-            <button id="copyTextBtn" style="display:none;">📋 Copy Text</button>
-          </div>
-          <label class="toggle-switch" title="Enable to make small text corrections directly in the output.">
-            <span class="toggle-switch-label">Enable Editing</span>
-            <input type="checkbox" id="editableToggle">
-            <span class="switch-body"></span>
-          </label>
-        </div>
-        <div id="output">
-          <div class="info">Enter PNR data and click Convert to begin.</div>
-        </div>
-      </div>
-    </div>
+                <label style="display: none;"><input type="checkbox" id="showTransit" checked> Show Transit
+                    Times</label>
+                <div id="transitSymbolContainer" class="custom-transit-input">
+                    <label for="transitSymbolInput">Separator:</label>
+                    <input type="text" id="transitSymbolInput" placeholder=":::::::"
+                        style="width: 120px; padding: 5px;">
+                </div>
 
-    <div class="sidebar card">
-      <div class="options">
-        <h3>Display Options</h3>
-        <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
-        <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
-        <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
-        <label><input type="checkbox" id="showClass"> Show Cabin</label>
-        <label><input type="checkbox" id="showMeal"> Show Meal</label>
-        <label style="display: none;"><input type="checkbox" id="showNotes" style="display: none;"> Show Notes</label>
+                <hr>
+                <h4>Fare Display Options</h4>
+                <label><input type="checkbox" id="showTaxes" checked> Show Taxes</label>
+                <label><input type="checkbox" id="showFees" checked> Show Fees</label>
 
-        <hr>
-        <h4>Segment Time Format</h4>
-        <div class="time-format-group">
-          <label><input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour</label>
-          <label><input type="radio" id="segmentTime24" name="segmentTimeFormat" value="24h" checked>
-            24-Hour</label>
-        </div>
+                <hr>
+                <div class="options-group">
+                    <h4>Additional Information to Display</h4>
+                    <div class="checkbox-grid">
+                        <div class="checkbox-container">
+                            <label for="showCovidNotice"><input type="checkbox" id="showCovidNotice"
+                                    name="itineraryNotes" value="covid"> Date Change Allowed.</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <label for="showTravelInsurance"><input type="checkbox" id="showTravelInsurance"
+                                    name="itineraryNotes" value="insurance"> Before Departure Changes Are
+                                Allowed.</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <label for="dontShowTravelInsurance"><input type="checkbox" id="dontShowTravelInsurance"
+                                    name="itineraryNotes" value="insurance"> After Departure Non Refundable.</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <label for="showVisaInfo"><input type="checkbox" id="showVisaInfo" name="itineraryNotes"
+                                    value="visa"> Refundable With Aplicable Penalties.</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <label for="showHealthDocs"><input type="checkbox" id="showHealthDocs" name="itineraryNotes"
+                                    value="health"> Non Refundable.</label>
+                        </div>
 
-        <label style="display: none;"><input type="checkbox" id="showTransit" checked> Show Transit
-          Times</label>
-        <div id="transitSymbolContainer" class="custom-transit-input">
-          <label for="transitSymbolInput">Separator:</label>
-          <input type="text" id="transitSymbolInput" placeholder=":::::::" style="width: 120px; padding: 5px;">
-        </div>
 
-        <hr>
-        <h4>Fare Display Options</h4>
-        <label><input type="checkbox" id="showTaxes" checked> Show Taxes</label>
-        <label><input type="checkbox" id="showFees" checked> Show Fees</label>
-
-        <hr>
-        <div class="options-group">
-          <h4>Additional Information to Display</h4>
-          <div class="checkbox-grid">
-            <div class="checkbox-container">
-              <label for="showCovidNotice"><input type="checkbox" id="showCovidNotice" name="itineraryNotes" value="covid"> Date Change Allowed.</label>
-            </div>
-            <div class="checkbox-container">
-              <label for="showTravelInsurance"><input type="checkbox" id="showTravelInsurance" name="itineraryNotes"
-                  value="insurance"> Before Departure Changes Are Allowed.</label>
-            </div>
-            <div class="checkbox-container">
-              <label for="dontShowTravelInsurance"><input type="checkbox" id="dontShowTravelInsurance" name="itineraryNotes"
-                  value="insurance"> After Departure Non Refundable.</label>
-            </div>
-            <div class="checkbox-container">
-              <label for="showVisaInfo"><input type="checkbox" id="showVisaInfo" name="itineraryNotes" value="visa"> Refundable With Aplicable Penalties.</label>
-            </div>
-            <div class="checkbox-container">
-              <label for="showHealthDocs"><input type="checkbox" id="showHealthDocs" name="itineraryNotes" value="health"> Non Refundable.</label>
-            </div>
-            
-            
-          </div>
-        </div>
-        <hr>
-        <h4>Branding</h4>
-        <label><input type="checkbox" id="showItineraryLogo" checked>Show Main Itinerary Logo</label>
-        <div id="customBrandingSection">
-          <div class="custom-branding-input">
-            <label for="customLogoInput">Custom Logo:</label>
-            <input type="file" id="customLogoInput" accept="image/png, image/jpeg, image/gif">
-            <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
-          </div>
-          <div class="custom-branding-input">
-            <label for="customTextInput">Custom Text:</label>
-            <textarea id="customTextInput" rows="3" placeholder="Your Company Name
+                    </div>
+                </div>
+                <hr>
+                <h4>Branding</h4>
+                <label><input type="checkbox" id="showItineraryLogo" checked>Show Main Itinerary Logo</label>
+                <div id="customBrandingSection">
+                    <div class="custom-branding-input">
+                        <label for="customLogoInput">Custom Logo:</label>
+                        <input type="file" id="customLogoInput" accept="image/png, image/jpeg, image/gif">
+                        <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
+                    </div>
+                    <div class="custom-branding-input">
+                        <label for="customTextInput">Custom Text:</label>
+                        <textarea id="customTextInput" rows="3" placeholder="Your Company Name
 Contact Info"></textarea>
-          </div>
-          <button id="clearCustomBrandingBtn" class="clear-btn">Clear Branding</button>
+                    </div>
+                    <button id="clearCustomBrandingBtn" class="clear-btn">Clear Branding</button>
+                </div>
+                <div style="display: none;">
+                    <h4>Transit Time Format</h4>
+                    <div class="time-format-group">
+                        <label><input type="radio" id="transitTime12" name="transitTimeFormat" value="12h">
+                            12-Hour</label>
+                        <label><input type="radio" id="transitTime24" name="transitTimeFormat" value="24h" checked>
+                            24-Hour</label>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="display: none;">
-          <h4>Transit Time Format</h4>
-          <div class="time-format-group">
-            <label><input type="radio" id="transitTime12" name="transitTimeFormat" value="12h">
-              12-Hour</label>
-            <label><input type="radio" id="transitTime24" name="transitTimeFormat" value="24h" checked>
-              24-Hour</label>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <div id="historyModal" class="modal-overlay hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Conversion History</h2>
-        <button id="closeHistoryBtn" class="close-btn">×</button>
-      </div>
-      <div class="history-controls">
-        <input type="text" id="historySearchInput" placeholder="Search by passenger or route...">
-        <select id="historySortSelect">
-          <option value="newest">Sort by Newest First</option>
-          <option value="oldest">Sort by Oldest First</option>
-        </select>
-      </div>
-      <div id="historyList" class="history-list"></div>
-      <div id="historyPreviewPanel" class="hidden">
-        <div class="preview-header">
-          <h3>Preview</h3>
-          <button id="closePreviewBtn" class="close-btn">×</button>
+    <div id="historyModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Conversion History</h2>
+                <button id="closeHistoryBtn" class="close-btn">×</button>
+            </div>
+            <div class="history-controls">
+                <input type="text" id="historySearchInput" placeholder="Search by passenger or route...">
+                <select id="historySortSelect">
+                    <option value="newest">Sort by Newest First</option>
+                    <option value="oldest">Sort by Oldest First</option>
+                </select>
+            </div>
+            <div id="historyList" class="history-list"></div>
+            <div id="historyPreviewPanel" class="hidden">
+                <div class="preview-header">
+                    <h3>Preview</h3>
+                    <button id="closePreviewBtn" class="close-btn">×</button>
+                </div>
+                <div id="previewContent" class="preview-content"></div>
+            </div>
         </div>
-        <div id="previewContent" class="preview-content"></div>
-      </div>
     </div>
-  </div>
 
-  <div id="popupContainer" class="popup-notification-container"></div>
+    <div id="popupContainer" class="popup-notification-container"></div>
 
-  <footer>
-  </footer>
+    <footer>
+        <div class="footer-content">
+            <p>Latest Update: <span id="latestUpdate">Version 1.2.3 deployed on 6 Nov 2025</span></p>
+        </div>
+    </footer>
 
-  <script src="/js/html2canvas.min.js"></script>
-  <script src="/js/main.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // --- Mobile sidebar script ---
-      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:1015; display:none;';
-      document.body.appendChild(overlay);
+    <script src="/js/html2canvas.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        function startRefreshTimer(hours = 6) {
+            const timerEl = document.getElementById("timer");
+            const refreshBtn = document.getElementById("refreshBtn");
 
-      function closeSidebar() {
-        sidebar.classList.remove('is-open');
-        overlay.style.display = 'none';
-      }
+            let totalSeconds = hours * 60 * 60; // convert hours to seconds
 
-      if (mobileMenuBtn && sidebar) {
-        mobileMenuBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          sidebar.classList.toggle('is-open');
-          overlay.style.display = sidebar.classList.contains('is-open') ? 'block' : 'none';
-        });
-        document.addEventListener('click', (event) => {
-          if (sidebar.classList.contains('is-open') && !sidebar.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
-            closeSidebar();
-          }
-        });
-        overlay.addEventListener('click', closeSidebar);
-      }
+            const interval = setInterval(() => {
+                let hrs = Math.floor(totalSeconds / 3600);
+                let mins = Math.floor((totalSeconds % 3600) / 60);
+                let secs = totalSeconds % 60;
 
-      // --- Baggage Combobox Script ---
-      const unitToggle = document.getElementById('unit-selector-checkbox');
-      const baggageInput = document.getElementById('baggageAmountInput');
-      const baggageDropdown = document.getElementById('baggageDropdown');
-      const comboboxContainer = document.getElementById('baggageCombobox');
+                // format time as HH:MM:SS
+                timerEl.textContent =
+                    String(hrs).padStart(2, '0') + ":" +
+                    String(mins).padStart(2, '0') + ":" +
+                    String(secs).padStart(2, '0');
 
-      if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
-        const kgOptions = [null, null, '15', '23', '40'];
-        const pcOptions = [null, null, '1', '2', '3'];
+                if (totalSeconds <= 0) {
+                    clearInterval(interval);
+                    refreshBtn.style.display = "flex";
+                    timer.style.display = "none";
+                    refreshMessage.style.display = "none";
+                }
 
-        // This function simulates a manual input event.
-        // It's the key to making the dropdown selection trigger the auto-converter.
-        const triggerManualInput = () => {
-          const inputEvent = new Event('input', {
-            bubbles: true,
-            cancelable: true,
-          });
-          baggageInput.dispatchEvent(inputEvent);
-        };
+                totalSeconds--;
+            }, 1000);
 
-        const updateBaggageOptions = (isPcMode, shouldTriggerUpdate = false) => {
-          baggageDropdown.innerHTML = '';
-          const optionsArray = isPcMode ? pcOptions : kgOptions;
-
-          optionsArray.forEach(value => {
-            const optionDiv = document.createElement('div');
-            optionDiv.className = 'combobox-option';
-            optionDiv.textContent = value;
-            optionDiv.addEventListener('mousedown', (e) => {
-              e.preventDefault();
-              baggageInput.value = value;
-              baggageDropdown.classList.remove('open');
-
-              // Simulate manual input to trigger itinerary update
-              triggerManualInput();
+            // Refresh button click
+            refreshBtn.addEventListener("click", () => {
+                location.reload();
             });
-            baggageDropdown.appendChild(optionDiv);
-          });
+        }
 
-          // Set a default value when toggling units
-          baggageInput.value = isPcMode ? null : null;
-
-          // If the unit toggle itself should trigger an update, fire the event
-          if (shouldTriggerUpdate) {
-            triggerManualInput();
-          }
-        };
-
-        // Initial setup
-        updateBaggageOptions(unitToggle.checked, false);
-
-        // When the KG/PC toggle changes...
-        unitToggle.addEventListener('change', () => {
-          // ...update the options and trigger the conversion automatically.
-          updateBaggageOptions(unitToggle.checked, true);
+        // Start timer on page load
+        window.addEventListener("load", () => {
+            startRefreshTimer(6); // 6 hours countdown
         });
+    </script>
 
-        // --- Event listeners for showing/hiding the dropdown ---
-        comboboxContainer.addEventListener('click', (e) => {
-          if (e.target.classList.contains('combobox-arrow') || e.target === baggageInput) {
-            baggageDropdown.classList.toggle('open');
-          }
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Mobile sidebar script ---
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:1015; display:none;';
+            document.body.appendChild(overlay);
+
+            function closeSidebar() {
+                sidebar.classList.remove('is-open');
+                overlay.style.display = 'none';
+            }
+
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('is-open');
+                    overlay.style.display = sidebar.classList.contains('is-open') ? 'block' : 'none';
+                });
+                document.addEventListener('click', (event) => {
+                    if (sidebar.classList.contains('is-open') && !sidebar.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                        closeSidebar();
+                    }
+                });
+                overlay.addEventListener('click', closeSidebar);
+            }
+
+            // --- Baggage Combobox Script ---
+            const unitToggle = document.getElementById('unit-selector-checkbox');
+            const baggageInput = document.getElementById('baggageAmountInput');
+            const baggageDropdown = document.getElementById('baggageDropdown');
+            const comboboxContainer = document.getElementById('baggageCombobox');
+
+            if (unitToggle && baggageInput && baggageDropdown && comboboxContainer) {
+                const kgOptions = [null, null, '15', '23', '40'];
+                const pcOptions = [null, null, '1', '2', '3'];
+
+                // This function simulates a manual input event.
+                // It's the key to making the dropdown selection trigger the auto-converter.
+                const triggerManualInput = () => {
+                    const inputEvent = new Event('input', {
+                        bubbles: true,
+                        cancelable: true,
+                    });
+                    baggageInput.dispatchEvent(inputEvent);
+                };
+
+                const updateBaggageOptions = (isPcMode, shouldTriggerUpdate = false) => {
+                    baggageDropdown.innerHTML = '';
+                    const optionsArray = isPcMode ? pcOptions : kgOptions;
+
+                    optionsArray.forEach(value => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = 'combobox-option';
+                        optionDiv.textContent = value;
+                        optionDiv.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            baggageInput.value = value;
+                            baggageDropdown.classList.remove('open');
+
+                            // Simulate manual input to trigger itinerary update
+                            triggerManualInput();
+                        });
+                        baggageDropdown.appendChild(optionDiv);
+                    });
+
+                    // Set a default value when toggling units
+                    baggageInput.value = isPcMode ? null : null;
+
+                    // If the unit toggle itself should trigger an update, fire the event
+                    if (shouldTriggerUpdate) {
+                        triggerManualInput();
+                    }
+                };
+
+                // Initial setup
+                updateBaggageOptions(unitToggle.checked, false);
+
+                // When the KG/PC toggle changes...
+                unitToggle.addEventListener('change', () => {
+                    // ...update the options and trigger the conversion automatically.
+                    updateBaggageOptions(unitToggle.checked, true);
+                });
+
+                // --- Event listeners for showing/hiding the dropdown ---
+                comboboxContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('combobox-arrow') || e.target === baggageInput) {
+                        baggageDropdown.classList.toggle('open');
+                    }
+                });
+                baggageInput.addEventListener('focus', () => baggageDropdown.classList.add('open'));
+                document.addEventListener('click', (e) => {
+                    if (!comboboxContainer.contains(e.target)) {
+                        baggageDropdown.classList.remove('open');
+                    }
+                });
+            }
+
+            // --- Dark Mode Script ---
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const docElement = document.documentElement;
+
+            const applyTheme = (theme) => {
+                docElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+            };
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = docElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
         });
-        baggageInput.addEventListener('focus', () => baggageDropdown.classList.add('open'));
-        document.addEventListener('click', (e) => {
-          if (!comboboxContainer.contains(e.target)) {
-            baggageDropdown.classList.remove('open');
-          }
-        });
-      }
+    </script>
+    <script>
+        // 5 hours in milliseconds
+        const refreshTime = 5 * 60 * 60 * 1000;
 
-      // --- Dark Mode Script ---
-      const themeToggleBtn = document.getElementById('themeToggleBtn');
-      const docElement = document.documentElement;
+        setTimeout(() => {
+            const refreshNotice = document.getElementById("refreshNotice");
+            refreshNotice.textContent = "⚠ It's been 5 hours. Please refresh the page to get the latest updates!";
 
-      const applyTheme = (theme) => {
-        docElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-      };
+            // Optional: Auto refresh after 10 seconds of showing the message
+            // setTimeout(() => location.reload(), 10000);
+        }, refreshTime);
+    </script>
 
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      applyTheme(savedTheme);
-
-      themeToggleBtn.addEventListener('click', () => {
-        const currentTheme = docElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        applyTheme(newTheme);
-      });
-    });
-  </script>
 </body>
 
 </html>
