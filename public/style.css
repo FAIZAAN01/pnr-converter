@@ -841,11 +841,11 @@ body::-webkit-scrollbar-thumb:hover {
     visibility: visible
 }
 
-#history-list::webkit-scrollbar {
+.historyModal::webkit-scrollbar {
     width: 0px;
 }
 
-#history-list::webkit-scrollbar-thumb {
+.historyModal::webkit-scrollbar-thumb {
     width: 0px;
 }
 
