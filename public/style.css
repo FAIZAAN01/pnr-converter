@@ -695,11 +695,36 @@ button {
 #output .fare-summary strong {
     font-size: 1.1em;
 }
+/* --- sidebar scroll bar styling --- */
+body::-webkit-scrollbar {
+    width: 1px;
+    max-height: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: blue;
+    top: 50px;
+    border-radius: 20px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background-color: white;
+}
 
 /* --- sidebar scroll bar styling --- */
 .sidebar::-webkit-scrollbar {
-    width: 3px;
-    border-radius: 1px;
+    width: 0px;
+    max-height: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: white;
+    top: 50px;
+    border-radius: 20px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: white;
 }
 
 /* --- Sidebar & Modal Styles --- */
@@ -856,7 +881,7 @@ button {
     margin: 0
 }
 
-.close-btn{
+.close-btn {
     color: var(--primary-blue-hover);
 }
 
@@ -1022,7 +1047,7 @@ button {
     /* #inputControls {
         flex-wrap: wrap;
     } */
-/* 
+    /* 
     textarea#pnrInput {
         border-radius: 6px;
         border-right: 1px solid var(--border-main);
@@ -1074,6 +1099,7 @@ button {
         transform: translateX(0)
     }
 }
+
 #notes-header {
     padding-left: 15px;
     color: red !important;
@@ -1082,7 +1108,8 @@ button {
 .itinerary-notes {
     padding-left: 15px;
 }
-footer{
+
+footer {
     height: 200px;
     width: 100%;
     background-color: var(--bg-footer);
