@@ -961,6 +961,14 @@ body::-webkit-scrollbar-thumb:hover {
     transform: translateX(0)
 }
 
+#historyPreviewPanel::webkit-scrollbar {
+    width: 0px;
+}
+
+#historyPreviewPanel::webkit-scrollbar-thumb {
+    width: 0px;
+}
+
 .preview-header {
     display: flex;
     justify-content: space-between;
