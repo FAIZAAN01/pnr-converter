@@ -1,166 +1,64 @@
-<!-- Under Maintenance Page
-     File: maintenance_page.html
-     Edit the variables in the <script> section to change the countdown target or remove the countdown entirely.
--->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>We'll be right back — Site maintenance</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Site Under Maintenance</title>
   <style>
     :root{
-      --bg:#0f1724; /* dark navy */
-      --card:#0b1220;
+      --bg:#0f1724;
       --accent:#60a5fa;
       --muted:#9aa6bf;
-      --glass: rgba(255,255,255,0.03);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(96,165,250,0.06), transparent),
-                  radial-gradient(900px 400px at 90% 90%, rgba(99,102,241,0.04), transparent),
-                  var(--bg);
-      color: #e6eef8;
-      -webkit-font-smoothing:antialiased;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:32px;
-    }
-    .card{
-      width:100%;
-      max-width:920px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:14px;
-      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
-      border: 1px solid rgba(255,255,255,0.04);
-      padding:34px;
-      display:grid;
-      grid-template-columns: 220px 1fr;
-      gap:28px;
-      align-items:center;
-    }
-    .logo-wrap{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      height:180px;
-      background:var(--glass);
-      border-radius:10px;
-      padding:18px;
-    }
-    .logo-wrap svg{width:120px;height:120px}
-    h1{margin:0;font-size:28px;letter-spacing:-0.3px}
-    p.lead{margin:10px 0 18px;color:var(--muted);font-size:15px}
-    .meta{display:flex;gap:12px;flex-wrap:wrap}
-    .pill{background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:999px;font-size:13px;color:var(--muted);border:1px solid rgba(255,255,255,0.02)}
-    .countdown{display:flex;gap:12px;margin-top:18px}
-    .countdown .box{min-width:70px;background:rgba(255,255,255,0.03);padding:10px 12px;border-radius:8px;text-align:center}
-    .countdown .big{font-weight:700;font-size:20px}
-    .countdown .small{font-size:12px;color:var(--muted)}
-    .actions{margin-top:22px}
-    .btn{
-      display:inline-block;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:1px solid rgba(255,255,255,0.06);
-    }
-    .btn.primary{background:linear-gradient(90deg,var(--accent),#7dd3fc);color:#04263b}
-    .btn.ghost{background:transparent;color:var(--muted)}
-    .status{margin-top:10px;color:var(--muted);font-size:13px}
-    footer{margin-top:18px;color:var(--muted);font-size:13px}
-
-    /* Responsive */
-    @media (max-width:780px){
-      .card{grid-template-columns:1fr; padding:22px}
-      .logo-wrap{height:120px}
-    }
-
-    /* subtle gear animation */
-    .gear{animation:spin 6s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#e6eef8;display:flex;align-items:center;justify-content:center;text-align:center}
+    .container{max-width:600px;padding:30px;border-radius:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 25px rgba(0,0,0,0.4)}
+    h1{font-size:2rem;margin-bottom:10px;color:#fff}
+    p{font-size:1rem;color:var(--muted);margin-bottom:25px}
+    .countdown{display:flex;justify-content:center;gap:15px;margin-bottom:20px}
+    .box{background:rgba(255,255,255,0.05);padding:10px 14px;border-radius:8px;min-width:70px}
+    .big{font-size:1.3rem;font-weight:700;color:var(--accent)}
+    .small{font-size:0.75rem;color:var(--muted)}
+    a.button{display:inline-block;background:var(--accent);color:#031b3a;padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:600;transition:background .3s}
+    a.button:hover{background:#7dd3fc}
+    footer{margin-top:25px;font-size:0.8rem;color:var(--muted)}
   </style>
 </head>
 <body>
-  <main class="card" role="main" aria-labelledby="page-title">
-    <div class="logo-wrap" aria-hidden="true">
-      <!-- SVG gear / maintenance icon -->
-      <svg class="gear" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="g1" x1="0" x2="1">
-            <stop offset="0" stop-color="#60a5fa" stop-opacity="0.9"/>
-            <stop offset="1" stop-color="#7dd3fc" stop-opacity="0.9"/>
-          </linearGradient>
-        </defs>
-        <circle cx="32" cy="32" r="30" fill="url(#g1)" opacity="0.07"/>
-        <path d="M41.5 32a9.5 9.5 0 1 1-19 0 9.5 9.5 0 0 1 19 0z" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M32 22v-4M32 46v-4M46 32h4M14 32h4M43.5 43.5l2.8 2.8M17.7 17.7l2.8 2.8M43.5 20.5l2.8-2.8M17.7 46.3l2.8-2.8" stroke="#cfe9ff" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+  <div class="container">
+    <h1>We'll be back soon!</h1>
+    <p>We're performing scheduled maintenance to improve your experience. Please check back later.</p>
+    <p id="returnTime" style="color:var(--accent);font-weight:600;margin-bottom:15px"></p>
+    <div id="countdown" class="countdown">
+      <div class="box"><div class="big" id="days">--</div><div class="small">Days</div></div>
+      <div class="box"><div class="big" id="hours">--</div><div class="small">Hours</div></div>
+      <div class="box"><div class="big" id="minutes">--</div><div class="small">Minutes</div></div>
+      <div class="box"><div class="big" id="seconds">--</div><div class="small">Seconds</div></div>
     </div>
-
-    <div>
-      <h1 id="page-title">We&rsquo;ll be back soon</h1>
-      <p class="lead">Sorry for the inconvenience — we&rsquo;re performing scheduled maintenance. If all goes well, we&rsquo;ll be back online shortly.</p>
-
-      <div class="meta">
-        <div class="pill">Status: <strong style="color:#dbeafe;margin-left:6px">Maintenance</strong></div>
-        <div class="pill">Estimated downtime: <strong style="color:#dbeafe;margin-left:6px">~ 30 minutes</strong></div>
-        <div class="pill">Support: <a href="mailto:support@example.com" style="color:inherit;text-decoration:underline">support@example.com</a></div>
-      </div>
-
-      <!-- Countdown (optional) -->
-      <div id="countdown" class="countdown" aria-live="polite">
-        <div class="box"><div class="big" id="days">--</div><div class="small">Days</div></div>
-        <div class="box"><div class="big" id="hours">--</div><div class="small">Hours</div></div>
-        <div class="box"><div class="big" id="minutes">--</div><div class="small">Minutes</div></div>
-        <div class="box"><div class="big" id="seconds">--</div><div class="small">Seconds</div></div>
-      </div>
-
-      <div class="actions">
-        <a class="btn primary" href="/" title="Go to home">Notify me when back</a>
-        <a class="btn ghost" href="/status" title="View status page" style="margin-left:10px">Status page</a>
-      </div>
-
-      <div class="status">You can follow progress on our status page or contact support if you need help.</div>
-
-      <footer>Estimated return: <span id="target-string">TBD</span></footer>
-    </div>
-  </main>
-
+    <a href="mailto:support@example.com" class="button">Contact Support</a>
+    <footer>© 2025 Your Company. All rights reserved.</footer>
+  </div>
   <script>
-    /* Configuration: set a targetDate (ISO string) or set to null to hide countdown */
-    const targetDateISO = new Date(Date.now() + 30*60*1000).toISOString(); // default: 30 minutes from now
-    // Example: const targetDateISO = '2025-11-10T14:00:00+00:00';
+    // Set a fixed return date and time (UTC or local)
+    const returnDate = new Date('2025-11-07T01:00:00'); // <-- Edit this date/time as needed
 
-    function pad(n){return String(n).padStart(2,'0')}
-    if(!targetDateISO){
-      document.getElementById('countdown').style.display='none';
-      document.getElementById('target-string').textContent='TBD';
-    } else {
-      const target = new Date(targetDateISO);
-      document.getElementById('target-string').textContent = target.toUTCString();
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('returnTime').textContent = `Expected return: ${returnDate.toLocaleString()}`;
 
-      function tick(){
-        const now = new Date();
-        let diff = Math.max(0, Math.floor((target - now) / 1000));
-        const days = Math.floor(diff / 86400); diff %= 86400;
-        const hours = Math.floor(diff / 3600); diff %= 3600;
-        const minutes = Math.floor(diff / 60); const seconds = diff % 60;
-        document.getElementById('days').textContent = pad(days);
-        document.getElementById('hours').textContent = pad(hours);
-        document.getElementById('minutes').textContent = pad(minutes);
-        document.getElementById('seconds').textContent = pad(seconds);
-        if(days===0 && hours===0 && minutes===0 && seconds===0){
-          clearInterval(timer);
-          document.getElementById('page-title').textContent = 'We\'re back!';
-          document.querySelector('.lead').textContent = 'Maintenance completed — refreshing...';
-          setTimeout(()=>location.reload(),1200);
-        }
-      }
-      tick();
-      const timer = setInterval(tick,1000);
+    function tick() {
+      const now = new Date();
+      let diff = Math.max(0, Math.floor((returnDate - now) / 1000));
+      const d = Math.floor(diff / 86400); diff %= 86400;
+      const h = Math.floor(diff / 3600); diff %= 3600;
+      const m = Math.floor(diff / 60); const s = diff % 60;
+      document.getElementById('days').textContent = pad(d);
+      document.getElementById('hours').textContent = pad(h);
+      document.getElementById('minutes').textContent = pad(m);
+      document.getElementById('seconds').textContent = pad(s);
     }
+    tick();
+    setInterval(tick,1000);
   </script>
 </body>
 </html>
