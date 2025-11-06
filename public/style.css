@@ -698,8 +698,8 @@ button {
 
 /* --- sidebar scroll bar styling --- */
 .sidebar::-webkit-scrollbar {
-    width: 3px
-    border-radius: 5px
+    width: 3px;
+    border-radius: 1px;
 }
 
 /* --- Sidebar & Modal Styles --- */
