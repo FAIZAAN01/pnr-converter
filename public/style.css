@@ -891,6 +891,8 @@ body::-webkit-scrollbar-thumb:hover {
 
 .close-btn {
     color: var(--primary-blue-hover);
+    font-size: 35px;
+    background: transparent;
 }
 
 .history-controls {
