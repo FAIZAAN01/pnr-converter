@@ -135,15 +135,15 @@
                 </div>
 
                 <div class="baggage-options">
-                    <label for="baggageParticular baggageNone">Baggage:</label>
+                    <label for="baggageParticular">Baggage:</label>
                     <input type="radio" id="baggageNone" name="baggageOption" value="none"> 
                     <label for="baggageNone">None</label>
                     <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> 
-                    <label for="baggageParticular baggageAmountInput">Per segment</label>
+                    <label for="baggageParticular">Per segment</label>
 
                     <div class="combobox-container" id="baggageCombobox">
-                        <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
-                            value="23">
+                        <label for="baggageAmountInput"></label>
+                        <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23">
                         <button class="combobox-arrow" type="button"></button>
                         <div class="combobox-dropdown" id="baggageDropdown"></div>
                     </div>

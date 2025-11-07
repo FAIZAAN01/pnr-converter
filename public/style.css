@@ -181,6 +181,11 @@ textarea#pnrInput:focus {
     z-index: 2;
 }
 
+#baggageAmountInput{
+    height: 30px;
+    width:60px
+}
+
 #convertBtn {
     background-color: var(--primary-blue);
     color: white;
@@ -841,14 +846,6 @@ body::-webkit-scrollbar-thumb:hover {
     visibility: visible
 }
 
-.modal-overlay:not(.hidden)::-webkit-scrollbar {
-    width: 0px;
-}
-
-.modal-overlay:not(.hidden)::-webkit-scrollbar-thumb {
-    width: 0px;
-}
-
 .modal-content {
     background: var(--bg-card);
     padding: 25px;
@@ -890,15 +887,39 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .close-btn {
-    color: white;
-    font-size: 35px;
-    background: transparent;
+    color: var(--primary-blue-hover);
 }
 
 .history-controls {
     display: flex;
     gap: 10px;
     margin-bottom: 15px
+}
+
+#screenshotBtn,
+#copyTextBtn{
+    display: none;
+}
+
+#showNotesLabel{
+    display: none;
+}
+
+#showTransitLabel{
+    display: none;
+}
+
+#transitSymbolInput{
+    width: 120px;
+    padding: 5px;
+}
+
+#formatTransitTime{
+    display: none;
+}
+
+#showNotes{
+    display: none;
 }
 
 #screenshotBtn,
@@ -939,7 +960,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .history-item:hover {
     background-color: var(--bg-hover);
-    transform: translateX(-2px)
+    transform: translateX(5px)
 }
 
 .history-item-pax {
@@ -969,14 +990,6 @@ body::-webkit-scrollbar-thumb:hover {
 
 #historyPreviewPanel:not(.hidden) {
     transform: translateX(0)
-}
-
-#historyPreviewPanel::webkit-scrollbar {
-    width: 0px;
-}
-
-#historyPreviewPanel::webkit-scrollbar-thumb {
-    width: 0px;
 }
 
 .preview-header {
@@ -1143,4 +1156,9 @@ footer {
     display: none;
     margin: 0;
     padding: 0;
+}
+
+#span-pc{
+    padding-right: 4px;
+    padding-left: -5px;
 }
