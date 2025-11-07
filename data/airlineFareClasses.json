@@ -25,9 +25,13 @@
   },
 
   "default": {
-    "first": ["F", "A", "P"],
-    "business": ["J", "C", "D", "I", "Z"],
+    "first": ["F", "A"],
+    "business": ["J", "C", "D", "I", "Z", "P"],
     "premium_economy": ["W", "E"],
     "economy": ["Y", "B", "H", "K", "L", "M", "N", "O", "Q", "S", "U", "V", "X", "G", "T", "R"]
+  }
+
+  "SG": {
+      "economy": ["P"]
   }
 }
