@@ -3,9 +3,6 @@
 
 <head>
     <meta charset="UTF-8">
-    <!--content type header charset utf-8-->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PNR Converter SV-H</title>
     <link rel="shortcut icon" href="pass.png" type="image/x-icon">
@@ -21,7 +18,7 @@
                     <h3>Input PNR Data</h3>
                     <div id="refreshTimer" class="popup-notification-refresh header-btn">
                         <span id="timer">06:00:00</span>
-                        <button id="refreshBtn">Refresh Now</button>
+                        <button id="refreshBtn" style="display:none;">Refresh Now</button>
                     </div>
 
                     <div class="header-actions">
@@ -100,8 +97,7 @@
                 </div>
 
                 <div class="fare-options-grid">
-                    <div class="fare-group">
-                        <label for="adultCountInput">ADLT</label>
+                    <div class="fare-group"><label>ADLT</label>
                         <div class="count-fare-wrapper">
                             <div><input id="adultCountInput" type="text" inputmode="decimal" value="1"
                                     title="Number of Adults"></div>
@@ -109,8 +105,7 @@
                                     title="Fare"></div>
                         </div>
                     </div>
-                    <div class="fare-group">
-                        <label for="childCountInput">CHLD</label>
+                    <div class="fare-group"><label>CHLD</label>
                         <div class="count-fare-wrapper">
                             <div><input id="childCountInput" type="text" inputmode="decimal" value="0"
                                     title="Number of Children">
@@ -119,8 +114,7 @@
                                     title="Fare"></div>
                         </div>
                     </div>
-                    <div class="fare-group">
-                        <label for="infantCountInput">INFT</label>
+                    <div class="fare-group"><label>INFT</label>
                         <div class="count-fare-wrapper">
                             <div><input id="infantCountInput" type="text" inputmode="decimal" value="0"
                                     title="Number of Infants">
@@ -128,11 +122,9 @@
                             <div><input id="infantFareInput" type="text" inputmode="decimal" placeholder="Fare"></div>
                         </div>
                     </div>
-                    <div class="fare-group" id="taxInputContainer">
-                        <label for="taxInput">Tax (per person)</label><input id="taxInput"
+                    <div class="fare-group" id="taxInputContainer"><label>Tax (per person)</label><input id="taxInput"
                             type="text" inputmode="decimal" placeholder="Tax"></div>
-                    <div class="fare-group" id="feeInputContainer">
-                        <label for="feeInput">Fee (per person)</label><input id="feeInput"
+                    <div class="fare-group" id="feeInputContainer"><label>Fee (per person)</label><input id="feeInput"
                             type="text" inputmode="decimal" placeholder="Fee"></div>
                     <div class="fare-group"><label for="currencySelect">Currency</label><select id="currencySelect">
                             <option value="USD" selected>USD $</option>
@@ -143,16 +135,16 @@
                 </div>
 
                 <div class="baggage-options">
-                    <label for="baggageParticular">Baggage:</label>
-                    <input type="radio" id="baggageNone" name="baggageOption" value="none">
-                    <label for="baggageNone">None</label>
-                    <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked>
-                    <label for="baggageParticular">Per segment</label>
+                    <label>Baggage:</label>
+                    <input type="radio" id="baggageNone" name="baggageOption" value="none"> <label
+                        for="baggageNone">None</label>
+                    <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked> <label
+                        for="baggageParticular">Per segment</label>
 
                     <div class="combobox-container" id="baggageCombobox">
-                        <label for="baggageAmountInput"></label>
-                        <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23" placeholder="Enter Baggage Amount">
-                        <button class="combobox-arrow" type="button" aria-labelledby="dropDownMenu" title="drop-down-mwenu-button-for-baggage-inputs"></button>
+                        <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
+                            value="23">
+                        <button class="combobox-arrow" type="button"></button>
                         <div class="combobox-dropdown" id="baggageDropdown"></div>
                     </div>
 
@@ -160,7 +152,7 @@
                         <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
                         <label class="c-unit-toggle__label" for="unit-selector-checkbox">
                             <span class="c-unit-toggle__options">
-                                <span id="span-pc">PC</span>
+                                <span style="padding-right: 4px; padding-left:-5px">PC</span>
                                 <span> KG</span>
                             </span>
                         </label>
@@ -172,8 +164,8 @@
                 <div class="output-actions">
                     <div>
                         <h3>Converted Itinerary</h3>
-                        <button id="screenshotBtn">📷 Copy Screenshot</button>
-                        <button id="copyTextBtn">📋 Copy Text</button>
+                        <button id="screenshotBtn" style="display:none;">📷 Copy Screenshot</button>
+                        <button id="copyTextBtn" style="display:none;">📋 Copy Text</button>
                     </div>
                     <label class="toggle-switch" title="Enable to make small text corrections directly in the output.">
                         <span class="toggle-switch-label">Enable Editing</span>
@@ -195,7 +187,7 @@
                 <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
                 <label><input type="checkbox" id="showClass"> Show Cabin</label>
                 <label><input type="checkbox" id="showMeal"> Show Meal</label>
-                <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show
+                <label style="display: none;"><input type="checkbox" id="showNotes" style="display: none;"> Show
                     Notes</label>
 
                 <hr>
@@ -206,11 +198,12 @@
                         24-Hour</label>
                 </div>
 
-                <label id="showTransitLabel"><input type="checkbox" id="showTransit" checked> Show Transit
+                <label style="display: none;"><input type="checkbox" id="showTransit" checked> Show Transit
                     Times</label>
                 <div id="transitSymbolContainer" class="custom-transit-input">
                     <label for="transitSymbolInput">Separator:</label>
-                    <input type="text" id="transitSymbolInput" placeholder=":::::::">
+                    <input type="text" id="transitSymbolInput" placeholder=":::::::"
+                        style="width: 120px; padding: 5px;">
                 </div>
 
                 <hr>
@@ -263,7 +256,7 @@ Contact Info"></textarea>
                     </div>
                     <button id="clearCustomBrandingBtn" class="clear-btn">Clear Branding</button>
                 </div>
-                <div id="formatTransitTime">
+                <div style="display: none;">
                     <h4>Transit Time Format</h4>
                     <div class="time-format-group">
                         <label><input type="radio" id="transitTime12" name="transitTimeFormat" value="12h">
@@ -284,7 +277,7 @@ Contact Info"></textarea>
             </div>
             <div class="history-controls">
                 <input type="text" id="historySearchInput" placeholder="Search by passenger or route...">
-                <select id="historySortSelect" title="sreach-history">
+                <select id="historySortSelect">
                     <option value="newest">Sort by Newest First</option>
                     <option value="oldest">Sort by Oldest First</option>
                 </select>
