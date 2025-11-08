@@ -344,7 +344,7 @@ function startRefreshTimer(hours = 6) {
 
     // Update text
     timerEl.textContent =
-      `Refresh available in ${hoursLeft.toString().padStart(2, "0")}:` +
+      `${hoursLeft.toString().padStart(2, "0")}:` +
       `${minutesLeft.toString().padStart(2, "0")}:` +
       `${secondsLeft.toString().padStart(2, "0")}`;
 
@@ -353,7 +353,7 @@ function startRefreshTimer(hours = 6) {
     // When time runs out
     if (totalSeconds < 0) {
       clearInterval(window.refreshInterval);
-      timerEl.textContent = "You can refresh now!";
+      timerEl.textContent = "REFRESH NOW";
       timerEl.style.color = "#00ff80"; // optional highlight
       refreshBtn.style.display = "flex";
 
