@@ -303,11 +303,17 @@ Contact Info"></textarea>
     <div id="popupContainer" class="popup-notification-container"></div>
 
     <footer>
+        <form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
+            <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
+            <input id="nameInput" type="text" name="name" placeholder="Name" required>
+            <input id="emailInput" type="email" name="email" placeholder="Email" required>
+            <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
+            <button id="submitBtn" type="submit">Send Query</button>
+        </form>
         <div class="footer-content">
             <p>Latest Update: <span id="latestUpdate">Version 1.2.3 deployed on 6 Nov 2025</span></p>
-            <p>More than 7000+ aiports</p>
-            <p>inbound-outbound bugs fixed</p>
-            <p>Contact Us via <a href="mailto:faizaanbhati95719@gmail.com">Email</a></p>
+            <p> |- More than 7000+ airports</p>
+            <p> |- Inbound-outbound bugs fixed</p>
         </div>
     </footer>
 

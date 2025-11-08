@@ -1162,3 +1162,38 @@ footer {
     padding-right: 4px;
     padding-left: -5px;
 }
+
+.contact-form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 52px;
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--border-main);
+    padding: 14px;
+}
+
+.footer-content{
+    padding: 20px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-main);
+    flex-shrink: 0;
+}
+
+#nameInput,
+#emailInput,
+#messageInput {
+    padding: 8px;
+    border: 1px solid var(--border-main);
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--bg-card);
+    color: var(--text-main);
+}
+
+button#submitBtn {
+    background-color: var(--primary-blue);
+}
