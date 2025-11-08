@@ -319,45 +319,43 @@ Contact Info"></textarea>
 
     <script src="/js/html2canvas.min.js"></script>
     <script src="/js/main.js"></script>
-    <script>
-        function startRefreshTimer(hours = 6) {
-            const timerEl = document.getElementById("timer");
-            const refreshBtn = document.getElementById("refreshBtn");
+<script>
+function startRefreshTimer(hours = 6) {
+  const timerEl = document.getElementById("timer");
+  const refreshBtn = document.getElementById("refreshBtn");
 
-            let totalSeconds = hours * 60 * 60; // convert hours to seconds
+  if (!timerEl || !refreshBtn) return; // Safety check
 
-            const interval = setInterval(() => {
-                let hrs = Math.floor(totalSeconds / 3600);
-                let mins = Math.floor((totalSeconds % 3600) / 60);
-                let secs = totalSeconds % 60;
+  let totalSeconds = hours * 3600;
 
-                // format time as HH:MM:SS
-                timerEl.textContent =
-                    String(hrs).padStart(2, '0') + ":" +
-                    String(mins).padStart(2, '0') + ":" +
-                    String(secs).padStart(2, '0');
+  const interval = setInterval(() => {
+    const hoursLeft = Math.floor(totalSeconds / 3600);
+    const minutesLeft = Math.floor((totalSeconds % 3600) / 60);
+    const secondsLeft = totalSeconds % 60;
 
-                if (totalSeconds <= 0) {
-                    clearInterval(interval);
-                    refreshBtn.style.display = "flex";
-                    timer.style.display = "none";
-                    refreshMessage.style.display = "none";
-                }
+    timerEl.textContent = `Refresh available in ${hoursLeft
+      .toString()
+      .padStart(2, "0")}:${minutesLeft
+      .toString()
+      .padStart(2, "0")}:${secondsLeft.toString().padStart(2, "0")}`;
 
-                totalSeconds--;
-            }, 1000);
+    totalSeconds--;
 
-            // Refresh button click
-            refreshBtn.addEventListener("click", () => {
-                location.reload();
-            });
-        }
+    if (totalSeconds <= 0) {
+      clearInterval(interval);
+      refreshBtn.style.display = "flex";
 
-        // Start timer on page load
-        window.addEventListener("load", () => {
-            startRefreshTimer(6); // 6 hours countdown
-        });
-    </script>
+      // Hide the timer element safely
+      if (timerEl) timerEl.style.display = "none";
+
+      // Hide optional refresh message if it exists
+      const refreshMessageEl = document.getElementById("refreshMessage");
+      if (refreshMessageEl) refreshMessageEl.style.display = "none";
+    }
+  }, 1000);
+}
+</script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
