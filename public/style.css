@@ -1144,9 +1144,13 @@ footer {
     height: 200px;
     width: 100%;
     background-color: var(--bg-footer);
-    border-top: 1px solid var(--border-main);
+    /* border-top: 1px solid var(--border-main); */
     margin-top: 20px;
-
+    display: flex;
+    margin: 0 auto;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 #refreshBtn {
