@@ -319,44 +319,56 @@ Contact Info"></textarea>
 
     <script src="/js/html2canvas.min.js"></script>
     <script src="/js/main.js"></script>
+<!-- Put this script at the very bottom of your body, after all elements -->
 <script>
 function startRefreshTimer(hours = 6) {
   const timerEl = document.getElementById("timer");
   const refreshBtn = document.getElementById("refreshBtn");
 
-  if (!timerEl || !refreshBtn) return; // Safety check
+  // Make sure both elements exist
+  if (!timerEl || !refreshBtn) {
+    console.error("Timer or Refresh button not found in DOM!");
+    return;
+  }
 
-  let totalSeconds = hours * 3600;
+  let totalSeconds = Math.floor(hours * 3600);
 
-  const interval = setInterval(() => {
+  // Just in case — clear any existing interval before starting a new one
+  if (window.refreshInterval) clearInterval(window.refreshInterval);
+
+  window.refreshInterval = setInterval(() => {
+    // Calculate remaining time
     const hoursLeft = Math.floor(totalSeconds / 3600);
     const minutesLeft = Math.floor((totalSeconds % 3600) / 60);
     const secondsLeft = totalSeconds % 60;
 
-    timerEl.textContent = `Refresh available in ${hoursLeft
-      .toString()
-      .padStart(2, "0")}:${minutesLeft
-      .toString()
-      .padStart(2, "0")}:${secondsLeft.toString().padStart(2, "0")}`;
+    // Update text
+    timerEl.textContent =
+      `Refresh available in ${hoursLeft.toString().padStart(2, "0")}:` +
+      `${minutesLeft.toString().padStart(2, "0")}:` +
+      `${secondsLeft.toString().padStart(2, "0")}`;
 
     totalSeconds--;
 
-    if (totalSeconds <= 0) {
-      clearInterval(interval);
+    // When time runs out
+    if (totalSeconds < 0) {
+      clearInterval(window.refreshInterval);
+      timerEl.textContent = "You can refresh now!";
+      timerEl.style.color = "#00ff80"; // optional highlight
       refreshBtn.style.display = "flex";
 
-      // Hide the timer element safely
-      if (timerEl) timerEl.style.display = "none";
-
-      // Hide optional refresh message if it exists
+      // Hide optional message safely
       const refreshMessageEl = document.getElementById("refreshMessage");
       if (refreshMessageEl) refreshMessageEl.style.display = "none";
     }
   }, 1000);
 }
+
+// Start timer once the page is fully loaded
+window.addEventListener("DOMContentLoaded", () => {
+  startRefreshTimer(6); // 6 hours by default
+});
 </script>
-
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Mobile sidebar script ---
