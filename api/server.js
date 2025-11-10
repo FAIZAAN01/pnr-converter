@@ -280,31 +280,36 @@ function parseGalileoEnhanced(pnrText, options) {
             const nameBlocks = cleanedLine.split(/\s+\d+\.\s*/);
             for (const nameBlock of nameBlocks) {
                 if (!nameBlock.trim()) continue;
-                const nameParts = nameBlock.trim().split('/');
-if (nameParts.length < 2) continue;
-const lastName = nameParts[0].trim();
-let givenNamesAndTitleRaw = nameParts[1].trim();
+                if (isPassengerLine) {
+    const cleanedLine = line.replace(/^\s*\d+\.\s*/, '');
+    const nameBlocks = cleanedLine.split(/\s+\d+\.\s*/);
 
-// Extract child/infant info in parentheses, e.g. (CHD/13JUN22)
-let extraInfo = '';
-const extraMatch = givenNamesAndTitleRaw.match(/\(([^)]+)\)/);
-if (extraMatch) {
-    extraInfo = extraMatch[1].trim(); // e.g. "CHD/13JUN22"
-    givenNamesAndTitleRaw = givenNamesAndTitleRaw.replace(/\(.*?\)/, '').trim(); // remove parentheses from main name
-}
+    for (const nameBlock of nameBlocks) {
+        if (!nameBlock.trim()) continue;
 
-const titles = ['MR', 'MRS', 'MS', 'MSTR', 'MISS', 'CHD', 'INF'];
-const words = givenNamesAndTitleRaw.split(/\s+/);
-const lastWord = words[words.length - 1].toUpperCase();
-let title = '';
-if (titles.includes(lastWord)) title = words.pop();
-const givenNames = words.join(' ');
+        // Match patterns like "BUCHANA/TALEAH JANE(CHD/11JUN23)" or "GASATURA KAMIKAZI/DEBORAH MRS"
+        const match = nameBlock.trim().match(/^([A-Z' -]+)\/([A-Z' .-]+)(\([^)]*\))?/i);
+        if (!match) continue;
 
-if (lastName && givenNames) {
-    let formattedName = `${lastName.toUpperCase()}/${givenNames.toUpperCase()}`;
-    if (title) formattedName += ` ${title}`;
-    if (extraInfo) formattedName += ` (${extraInfo})`; // add the date info back
-    if (!passengers.includes(formattedName)) passengers.push(formattedName);
+        const lastName = match[1].trim();
+        let givenNamesRaw = match[2].trim();
+        let extraInfo = match[3] ? match[3].trim() : ''; // e.g. (CHD/11JUN23)
+
+        // Handle title at the end (MR, MRS, MISS, etc.)
+        const titles = ['MR', 'MRS', 'MS', 'MSTR', 'MISS', 'CHD', 'INF'];
+        const words = givenNamesRaw.split(/\s+/);
+        const lastWord = words[words.length - 1].toUpperCase();
+        let title = '';
+        if (titles.includes(lastWord)) title = words.pop();
+        const givenNames = words.join(' ');
+
+        // Construct formatted passenger name
+        let formattedName = `${lastName.toUpperCase()}/${givenNames.toUpperCase()}`;
+        if (title) formattedName += ` ${title}`;
+        if (extraInfo) formattedName += ` ${extraInfo}`; // add DOB part like (CHD/11JUN23)
+
+        if (!passengers.includes(formattedName)) passengers.push(formattedName);
+    }
 }
 
             }
