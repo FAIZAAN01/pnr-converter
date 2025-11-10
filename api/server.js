@@ -284,6 +284,15 @@ function parseGalileoEnhanced(pnrText, options) {
                 if (nameParts.length < 2) continue;
                 const lastName = nameParts[0].trim();
                 const givenNamesAndTitleRaw = nameParts[1].trim();
+
+                // Extract child/infant info in parentheses, e.g. (CHD/13JUN22)
+                let extraInfo = '';
+                const extraMatch = givenNamesAndTitleRaw.match(/\(([^)]+)\)/);
+                if (extraMatch) {
+                    extraInfo = extraMatch[1].trim(); // e.g. "CHD/13JUN22"
+                    givenNamesAndTitleRaw = givenNamesAndTitleRaw.replace(/\(.*?\)/, '').trim(); // remove parentheses from main name
+                }
+
                 const titles = ['MR', 'MRS', 'MS', 'MSTR', 'MISS', 'CHD', 'INF'];
                 const words = givenNamesAndTitleRaw.split(/\s+/);
                 const lastWord = words[words.length - 1].toUpperCase();
@@ -293,6 +302,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 if (lastName && givenNames) {
                     let formattedName = `${lastName.toUpperCase()}/${givenNames.toUpperCase()}`;
                     if (title) formattedName += ` ${title}`;
+                    if (extraInfo) formattedName += ` (${extraInfo})`; // add the date info back
                     if (!passengers.includes(formattedName)) passengers.push(formattedName);
                 }
             }
