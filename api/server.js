@@ -510,13 +510,10 @@ function parseGalileoEnhanced(pnrText, options) {
                 const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
             
                 if (
-                    stopoverMinutes > 2160 && // 36 hours threshold
-                    prevFlight.arrival.city &&
-                    currentFlight.departure.city &&
-                    prevFlight.arrival.city !== currentFlight.departure.city
-                ) {
-                    currentFlight.direction = 'INBOUND';
-                }
+    stopoverMinutes > 2160 // 36 hours threshold
+) {
+    currentFlight.direction = 'INBOUND';
+}
             } else {
                 // This else block is for debugging and can be removed later
                 console.error("Moment.js parsing failed! Check formats.");
