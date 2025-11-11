@@ -509,7 +509,12 @@ function parseGalileoEnhanced(pnrText, options) {
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
                 const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
             
-                if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
+                if (
+                    stopoverMinutes > 2160 && // 36 hours threshold
+                    prevFlight.arrival.city &&
+                    currentFlight.departure.city &&
+                    prevFlight.arrival.city !== currentFlight.departure.city
+                ) {
                     currentFlight.direction = 'INBOUND';
                 }
             } else {
