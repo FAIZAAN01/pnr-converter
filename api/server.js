@@ -247,8 +247,8 @@ function parseGalileoEnhanced(pnrText, options) {
     const use24hTransit = options.transitTimeFormat === '24h';
 
     const flightSegmentRegexCompact = /^\s*(\d+)\s+([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S*\s*([A-Z]{3})([A-Z]{3})\s+\S+\s+(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}))?/;
-    const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])(?:\s+([A-Z]\d))?\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
-    
+    const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
+
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
 
@@ -267,12 +267,8 @@ function parseGalileoEnhanced(pnrText, options) {
             arrTerminal = null;
         } else {
             flightMatch = line.match(flightSegmentRegexFlexible);
-            if (flightMatch) { // Updated capturing groups due to new regex (added haltsIndicator) 
-                [, segmentNumStr, airlineCode, flightNumRaw, travelClass, haltsIndicator, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch; 
-                // Normalize haltsIndicator: ensure uppercase 
-                if (haltsIndicator) { 
-                    haltsIndicator = haltsIndicator.toUpperCase(); 
-                } 
+            if (flightMatch) {
+                [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
             }
         }
 
@@ -430,14 +426,6 @@ function parseGalileoEnhanced(pnrText, options) {
                 }
             }
 
-            // ADDED: Halts processing logic 
-            let haltsText = null; 
-            if (haltsIndicator) { 
-                const haltsNum = parseInt(haltsIndicator.substring(1), 10); 
-                if (!isNaN(haltsNum)) { 
-                    haltsText = haltsNum === 0 ? 'Direct' : `${haltsNum} Halt${haltsNum === 1 ? '' : 's'}`; 
-                } 
-            }
 
             currentFlight = {
                 segment: parseInt(segmentNumStr, 10) || flightIndex,
@@ -467,8 +455,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
                 transitDurationMinutes: transitDurationInMinutes,
-                formattedNextDepartureTime: formattedNextDepartureTime,
-                halts: haltsText // ADDED: Halts information 
+                formattedNextDepartureTime: formattedNextDepartureTime
             };
             previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && operatedByMatch) {
