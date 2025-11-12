@@ -460,6 +460,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 formattedNextDepartureTime: formattedNextDepartureTime
             };
             previousArrivalMoment = arrivalMoment.clone();
+        } else if (currentFlight && haltsMatch) {
+            currentFlight.halts = parseInt(haltsMatch[1], 10);
         } else if (currentFlight && operatedByMatch) {
             currentFlight.operatedBy = operatedByMatch[1].trim();
         } else if (currentFlight && line.trim().length > 0) {
