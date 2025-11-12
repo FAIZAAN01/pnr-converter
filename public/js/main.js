@@ -426,6 +426,11 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     baggageText = baggageInfo;
                 }
             }
+            let haltsDisplay = ''; 
+            if (flight.halts) { 
+                const haltsClass = flight.halts === 'Direct' ? 'halts-direct' : 'halts-with-stop'; 
+                haltsDisplay = `<span class="${haltsClass}"> (${flight.halts})</span>`; 
+            }
 
             const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
             const arrTerminalDisplay = flight.arrival.terminal ? ` (T${flight.arrival.terminal})` : '';
@@ -437,6 +442,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             const detailRows = [
                 { label: 'Departing ', value: departureString },
                 { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
+                { value: haltsDisplay ? `Halts: ${haltsDisplay}` : null },}
                 { label: 'Baggage \u00A0\u00A0', value: baggageText || null },
                 { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
                 { label: 'Operated by', value: (displayPnrOptions.showOperatedBy && flight.operatedBy) ? flight.operatedBy : null },
