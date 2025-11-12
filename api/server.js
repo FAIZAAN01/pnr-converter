@@ -272,7 +272,7 @@ function parseGalileoEnhanced(pnrText, options) {
             depTimeStr,
             arrTimeStr,
             arrDateStrOrNextDayIndicator,
-            haltsIndicator
+            haltIndicator
         });
 
         if (flightMatch) {
