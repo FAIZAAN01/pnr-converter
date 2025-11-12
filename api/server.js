@@ -457,7 +457,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
                 transitDurationMinutes: transitDurationInMinutes,
-                formattedNextDepartureTime: formattedNextDepartureTime
+                formattedNextDepartureTime: formattedNextDepartureTime,
+                halts: 0
             };
             previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && haltsMatch) {
