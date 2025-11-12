@@ -1210,3 +1210,12 @@ footer {
 button#submitBtn {
     background-color: var(--primary-blue);
 }
+
+.halts-direct {
+    color: green;
+    font-weight: bold;
+}
+
+.halts-with-stop {
+    color: orange; /* Example: You can choose any color or default */
+}
