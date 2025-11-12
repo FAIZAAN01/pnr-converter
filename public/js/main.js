@@ -426,11 +426,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     baggageText = baggageInfo;
                 }
             }
-            let haltsDisplay = ''; 
-            if (flight.halts) { 
-                const haltsClass = flight.halts === 'Direct' ? 'halts-direct' : 'halts-with-stop'; 
-                haltsDisplay = `<span class="${haltsClass}"> (${flight.halts})</span>`; 
-            }
 
             const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
             const arrTerminalDisplay = flight.arrival.terminal ? ` (T${flight.arrival.terminal})` : '';
@@ -454,9 +449,10 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 }
             });
 
-           const headerText = [ flight.date, displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '', `${flight.flightNumber}${haltsDisplay}`, flight.duration, displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '', displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : '' ].filter(Boolean).join(' - ');
-           flightItem.innerHTML = `<div class="flight-content">${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" alt="${flight.airline.name} logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}<div><div class="flight-header">${headerText}</div>${detailsHtml}</div></div>`;
-           itineraryBlock.appendChild(flightItem);
+            const headerText = [flight.date, displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '', flight.flightNumber, flight.duration, displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '', displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : ''].filter(Boolean).join(' - ');
+
+            flightItem.innerHTML = `<div class="flight-content">${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" alt="${flight.airline.name} logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}<div><div class="flight-header">${headerText}</div>${detailsHtml}</div></div>`;
+            itineraryBlock.appendChild(flightItem);
         });
 
         // Display checkbox outputs
