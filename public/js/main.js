@@ -454,7 +454,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 }
             });
 
-           const headerText = [ flight.date, displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '', `${flight.flightNumber}${haltsDisplay}`, // Halts added here flight.duration, displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '', displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : '' ].filter(Boolean).join(' - ');
+           const headerText = [ flight.date, displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '', `${flight.flightNumber}${haltsDisplay}`, flight.duration, displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '', displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : '' ].filter(Boolean).join(' - ');
            flightItem.innerHTML = `<div class="flight-content">${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" alt="${flight.airline.name} logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}<div><div class="flight-header">${headerText}</div>${detailsHtml}</div></div>`;
            itineraryBlock.appendChild(flightItem);
         });
