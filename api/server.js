@@ -469,7 +469,7 @@ function parseGalileoEnhanced(pnrText, options) {
             currentFlight.notes.push(line.trim());
         }
     }
-    console.log(currentFlight.halts);
+    console.log(halts);
     if (currentFlight) flights.push(currentFlight);
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
