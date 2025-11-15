@@ -435,8 +435,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             const arrivalString = `${flight.arrival.airport}${arrTerminalDisplay} - ${flight.arrival.city} (${flight.arrival.country}), ${flight.arrival.name} at ${flight.arrival.time}${arrivalDateDisplay}`;
 
             const detailRows = [
-                { label: 'Departing ', value: departureString + flight.halts },
-                
+                { label: 'Departing ', value: departureString },
                 { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
                 { label: 'Baggage \u00A0\u00A0', value: baggageText || null },
                 { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
@@ -450,7 +449,14 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 }
             });
 
-            const headerText = [flight.date, displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '', flight.flightNumber, flight.duration, displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '', displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : ''].filter(Boolean).join(' - ');
+            const headerText = [
+                flight.date, 
+                displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '', 
+                flight.flightNumber, flight.duration, 
+                displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '',
+                displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : '',
+                flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
+            ].filter(Boolean).join(' - ');
 
             flightItem.innerHTML = `<div class="flight-content">${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" alt="${flight.airline.name} logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}<div><div class="flight-header">${headerText}</div>${detailsHtml}</div></div>`;
             itineraryBlock.appendChild(flightItem);
