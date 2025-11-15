@@ -461,8 +461,11 @@ function parseGalileoEnhanced(pnrText, options) {
         const haltsMatch = line.match(/\bE\s*(\d{1,2})\b(?![A-Z])/i);
 if (haltsMatch) {
     currentFlight.halts = haltsMatch[1].trim();
+    if (currentFlight.halts === '0'){
+        curentFlight.halts = "DIRECT";
+    }
 } else {
-    currentFlight.halts = "DIRECT"; // default if not found
+    currentFlight.halts = "0"; // default if not found
 }
         previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && operatedByMatch) {
