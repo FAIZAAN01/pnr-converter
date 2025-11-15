@@ -435,8 +435,8 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             const arrivalString = `${flight.arrival.airport}${arrTerminalDisplay} - ${flight.arrival.city} (${flight.arrival.country}), ${flight.arrival.name} at ${flight.arrival.time}${arrivalDateDisplay}`;
 
             const detailRows = [
-                { label: 'Departing ', value: departureString },
-                { value: flight.halts, label: ':' },
+                { label: 'Departing ', value: departureString + flight.halts },
+                
                 { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
                 { label: 'Baggage \u00A0\u00A0', value: baggageText || null },
                 { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },

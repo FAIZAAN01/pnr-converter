@@ -460,7 +460,7 @@ function parseGalileoEnhanced(pnrText, options) {
             };
         const haltsMatch = line.match(/\bE\s*(\d{1,2})\b(?![A-Z])/i);
 if (haltsMatch) {
-    currentFlight.halts = `HALT: ${haltsMatch[1].trim()}`;
+    currentFlight.halts = haltsMatch[1].trim();
     if (currentFlight.halts === '0'){
         currentFlight.halts = "DIRECT";
     }
