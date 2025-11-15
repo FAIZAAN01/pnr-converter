@@ -470,7 +470,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             notesHtml += `<p> <strong>&#9830</strong> Date Change Allowed.</p>`;
         }
         if (checkboxOutputs.showTravelInsurance) {
-            notesHtml += `<p> <strong>&#9830</strong> Before Departure Changes Are Allowed.</p>`;
+            notesHtml += `<p> <strong>&#9830</strong> Before Departure Changes Are Allowed With Aplicable Penalty.</p>`;
         }
         if (checkboxOutputs.dontShowTravelInsurance) {
             notesHtml += `<p> <strong>&#9830</strong> After Departure Non Refundable.</p>`;
