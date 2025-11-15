@@ -249,7 +249,7 @@ function parseGalileoEnhanced(pnrText, options) {
     const flightSegmentRegexCompact = /^\s*(\d+)\s+([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S*\s*([A-Z]{3})([A-Z]{3})\s+\S+\s+(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}))?/;
     const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
 
-    const halts =/E\s*(\d)(?![A-Z])/;
+    const halts = /\bE\s*(\d{1,2})\b(?![A-Z])/i;
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
 
@@ -273,7 +273,6 @@ function parseGalileoEnhanced(pnrText, options) {
             }
         }
 
-        const haltsMatch = line.match(halts);
         const operatedByMatch = line.match(operatedByRegex);
         const isPassengerLine = passengerLineIdentifierRegex.test(line);
 
@@ -459,9 +458,13 @@ function parseGalileoEnhanced(pnrText, options) {
                 formattedNextDepartureTime: formattedNextDepartureTime,
                 halts: null
             };
-            previousArrivalMoment = arrivalMoment.clone();
-        } else if (currentFlight && haltsMatch) {
-            currentFlight.halts = haltsMatch[1].trim();
+        const haltsMatch = line.match(/\bE\s*(\d{1,2})\b(?![A-Z])/i);
+if (haltsMatch) {
+    currentFlight.halts = haltsMatch[1].trim();
+} else {
+    currentFlight.halts = "0"; // default if not found
+}
+        previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && operatedByMatch) {
             currentFlight.operatedBy = operatedByMatch[1].trim();
         } else if (currentFlight && line.trim().length > 0) {
