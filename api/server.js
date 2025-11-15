@@ -462,7 +462,7 @@ function parseGalileoEnhanced(pnrText, options) {
             };
             previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && haltsMatch) {
-            currentFlight.halts = haltsMatch[2].trim();
+            currentFlight.halts = haltsMatch[1].trim();
         } else if (currentFlight && operatedByMatch) {
             currentFlight.operatedBy = operatedByMatch[1].trim();
         } else if (currentFlight && line.trim().length > 0) {
