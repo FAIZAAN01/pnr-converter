@@ -438,6 +438,7 @@ function parseGalileoEnhanced(pnrText, options) {
                     time: formatMomentTime(departureMoment, use24hSegment),
                     terminal: normalizeTerminal(depTerminal)
                 },
+                halts: null,
                 arrival: {
                     airport: arrAirport,
                     city: arrAirportInfo.city,
@@ -455,8 +456,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
                 transitDurationMinutes: transitDurationInMinutes,
-                formattedNextDepartureTime: formattedNextDepartureTime,
-                halts: null
+                formattedNextDepartureTime: formattedNextDepartureTime
             };
         const haltsMatch = line.match(/\bE\s*(\d{1,2})\b(?![A-Z])/i);
 if (haltsMatch) {
