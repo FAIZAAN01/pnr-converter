@@ -461,13 +461,13 @@ function parseGalileoEnhanced(pnrText, options) {
                 halts: null
             };
             previousArrivalMoment = arrivalMoment.clone();
+        } else if (currentFlight && haltsMatch) {
+            currentFlight.halts = haltsMatch[1].trim();
         } else if (currentFlight && operatedByMatch) {
             currentFlight.operatedBy = operatedByMatch[1].trim();
         } else if (currentFlight && line.trim().length > 0) {
             currentFlight.notes.push(line.trim());
         }
-    } if (currentFlight && haltsMatch) {
-        currentFlight.halts = haltsMatch[1].trim();
     }
     console.log(currentFlight.halts);
     if (currentFlight) flights.push(currentFlight);
