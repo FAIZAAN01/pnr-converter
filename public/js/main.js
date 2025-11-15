@@ -479,7 +479,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         if (checkboxOutputs.dontShowTravelInsurance) {
             notesHtml += `<p> <strong>&#9830</strong> After Departure Non Refundable.</p>`;
         }
-        if checkboxOutputs.noShowRefundPolicy {
+        if (checkboxOutputs.noShowRefundPolicy) {
             notesHtml += `<p> <strong>&#9830</strong> Refundable With Applicable Penalties.</p>`;
         }
         if (checkboxOutputs.showHealthDocs) {
