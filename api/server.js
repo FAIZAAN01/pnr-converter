@@ -438,7 +438,7 @@ function parseGalileoEnhanced(pnrText, options) {
                     time: formatMomentTime(departureMoment, use24hSegment),
                     terminal: normalizeTerminal(depTerminal)
                 },
-                halts: null,
+                
                 arrival: {
                     airport: arrAirport,
                     city: arrAirportInfo.city,
@@ -470,8 +470,9 @@ if (haltsMatch) {
         } else if (currentFlight && line.trim().length > 0) {
             currentFlight.notes.push(line.trim());
         }
+        console.log(`${halts}`);
     }
-    console.log(`${halts}`);
+    
     if (currentFlight) flights.push(currentFlight);
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
