@@ -462,7 +462,7 @@ function parseGalileoEnhanced(pnrText, options) {
 if (haltsMatch) {
     currentFlight.halts = haltsMatch[1].trim();
     if (currentFlight.halts === '0'){
-        curentFlight.halts = "DIRECT";
+        currentFlight.halts = "DIRECT";
     }
 } else {
     currentFlight.halts = "0"; // default if not found
