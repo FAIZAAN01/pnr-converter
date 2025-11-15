@@ -301,6 +301,7 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showTravelInsurance: document.getElementById('showTravelInsurance').checked,
         showCovidNotice: document.getElementById('showCovidNotice').checked,
         dontShowTravelInsurance: document.getElementById('dontShowTravelInsurance').checked,
+        noShowRefundPolicy: document.getElementById('noShowRefundPolicy').checked
     };
 
     displayResults(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted);
@@ -467,20 +468,24 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         notesContainer.className = 'itinerary-notes';
         let notesHtml = '';
         if (checkboxOutputs.showCovidNotice) {
-            notesHtml += `<p> <strong>&#9830</strong> Date Change Allowed.</p>`;
+            notesHtml += `<p> <strong>&#9830</strong> Date Change Allowed With Applicable Penalties.</p>`;
         }
         if (checkboxOutputs.showTravelInsurance) {
             notesHtml += `<p> <strong>&#9830</strong> Before Departure Changes Are Allowed With Applicable Penalty.</p>`;
         }
+        if (checkboxOutputs.showVisaInfo) {
+            notesHtml += `<p> <strong>&#9830</strong> Before Departure Refundable With Applicable Penalties.</p>`;
+        }
         if (checkboxOutputs.dontShowTravelInsurance) {
             notesHtml += `<p> <strong>&#9830</strong> After Departure Non Refundable.</p>`;
         }
-        if (checkboxOutputs.showVisaInfo) {
-            notesHtml += `<p> <strong>&#9830</strong> Refundable With Aplicable Penalties.</p>`;
+        if checkboxOutputs.noShowRefundPolicy {
+            notesHtml += `<p> <strong>&#9830</strong> Refundable With Applicable Penalties.</p>`;
         }
         if (checkboxOutputs.showHealthDocs) {
             notesHtml += `<p> <strong>&#9830</strong> Non Refundable.</p>`;
         }
+        
 
         const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
         const adultCountNum = parseInt(adultCount) || 0;
