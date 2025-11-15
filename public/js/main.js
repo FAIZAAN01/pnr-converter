@@ -436,8 +436,8 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             const detailRows = [
                 { label: 'Departing ', value: departureString },
+                { value: flight.halts },
                 { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
-                { label: 'halt', value: flight.halts },
                 { label: 'Baggage \u00A0\u00A0', value: baggageText || null },
                 { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
                 { label: 'Operated by', value: (displayPnrOptions.showOperatedBy && flight.operatedBy) ? flight.operatedBy : null },
