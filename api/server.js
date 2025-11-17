@@ -182,7 +182,7 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
     // Return the formatted string instead of assigning it to another variable
     return `${paddedHours}h ${paddedMinutes}m`;
 }
-function getTravelClassName(classCode) {
+function getTravelClassName(classCode, airlineCode = null) {
     if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
 
