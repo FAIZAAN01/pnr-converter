@@ -453,7 +453,7 @@ button {
 
 .combobox-input {
     width: 55px;
-    padding: 4px 24px 4px 8px;
+    padding: 4px 2px 4px 8px;
     border-radius: 4px;
     border: 1px solid var(--border-main);
     text-align: center;
