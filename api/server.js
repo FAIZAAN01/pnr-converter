@@ -182,69 +182,19 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
     // Return the formatted string instead of assigning it to another variable
     return `${paddedHours}h ${paddedMinutes}m`;
 }
-// Airline-specific travel class mappings
-const airlineClassMap = {
-    EK: { // Emirates
-        O: "Business"
-    },
-    BA: { // British Airways
-        F: "First",
-        J: "Club World (Business)",
-        W: "World Traveller Plus (Premium Economy)",
-        Y: "World Traveller (Economy)"
-    },
-    // Add more airlines here...
-};
-
-// Default fallback class codes
-const defaultClassMap = {
-    F: "First",
-    A: "First",
-    J: "Business",
-    C: "Business",
-    D: "Business",
-    I: "Business",
-    Z: "Business",
-    P: "Business",
-    W: "Premium Economy",
-    Y: "Economy",
-    B: "Economy",
-    H: "Economy",
-    K: "Economy",
-    L: "Economy",
-    M: "Economy",
-    N: "Economy",
-    O: "Economy",
-    Q: "Economy",
-    S: "Economy",
-    U: "Economy",
-    V: "Economy",
-    X: "Economy",
-    G: "Economy",
-    E: "Economy",
-    T: "Economy",
-    R: "Economy"
-};
-
-function getTravelClassName(airlineCode, classCode) {
-    if (!classCode) return "Unknown";
-
+function getTravelClassName(classCode) {
+    if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
-    const airline = airlineCode?.toUpperCase();
-
-    // Airline-specific override
-    if (airline && airlineClassMap[airline] && airlineClassMap[airline][code]) {
-        return airlineClassMap[airline][code];
-    }
-
-    // Default mapping fallback
-    if (defaultClassMap[code]) {
-        return defaultClassMap[code];
-    }
-
+    const firstCodes = ['F', 'A'];
+    const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
+    const premiumEconomyCodes = [];
+    const economyCodes = ['Y', 'B', 'H', 'K', 'L', 'M', 'N', 'O', 'Q', 'S', 'U', 'V', 'X', 'G', 'W', 'E', 'T', 'R'];
+    if (firstCodes.includes(code)) return 'First';
+    if (businessCodes.includes(code)) return 'Business';
+    if (premiumEconomyCodes.includes(code)) return 'Premium Economy';
+    if (economyCodes.includes(code)) return 'Economy';
     return `Class ${code}`;
 }
-
 
 function getMealDescription(mealCode) {
     if (!mealCode) return null;
