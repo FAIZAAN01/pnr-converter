@@ -198,6 +198,7 @@ function getTravelClassName(classCode, airlineCode = null) {
         if (airlineMapping[code]) return airlineMapping[code];
     }
 
+    // Default mapping
     const firstCodes = ['F', 'A'];
     const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
     const premiumEconomyCodes = [];
@@ -206,6 +207,7 @@ function getTravelClassName(classCode, airlineCode = null) {
     if (businessCodes.includes(code)) return 'Business';
     if (premiumEconomyCodes.includes(code)) return 'Premium Economy';
     if (economyCodes.includes(code)) return 'Economy';
+
     return `Class ${code}`;
 }
 
