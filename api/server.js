@@ -490,7 +490,6 @@ if (haltsMatch) {
         } else if (currentFlight && line.trim().length > 0) {
             currentFlight.notes.push(line.trim());
         }
-        console.log(`${halts}`);
     }
     
     if (currentFlight) flights.push(currentFlight);
