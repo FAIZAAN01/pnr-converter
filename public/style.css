@@ -19,7 +19,7 @@
     --bg-input: var(--light-bg);
     --bg-hover: #e9ecef;
     --text-main: #34495E;
-    --text-secondary: black;
+    --text-secondary: Gray;
     --border-main: #E0E6EC;
 }
 
@@ -452,7 +452,7 @@ button {
 }
 
 .toggle-text{
-    color: white;
+    color: var(--text-secondary);
 }
 
 .combobox-input {
