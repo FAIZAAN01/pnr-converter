@@ -19,7 +19,7 @@
     --bg-input: var(--light-bg);
     --bg-hover: #e9ecef;
     --text-main: #34495E;
-    --text-secondary: #8395a7;
+    --text-secondary: black;
     --border-main: #E0E6EC;
 }
 
@@ -30,7 +30,7 @@
     --bg-input: #2c3e50;
     --bg-hover: #4a69bd;
     --text-main: #ecf0f1;
-    --text-secondary: #bdc3c7;
+    --text-secondary: white;
     --border-main: #4a69bd;
 }
 
@@ -108,7 +108,7 @@ hr {
 .header-btn {
     background-color: var(--bg-input);
     border: 1px solid var(--border-main);
-    color: white;
+    color: var(--text-secondary);
     padding: 8px 12px;
     border-radius: 20px;
     display: flex;
