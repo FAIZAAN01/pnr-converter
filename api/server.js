@@ -185,6 +185,19 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
 function getTravelClassName(classCode) {
     if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
+
+    // Airline-specific overrides
+    const airlineOverrides = {
+        'EK': { 'O': 'Business' }, // example: XYZ airline
+        'ABC': { 'U': 'Business', 'V': 'Economy' }          // example: ABC airline
+        // Add more airlines and their custom codes here
+    };
+
+    if (airlineCode && airlineOverrides[airlineCode]) {
+        const airlineMapping = airlineOverrides[airlineCode];
+        if (airlineMapping[code]) return airlineMapping[code];
+    }
+
     const firstCodes = ['F', 'A'];
     const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
     const premiumEconomyCodes = [];
