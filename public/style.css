@@ -108,7 +108,7 @@ hr {
 .header-btn {
     background-color: var(--bg-input);
     border: 1px solid var(--border-main);
-    color: var(--text-secondary);
+    color: white;
     padding: 8px 12px;
     border-radius: 20px;
     display: flex;
