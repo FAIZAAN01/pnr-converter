@@ -182,23 +182,10 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
     // Return the formatted string instead of assigning it to another variable
     return `${paddedHours}h ${paddedMinutes}m`;
 }
-function getTravelClassName(classCode, airlineCode = null) {
+function getTravelClassName(classCode) {
     if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
 
-    // Airline-specific overrides
-    const airlineOverrides = {
-        'EK': { 'O': 'Business' }, // example: XYZ airline
-        'ABC': { 'U': 'Business', 'V': 'Economy' }          // example: ABC airline
-        // Add more airlines and their custom codes here
-    };
-
-    if (airlineCode && airlineOverrides[airlineCode]) {
-        const airlineMapping = airlineOverrides[airlineCode];
-        if (airlineMapping[code]) return airlineMapping[code];
-    }
-
-    // Default mapping
     const firstCodes = ['F', 'A'];
     const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
     const premiumEconomyCodes = [];
@@ -488,6 +475,7 @@ if (haltsMatch) {
         } else if (currentFlight && line.trim().length > 0) {
             currentFlight.notes.push(line.trim());
         }
+        console.log(`${halts}`);
     }
     
     if (currentFlight) flights.push(currentFlight);
