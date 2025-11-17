@@ -451,6 +451,10 @@ button {
     width: 90px;
 }
 
+.toggle-text{
+    color: white;
+}
+
 .combobox-input {
     width: 55px;
     padding: 4px 2px 4px 8px;
@@ -544,9 +548,9 @@ button {
 }
 
 .info {
-    color: #3498db;
+    color: #fff;
     padding: 15px;
-    background-color: #f0f7ff;
+    background-color: #000;
     border: 1px solid #2980b9;
     border-radius: 8px;
 }
@@ -913,6 +917,10 @@ body::-webkit-scrollbar-thumb:hover {
 #transitSymbolInput{
     width: 120px;
     padding: 5px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-main);
+    color: white;
+    border-radius: 4px;
 }
 
 #formatTransitTime{
