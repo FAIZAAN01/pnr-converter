@@ -301,7 +301,8 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showTravelInsurance: document.getElementById('showTravelInsurance').checked,
         showCovidNotice: document.getElementById('showCovidNotice').checked,
         dontShowTravelInsurance: document.getElementById('dontShowTravelInsurance').checked,
-        noShowRefundPolicy: document.getElementById('noShowRefundPolicy').checked
+        noShowRefundPolicy: document.getElementById('noShowRefundPolicy').checked,
+        noShow: document.getElementById('noShow').checked
     };
 
     displayResults(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted);
@@ -485,7 +486,9 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
         if (checkboxOutputs.showHealthDocs) {
             notesHtml += `<p> <strong>&#9830</strong> Non Refundable.</p>`;
         }
-        
+        if (checkboxOutputs.noShow) {
+            notesHtml += `<p> <strong>&#9830</strong> No Show Fee Where Applicable.</p>`;
+        }            
 
         const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
         const adultCountNum = parseInt(adultCount) || 0;
