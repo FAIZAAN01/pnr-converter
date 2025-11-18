@@ -537,11 +537,9 @@ if (haltsMatch) {
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
                 const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
             
-                if (
-    stopoverMinutes > 2160 // 36 hours threshold
-) {
-    currentFlight.direction = 'INBOUND';
-}
+                if ( stopoverMinutes > 2160 ) {
+                    currentFlight.direction = 'INBOUND';
+            }
             } else {
                 // This else block is for debugging and can be removed later
                 console.error("Moment.js parsing failed! Check formats.");
