@@ -495,46 +495,60 @@ if (haltsMatch) {
     if (currentFlight) flights.push(currentFlight);
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
-if (flights.length > 0) {
-    // reset directions
-    for (const f of flights) f.direction = null;
 
-    // first flight always outbound
-    flights[0].direction = "OUTBOUND";
+    if (flights.length > 0) {
+        for (const flight of flights) {
+            flight.direction = null;
+        }
+        flights[0].direction = 'OUTBOUND';
 
-    const MAX_TRANSIT_MIN = 1440; // 24 hours
+        const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
 
-    for (let i = 1; i < flights.length; i++) {
-        const prev = flights[i - 1];
-        const curr = flights[i];
+        // Define both possible time formats
+        const format12h = "DD MMM YYYY hh:mm A";
+        const format24h = "DD MMM YYYY HH:mm";
 
-        // --- Transit calculation ignoring UTC ---
-        const prevArrHrs = parseInt(prev.arrival.time.substring(0,2), 10);
-        const prevArrMins = parseInt(prev.arrival.time.substring(2,4) || '0', 10);
-        const currDepHrs = parseInt(curr.departure.time.substring(0,2), 10);
-        const currDepMins = parseInt(curr.departure.time.substring(2,4) || '0', 10);
+        for (let i = 1; i < flights.length; i++) {
+            const prevFlight = flights[i - 1];
+            const currentFlight = flights[i];
 
-        let prevArrTotal = prevArrHrs * 60 + prevArrMins;
-        let currDepTotal = currDepHrs * 60 + currDepMins;
+            const prevArrAirportInfo = airportDatabase[prevFlight.arrival.airport] || { timezone: 'UTC' };
+            if (!moment.tz.zone(prevArrAirportInfo.timezone)) prevArrAirportInfo.timezone = 'UTC';
 
-        // number of full days between arrival and departure
-        const prevDate = new Date(prev.date.split(', ')[1]); // e.g., "DD MMM YYYY"
-        const currDate = new Date(curr.date.split(', ')[1]);
-        const dayDiff = Math.max(0, Math.floor((currDate - prevDate)/(1000*60*60*24)));
+            const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
+            if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
 
-        // transit minutes
-        const transitMinutes = currDepTotal + (24*60 - prevArrTotal) + (dayDiff - 1)*24*60;
+            // --- Start of the fix ---
 
-        // store it in flight object if needed
-        curr.transitDurationInMinutes = transitMinutes;
+            // Determine the correct format string for the previous flight's arrival time
+            const prevTimeFormat = prevFlight.arrival.time.includes('M') ? format12h : format24h;
+            // Determine the correct format string for the current flight's departure time
+            const currTimeFormat = currentFlight.departure.time.includes('M') ? format12h : format24h;
 
-        // --- INBOUND logic ---
-        if (transitMinutes > MAX_TRANSIT_MIN || prev.arrival.airport !== curr.departure.airport) {
-            curr.direction = "INBOUND";
+            // --- End of the fix ---
+
+            const prevYear = prevFlight.date.split(', ')[1].split(' ')[2];
+            const prevArrivalDateStr = prevFlight.arrival.dateString ? `${prevFlight.arrival.dateString} ${prevYear}` : prevFlight.date.split(', ')[1];
+
+            // Use the detected format for parsing
+            const arrivalOfPreviousFlight = moment.tz(`${prevArrivalDateStr} ${prevFlight.arrival.time}`, prevTimeFormat, true, prevArrAirportInfo.timezone);
+            const departureOfCurrentFlight = moment.tz(`${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`, currTimeFormat, true, currDepAirportInfo.timezone);
+
+            if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
+                const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
+            
+                if ( stopoverMinutes > 2160 ) {
+                    currentFlight.direction = 'INBOUND';
+            }
+            } else {
+                // This else block is for debugging and can be removed later
+                console.error("Moment.js parsing failed! Check formats.");
+                console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
+                console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
+            }
+
         }
     }
-}
-
     // --- END: CORRECTED LOGIC ---
 
     return { flights, passengers };
