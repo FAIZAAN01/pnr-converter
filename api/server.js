@@ -496,59 +496,40 @@ if (haltsMatch) {
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
 
-    if (flights.length > 0) {
-        for (const flight of flights) {
-            flight.direction = null;
-        }
-        flights[0].direction = 'OUTBOUND';
-
-        const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
-
-        // Define both possible time formats
-        const format12h = "DD MMM YYYY hh:mm A";
-        const format24h = "DD MMM YYYY HH:mm";
-
-        for (let i = 1; i < flights.length; i++) {
-            const prevFlight = flights[i - 1];
-            const currentFlight = flights[i];
-
-            const prevArrAirportInfo = airportDatabase[prevFlight.arrival.airport] || { timezone: 'UTC' };
-            if (!moment.tz.zone(prevArrAirportInfo.timezone)) prevArrAirportInfo.timezone = 'UTC';
-
-            const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
-            if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
-
-            // --- Start of the fix ---
-
-            // Determine the correct format string for the previous flight's arrival time
-            const prevTimeFormat = prevFlight.arrival.time.includes('M') ? format12h : format24h;
-            // Determine the correct format string for the current flight's departure time
-            const currTimeFormat = currentFlight.departure.time.includes('M') ? format12h : format24h;
-
-            // --- End of the fix ---
-
-            const prevYear = prevFlight.date.split(', ')[1].split(' ')[2];
-            const prevArrivalDateStr = prevFlight.arrival.dateString ? `${prevFlight.arrival.dateString} ${prevYear}` : prevFlight.date.split(', ')[1];
-
-            // Use the detected format for parsing
-            const arrivalOfPreviousFlight = moment.tz(`${prevArrivalDateStr} ${prevFlight.arrival.time}`, prevTimeFormat, true, prevArrAirportInfo.timezone);
-            const departureOfCurrentFlight = moment.tz(`${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`, currTimeFormat, true, currDepAirportInfo.timezone);
-
-            if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
-                const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
-            
-                if ( stopoverMinutes > 2160 ) {
-                    currentFlight.direction = 'INBOUND';
-            }
-            } else {
-                // This else block is for debugging and can be removed later
-                console.error("Moment.js parsing failed! Check formats.");
-                console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
-                console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
-            }
-
-        }
+    function parseTime(timeStr) {
+    // Convert 12h or 24h time to total minutes
+    let hours, minutes;
+    if (timeStr.toUpperCase().includes('AM') || timeStr.toUpperCase().includes('PM')) {
+        // 12-hour format
+        const [time, period] = timeStr.split(' ');
+        [hours, minutes] = time.split(':').map(Number);
+        if (period.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+        if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
+    } else {
+        // 24-hour format
+        [hours, minutes] = timeStr.split(':').map(Number);
     }
+    return hours * 60 + minutes;
+}
+
+if (flights.length > 0) {
+    for (let i = 1; i < flights.length; i++) {
+        const prevFlight = flights[i - 1];
+        const currentFlight = flights[i];
+
+        const prevArrivalMinutes = parseTime(prevFlight.arrival.time);
+        const currDepartureMinutes = parseTime(currentFlight.departure.time);
+
+        // Calculate difference in minutes
+        let diffMinutes = currDepartureMinutes - prevArrivalMinutes;
+
+        // If flight is on the next day, adjust by adding 24 hours
+        if (diffMinutes < 0) diffMinutes += 24 * 60;
+
+        console.log(`Time difference between flight ${i} and flight ${i+1}: ${diffMinutes} minutes`);
+    }
+}
+
     // --- END: CORRECTED LOGIC ---
 
     return { flights, passengers };
