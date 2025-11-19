@@ -496,45 +496,50 @@ if (haltsMatch) {
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
 
-    function parseDateTime(dateStr, timeStr) {
-        // Convert date and time to total minutes from a reference point
-        // Assume dateStr is in "DD MMM YYYY" format
-        const [day, monthStr, year] = dateStr.split(' ');
-        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        const month = monthNames.indexOf(monthStr);
+// Helper: parse date + time into a JS Date object
+function parseDateTime(dateStr, timeStr) {
+    // Assume dateStr: "DD MMM YYYY" or flight.date.split(', ')[1]
+    const [day, monthStr, year] = dateStr.split(' ');
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const month = monthNames.indexOf(monthStr);
 
-        let hours, minutes;
+    let hours, minutes;
 
-        // Handle 12h or 24h time
-        if (timeStr.toUpperCase().includes('AM') || timeStr.toUpperCase().includes('PM')) {
-            const [time, period] = timeStr.split(' ');
-            [hours, minutes] = time.split(':').map(Number);
-            if (period.toUpperCase() === 'PM' && hours !== 12) hours += 12;
-            if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
-        } else {
-            [hours, minutes] = timeStr.split(':').map(Number);
-        }
-
-        // Create a JavaScript Date object
-        const dateObj = new Date(year, month, day, hours, minutes);
-
-        // Return total minutes since epoch
-        return Math.floor(dateObj.getTime() / (1000 * 60));
+    // 12-hour format check
+    if (timeStr.toUpperCase().includes('AM') || timeStr.toUpperCase().includes('PM')) {
+        const [time, period] = timeStr.split(' ');
+        [hours, minutes] = time.split(':').map(Number);
+        if (period.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+        if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
+    } else {
+        [hours, minutes] = timeStr.split(':').map(Number);
     }
 
-    if (flights.length > 0) {
-        for (let i = 1; i < flights.length; i++) {
-            const prevFlight = flights[i - 1];
-            const currentFlight = flights[i];
+    return new Date(year, month, day, hours, minutes);
+}
 
-            const prevArrivalMinutes = parseDateTime(prevFlight.arrival.dateString || prevFlight.date.split(', ')[1], prevFlight.arrival.time);
-            const currDepartureMinutes = parseDateTime(currentFlight.departure.dateString || currentFlight.date.split(', ')[1], currentFlight.departure.time);
+// Calculate transit for all flights
+for (let i = 1; i < flights.length; i++) {
+    const prevFlight = flights[i - 1];
+    const currentFlight = flights[i];
 
-            const diffMinutes = currDepartureMinutes - prevArrivalMinutes;
+    // Parse arrival and departure datetime
+    const prevArrival = parseDateTime(prevFlight.arrival.dateString || prevFlight.date.split(', ')[1], prevFlight.arrival.time);
+    const currDeparture = parseDateTime(currentFlight.departure.dateString || currentFlight.date.split(', ')[1], currentFlight.departure.time);
 
-            console.log(`Time difference between flight ${i} and flight ${i+1}: ${diffMinutes} minutes`);
-        }
-    }
+    // Difference in minutes
+    const diffMs = currDeparture - prevArrival;
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+    // Populate flight object
+    currentFlight.transitDurationMinutes = diffMinutes;
+
+    // Human-readable hh:mm format
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+    currentFlight.transitTime = `${hours}h ${minutes}m`;
+}
+
 
     // --- END: CORRECTED LOGIC ---
 
