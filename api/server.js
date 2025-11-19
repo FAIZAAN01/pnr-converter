@@ -495,60 +495,92 @@ if (haltsMatch) {
     if (currentFlight) flights.push(currentFlight);
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
+if (flights.length > 0) {
+    for (const flight of flights) {
+        flight.direction = null;
+    }
+    flights[0].direction = 'OUTBOUND';
 
-    if (flights.length > 0) {
-        for (const flight of flights) {
-            flight.direction = null;
-        }
-        flights[0].direction = 'OUTBOUND';
+    const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
 
-        const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
+    // Define both possible time formats
+    const format12h = "DD MMM YYYY hh:mm A";
+    const format24h = "DD MMM YYYY HH:mm";
 
-        // Define both possible time formats
-        const format12h = "DD MMM YYYY hh:mm A";
-        const format24h = "DD MMM YYYY HH:mm";
+    for (let i = 1; i < flights.length; i++) {
+        const prevFlight = flights[i - 1];
+        const currentFlight = flights[i];
 
-        for (let i = 1; i < flights.length; i++) {
-            const prevFlight = flights[i - 1];
-            const currentFlight = flights[i];
+        const prevArrAirportInfo = airportDatabase[prevFlight.arrival.airport] || { timezone: 'UTC' };
+        if (!moment.tz.zone(prevArrAirportInfo.timezone)) prevArrAirportInfo.timezone = 'UTC';
 
-            const prevArrAirportInfo = airportDatabase[prevFlight.arrival.airport] || { timezone: 'UTC' };
-            if (!moment.tz.zone(prevArrAirportInfo.timezone)) prevArrAirportInfo.timezone = 'UTC';
+        const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
+        if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
 
-            const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
-            if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
+        // Detect correct time format from AM/PM check
+        const prevTimeFormat = prevFlight.arrival.time.includes('M') ? format12h : format24h;
+        const currTimeFormat = currentFlight.departure.time.includes('M') ? format12h : format24h;
 
-            // --- Start of the fix ---
+        const prevYear = prevFlight.date.split(', ')[1].split(' ')[2];
+        const prevArrivalDateStr = prevFlight.arrival.dateString
+            ? `${prevFlight.arrival.dateString} ${prevYear}`
+            : prevFlight.date.split(', ')[1];
 
-            // Determine the correct format string for the previous flight's arrival time
-            const prevTimeFormat = prevFlight.arrival.time.includes('M') ? format12h : format24h;
-            // Determine the correct format string for the current flight's departure time
-            const currTimeFormat = currentFlight.departure.time.includes('M') ? format12h : format24h;
+        const arrivalOfPreviousFlight = moment.tz(
+            `${prevArrivalDateStr} ${prevFlight.arrival.time}`,
+            prevTimeFormat,
+            true,
+            prevArrAirportInfo.timezone
+        );
 
-            // --- End of the fix ---
+        const departureOfCurrentFlight = moment.tz(
+            `${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`,
+            currTimeFormat,
+            true,
+            currDepAirportInfo.timezone
+        );
 
-            const prevYear = prevFlight.date.split(', ')[1].split(' ')[2];
-            const prevArrivalDateStr = prevFlight.arrival.dateString ? `${prevFlight.arrival.dateString} ${prevYear}` : prevFlight.date.split(', ')[1];
+        if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
 
-            // Use the detected format for parsing
-            const arrivalOfPreviousFlight = moment.tz(`${prevArrivalDateStr} ${prevFlight.arrival.time}`, prevTimeFormat, true, prevArrAirportInfo.timezone);
-            const departureOfCurrentFlight = moment.tz(`${currentFlight.date.split(', ')[1]} ${currentFlight.departure.time}`, currTimeFormat, true, currDepAirportInfo.timezone);
+            // Same airport check FIRST
+            const sameAirport = prevFlight.arrival.airport === currentFlight.departure.airport;
 
-            if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
-                const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
-            
-                if ( stopoverMinutes > 2160 ) {
-                    currentFlight.direction = 'INBOUND';
-            }
+            // Absolute hour based time diff
+            const arrivalAbsHours = arrivalOfPreviousFlight.valueOf() / (1000 * 60 * 60);
+            const departureAbsHours = departureOfCurrentFlight.valueOf() / (1000 * 60 * 60);
+            const gapHours = departureAbsHours - arrivalAbsHours;
+
+            const stopoverMinutes = gapHours * 60;
+
+            // Convert to readable HH mm (round correctly)
+            const totalMinutes = Math.round(stopoverMinutes);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+
+            // Attach duration always
+            currentFlight.transitDuration = `${hours}h ${minutes}m`;
+
+            // Classification
+            if (sameAirport && gapHours <= 24) {
+                currentFlight.transitType = "Transit";
             } else {
-                // This else block is for debugging and can be removed later
-                console.error("Moment.js parsing failed! Check formats.");
-                console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
-                console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
+                currentFlight.transitType = "Layover";
             }
 
+            // Direction assignment based purely on >24h logic
+            currentFlight.direction = gapHours > 24 ? "INBOUND" : "OUTBOUND";
+
+        } else {
+            console.error("Moment.js parsing failed! Check formats.");
+            console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
+            console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
+
+            currentFlight.transitDuration = "N/A";
+            currentFlight.transitType = "N/A";
+            currentFlight.direction = "OUTBOUND";
         }
     }
+}
     // --- END: CORRECTED LOGIC ---
 
     return { flights, passengers };
