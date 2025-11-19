@@ -411,7 +411,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
                 } else {
-                    
+                    break;
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
