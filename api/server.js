@@ -577,7 +577,7 @@ if (flights.length > 0) {
 
             currentFlight.transitDuration = "N/A";
             currentFlight.transitType = "N/A";
-            currentFlight.direction = "OUTBOUND";
+            currentFlight.direction = "";
         }
     }
 }
