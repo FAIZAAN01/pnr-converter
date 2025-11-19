@@ -568,7 +568,7 @@ if (flights.length > 0) {
             }
 
             // Direction assignment based purely on >24h logic
-            currentFlight.direction = gapHours > 24 ? "INBOUND" : "OUTBOUND";
+            currentFlight.direction = gapHours > 24 ? "INBOUND" : gapHours;
 
         } else {
             console.error("Moment.js parsing failed! Check formats.");
