@@ -413,15 +413,10 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 } else {
                     transitLabel = "INBOUND";
                 }
-                if (transitLable = "INBOUND") {
-                    transitDiv.className = `transit-item ${transitClassName}`;
-                    transitDiv.innerHTML = `${transitLabel} <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">`;
-                    itineraryBlock.appendChild(transitDiv);
-                } else{
-                    transitDiv.className = `transit-item ${transitClassName}`;
-                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                    itineraryBlock.appendChild(transitDiv);
-                }
+
+                transitDiv.className = `transit-item ${transitClassName}`;
+                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                itineraryBlock.appendChild(transitDiv);
             }
 
             const flightItem = document.createElement('div');
