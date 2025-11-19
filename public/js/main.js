@@ -410,20 +410,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 } else if (minutes > 300 && minutes < 1440) {
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
-                } else {
-                    let iconSrc = '/icons/takeoff.png';
-                    flight.direction = 'INBOUND';
-                    const headingDiv = document.createElement('div');
-                    headingDiv.className = 'itinerary-leg-header';
-
-                    headingDiv.innerHTML = `
-                        <span>${flight.direction.toUpperCase()}</span>
-                        <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                    `;
-
-                    itineraryBlock.appendChild(headingDiv);
-
-                    currentHeadingDisplayed = flight.direction.toUpperCase();
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
