@@ -411,7 +411,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
                 } else {
-                    console.LOGIC('Invalid transit duration minutes:', minutes);
+                    console.log('Invalid transit duration minutes:', minutes);
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
