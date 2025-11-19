@@ -537,7 +537,7 @@ if (haltsMatch) {
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
                 const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
             
-                if ( stopoverMinutes > 2160 ) {
+                if ( stopoverMinutes > 1440 ) {
                     currentFlight.direction = 'INBOUND';
             }
             } else {
