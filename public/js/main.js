@@ -371,7 +371,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             let currentHeadingDisplayed = null;
 
-            if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
+            if ((flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) && (flight.transitTime >= 1440)) {
 
                 const iconSrc = flight.direction.toUpperCase() === 'INBOUND' ? '/icons/landing.png' : '/icons/takeoff.png';
 
