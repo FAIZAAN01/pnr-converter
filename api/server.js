@@ -496,39 +496,45 @@ if (haltsMatch) {
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
 
-    function parseTime(timeStr) {
-    // Convert 12h or 24h time to total minutes
-    let hours, minutes;
-    if (timeStr.toUpperCase().includes('AM') || timeStr.toUpperCase().includes('PM')) {
-        // 12-hour format
-        const [time, period] = timeStr.split(' ');
-        [hours, minutes] = time.split(':').map(Number);
-        if (period.toUpperCase() === 'PM' && hours !== 12) hours += 12;
-        if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
-    } else {
-        // 24-hour format
-        [hours, minutes] = timeStr.split(':').map(Number);
+    function parseDateTime(dateStr, timeStr) {
+        // Convert date and time to total minutes from a reference point
+        // Assume dateStr is in "DD MMM YYYY" format
+        const [day, monthStr, year] = dateStr.split(' ');
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const month = monthNames.indexOf(monthStr);
+
+        let hours, minutes;
+
+        // Handle 12h or 24h time
+        if (timeStr.toUpperCase().includes('AM') || timeStr.toUpperCase().includes('PM')) {
+            const [time, period] = timeStr.split(' ');
+            [hours, minutes] = time.split(':').map(Number);
+            if (period.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+            if (period.toUpperCase() === 'AM' && hours === 12) hours = 0;
+        } else {
+            [hours, minutes] = timeStr.split(':').map(Number);
+        }
+
+        // Create a JavaScript Date object
+        const dateObj = new Date(year, month, day, hours, minutes);
+
+        // Return total minutes since epoch
+        return Math.floor(dateObj.getTime() / (1000 * 60));
     }
-    return hours * 60 + minutes;
-}
 
-if (flights.length > 0) {
-    for (let i = 1; i < flights.length; i++) {
-        const prevFlight = flights[i - 1];
-        const currentFlight = flights[i];
+    if (flights.length > 0) {
+        for (let i = 1; i < flights.length; i++) {
+            const prevFlight = flights[i - 1];
+            const currentFlight = flights[i];
 
-        const prevArrivalMinutes = parseTime(prevFlight.arrival.time);
-        const currDepartureMinutes = parseTime(currentFlight.departure.time);
+            const prevArrivalMinutes = parseDateTime(prevFlight.arrival.dateString || prevFlight.date.split(', ')[1], prevFlight.arrival.time);
+            const currDepartureMinutes = parseDateTime(currentFlight.departure.dateString || currentFlight.date.split(', ')[1], currentFlight.departure.time);
 
-        // Calculate difference in minutes
-        let diffMinutes = currDepartureMinutes - prevArrivalMinutes;
+            const diffMinutes = currDepartureMinutes - prevArrivalMinutes;
 
-        // If flight is on the next day, adjust by adding 24 hours
-        if (diffMinutes < 0) diffMinutes += 24 * 60;
-
-        console.log(`Time difference between flight ${i} and flight ${i+1}: ${diffMinutes} minutes`);
+            console.log(`Time difference between flight ${i} and flight ${i+1}: ${diffMinutes} minutes`);
+        }
     }
-}
 
     // --- END: CORRECTED LOGIC ---
 
