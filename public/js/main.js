@@ -412,7 +412,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitClassName = 'transit-long';
                 } else {
                     transitLabel = `INBOUND`;
-                    transitClassName = 'itinerary-leg-header';
+                    transitClassName = 'leg-header-icon';
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
