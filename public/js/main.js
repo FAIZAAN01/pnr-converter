@@ -413,7 +413,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 } else {
                     transitLabel = "INBOUND";
                 }
-                if (transitLable === "INBOUND") {
+                if (transitLable = "INBOUND") {
                     transitDiv.className = `transit-item ${transitClassName}`;
                     transitDiv.innerHTML = `${transitLabel} <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">`;
                     itineraryBlock.appendChild(transitDiv);
