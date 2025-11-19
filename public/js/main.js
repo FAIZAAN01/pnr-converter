@@ -411,12 +411,17 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
                 } else {
-                    console.log('Invalid transit duration minutes:', minutes);
+                    transitLabel = "INBOUND";
                 }
-
-                transitDiv.className = `transit-item ${transitClassName}`;
-                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                itineraryBlock.appendChild(transitDiv);
+                if (transitLable === "INBOUND") {
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${transitLabel} <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">`;
+                    itineraryBlock.appendChild(transitDiv);
+                } else{
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                    itineraryBlock.appendChild(transitDiv);
+                }
             }
 
             const flightItem = document.createElement('div');
