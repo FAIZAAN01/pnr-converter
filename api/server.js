@@ -426,7 +426,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
                 const transitMinutes = transitDuration.asMinutes();
 
-                if (transitMinutes > 30 && transitMinutes < 1440) { // filter very short/long
+                if (transitMinutes > 30) { // filter very short/long
                     const hours = Math.floor(transitMinutes / 60);
                     const minutes = Math.floor(transitMinutes % 60);
                     precedingTransitTimeForThisSegment = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
