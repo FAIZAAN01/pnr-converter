@@ -496,16 +496,18 @@ if (haltsMatch) {
 
     // --- START: REFINED LOGIC FOR / LEG DETECTION ---
 if (flights.length > 0) {
+
+    // Reset directions
     for (const flight of flights) {
         flight.direction = null;
     }
+
+    // First segment always outbound
     flights[0].direction = 'OUTBOUND';
 
-    const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
-
-    // Define both possible time formats
     const format12h = "DD MMM YYYY hh:mm A";
     const format24h = "DD MMM YYYY HH:mm";
+    const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
 
     for (let i = 1; i < flights.length; i++) {
         const prevFlight = flights[i - 1];
@@ -517,7 +519,7 @@ if (flights.length > 0) {
         const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
         if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
 
-        // Detect correct time format from AM/PM check
+        // Detect formats dynamically
         const prevTimeFormat = prevFlight.arrival.time.includes('M') ? format12h : format24h;
         const currTimeFormat = currentFlight.departure.time.includes('M') ? format12h : format24h;
 
@@ -540,44 +542,17 @@ if (flights.length > 0) {
             currDepAirportInfo.timezone
         );
 
+        // If parsing is valid → check stopover
         if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
 
-            // Same airport check FIRST
-            const sameAirport = prevFlight.arrival.airport === currentFlight.departure.airport;
+            const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
 
-            // Absolute hour based time diff
-            const arrivalAbsHours = arrivalOfPreviousFlight.valueOf() / (1000 * 60 * 60);
-            const departureAbsHours = departureOfCurrentFlight.valueOf() / (1000 * 60 * 60);
-            const gapHours = departureAbsHours - arrivalAbsHours;
-
-            const stopoverMinutes = gapHours * 60;
-
-            // Convert to readable HH mm (round correctly)
-            const totalMinutes = Math.round(stopoverMinutes);
-            const hours = Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-
-            // Attach duration always
-            currentFlight.transitDuration = `${hours}h ${minutes}m`;
-
-            // Classification
-            if (sameAirport && gapHours <= 24) {
-                currentFlight.transitType = "Transit";
-            } else {
-                currentFlight.transitType = "Layover";
+            if (stopoverMinutes > STOPOVER_THRESHOLD_MINUTES) {
+                currentFlight.direction = 'INBOUND';
             }
-
-            // Direction assignment based purely on >24h logic
-            currentFlight.direction = gapHours > 24 ? "INBOUND" : "";
 
         } else {
             console.error("Moment.js parsing failed! Check formats.");
-            console.error(`- Previous Arrival: '${prevFlight.arrival.time}' with format '${prevTimeFormat}'`);
-            console.error(`- Current Departure: '${currentFlight.departure.time}' with format '${currTimeFormat}'`);
-
-            currentFlight.transitDuration = "N/A";
-            currentFlight.transitType = "N/A";
-            currentFlight.direction = "INBOUND";
         }
     }
 }
