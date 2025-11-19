@@ -371,9 +371,11 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             let currentHeadingDisplayed = null;
 
-            if ((flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) && (flight.transitTime >= 1440)) {
+            if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
 
-                const iconSrc = flight.direction.toUpperCase() === 'INBOUND' ? '/icons/landing.png' : '/icons/takeoff.png';
+                const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
+                    ? '/icons/takeoff.png'
+                    : '/icons/landing.png';
 
                 const headingDiv = document.createElement('div');
                 headingDiv.className = 'itinerary-leg-header';
@@ -405,9 +407,23 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 } else if (minutes <= 300 && minutes >= 121){
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum';
-                } else {
+                } else (minutes > 300 && minutes < 1440) {
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
+                } else {
+                    const iconSrc = '/icons/takeoff.png';
+                    flight.direction = 'INBOUND';
+                    const headingDiv = document.createElement('div');
+                    headingDiv.className = 'itinerary-leg-header';
+
+                    headingDiv.innerHTML = `
+                        <span>${flight.direction.toUpperCase()}</span>
+                        <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                    `;
+
+                    itineraryBlock.appendChild(headingDiv);
+
+                    currentHeadingDisplayed = flight.direction.toUpperCase();
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
