@@ -407,11 +407,9 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 } else if (minutes <= 300 && minutes >= 121){
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum';
-                } else if (minutes > 300 && minutes < 1440) {
+                } else {
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
-                } else {
-                    transitLabel = ``;
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
