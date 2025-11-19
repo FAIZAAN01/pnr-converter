@@ -411,8 +411,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
                 } else {
-                    transitLabel = `INBOUND`;
-                    transitClassName = 'leg-header-icon';
+                    transitLabel = ``;
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
