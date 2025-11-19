@@ -373,7 +373,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
 
-                const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
+                const iconSrc = flight.direction.toUpperCase() === 'INBOUND'
                     ? '/icons/takeoff.png'
                     : '/icons/landing.png';
 
