@@ -568,7 +568,7 @@ if (flights.length > 0) {
             }
 
             // Direction assignment based purely on >24h logic
-            currentFlight.direction = gapHours > 24 ? "INBOUND" : "INBOUND";
+            currentFlight.direction = gapHours > 24 ? "INBOUND" : "";
 
         } else {
             console.error("Moment.js parsing failed! Check formats.");
@@ -577,7 +577,7 @@ if (flights.length > 0) {
 
             currentFlight.transitDuration = "N/A";
             currentFlight.transitType = "N/A";
-            currentFlight.direction = "";
+            currentFlight.direction = "INBOUND";
         }
     }
 }
