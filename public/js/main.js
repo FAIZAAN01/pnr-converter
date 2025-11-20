@@ -65,12 +65,26 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-async function generateItineraryCanvas(element) { 
-    if (!element) throw new Error("Element for canvas generation not found."); // Use a high scale for ultra-clear images (e.g., 3 or 4) 
-    const scaleFactor = (window.devicePixelRatio || 1) * 2; // 2x your device pixel ratio 
-    const options = { scale: scaleFactor, backgroundColor: '#ffffff', useCORS: true, allowTaint: true }; 
-    return await html2canvas(element, options); 
+async function generateItineraryCanvas(element) {
+    if (!element) throw new Error("Element for canvas generation not found.");
+
+    const width = element.offsetWidth;
+    const height = element.offsetHeight;
+
+    const options = {
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: true,
+        width: width,
+        height: height,
+        windowWidth: width,
+        windowHeight: height,
+        scale: 3 // ⬅️ higher clarity, but same final dimensions
+    };
+
+    return await html2canvas(element, options);
 }
+
 
 // --- ADDED: Helper function to get the unit from the new toggle ---
 function getSelectedUnit() {
