@@ -371,11 +371,9 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             let currentHeadingDisplayed = null;
 
-            if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
+            if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
 
-                const iconSrc = flight.direction.toUpperCase() !== 'INBOUND'
-                    ? '/icons/takeoff.png'
-                    : '';
+                const iconSrc = '/icons/takeoff.png';
 
                 const headingDiv = document.createElement('div');
                 headingDiv.className = 'itinerary-leg-header';
@@ -411,24 +409,22 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
                 } else {
-                    if (flight.direction && flight.direction.toUpperCase() !== 'OUTBOUND') {
+                    if (flight.direction && flight.direction.toUpperCase() === 'INBOUND') {
 
-                const iconSrc = flight.direction.toUpperCase() !== 'OUTBOUND'
-                    ? '/icons/landing.png'
-                    : '';
+                        const iconSrc = '/icons/landing.png';
 
-                const headingDiv = document.createElement('div');
-                headingDiv.className = 'itinerary-leg-header';
+                        const headingDiv = document.createElement('div');
+                        headingDiv.className = 'itinerary-leg-header';
 
-                headingDiv.innerHTML = `
-                    <span>${flight.direction.toUpperCase()}</span>
-                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                `;
+                        headingDiv.innerHTML = `
+                            <span>${flight.direction.toUpperCase()}</span>
+                            <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                        `;
 
-                itineraryBlock.appendChild(headingDiv);
+                        itineraryBlock.appendChild(headingDiv);
 
-                currentHeadingDisplayed = flight.direction.toUpperCase();
-            }
+                        currentHeadingDisplayed = flight.direction.toUpperCase();
+                    }
                 }
                 if (minutes <= 1440){
                     transitDiv.className = `transit-item ${transitClassName}`;
