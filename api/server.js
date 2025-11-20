@@ -500,7 +500,7 @@ if (haltsMatch) {
         for (const flight of flights) {
             flight.direction = null;
         }
-        flights[0].direction = 'OUTBOUND';
+        flights[0].direction = '';
 
         const STOPOVER_THRESHOLD_MINUTES = 1440; // 24 hours
 
@@ -539,7 +539,7 @@ if (haltsMatch) {
             
                 if ( stopoverMinutes > 1440 ) {
                     currentFlight.direction = 'INBOUND';
-            }
+                }
             } else {
                 // This else block is for debugging and can be removed later
                 console.error("Moment.js parsing failed! Check formats.");
