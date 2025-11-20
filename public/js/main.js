@@ -404,43 +404,19 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 if (minutes <= 120 && minutes >= 0) {
                     transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-short';
-
-                    transitDiv.className = `transit-item ${transitClassName}`;
-                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                    itineraryBlock.appendChild(transitDiv);
                 } else if (minutes > 300 && minutes < 1440) {
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
-
-                    transitDiv.className = `transit-item ${transitClassName}`;
-                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                    itineraryBlock.appendChild(transitDiv);
                 } else if (minutes <= 300 && minutes >= 121){
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
-
-                    transitDiv.className = `transit-item ${transitClassName}`;
-                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                    itineraryBlock.appendChild(transitDiv);
                 } else {
-                    if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
-
-                    const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
-                        ? '/icons/takeoff.png'
-                        : '/icons/landing.png';
-
-                    const headingDiv = document.createElement('div');
-                    headingDiv.className = 'itinerary-leg-header';
-
-                    headingDiv.innerHTML = `
-                        <span>${flight.direction.toUpperCase()}</span>
-                        <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                    `;
-
-                    itineraryBlock.appendChild(headingDiv);
-
-                    currentHeadingDisplayed = flight.direction.toUpperCase();
+                    transitLabel = "INBOUND";
                 }
+
+                transitDiv.className = `transit-item ${transitClassName}`;
+                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                itineraryBlock.appendChild(transitDiv);
             }
 
             const flightItem = document.createElement('div');
