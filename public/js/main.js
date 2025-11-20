@@ -373,9 +373,9 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
 
-                const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
+                const iconSrc = flight.direction.toUpperCase() !== 'INBOUND'
                     ? '/icons/takeoff.png'
-                    : '/icons/landing.png';
+                    : '';
 
                 const headingDiv = document.createElement('div');
                 headingDiv.className = 'itinerary-leg-header';
@@ -411,12 +411,30 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
                 } else {
-                    transitLabel = "INBOUND";
-                }
+                    if (flight.direction && flight.direction.toUpperCase() !== 'OUTBOUND') {
 
-                transitDiv.className = `transit-item ${transitClassName}`;
-                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                itineraryBlock.appendChild(transitDiv);
+                const iconSrc = flight.direction.toUpperCase() !== 'OUTBOUND'
+                    ? '/icons/landing.png'
+                    : '';
+
+                const headingDiv = document.createElement('div');
+                headingDiv.className = 'itinerary-leg-header';
+
+                headingDiv.innerHTML = `
+                    <span>${flight.direction.toUpperCase()}</span>
+                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                `;
+
+                itineraryBlock.appendChild(headingDiv);
+
+                currentHeadingDisplayed = flight.direction.toUpperCase();
+            }
+                }
+                if (minutes <= 1440){
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                    itineraryBlock.appendChild(transitDiv);
+                }
             }
 
             const flightItem = document.createElement('div');
