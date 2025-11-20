@@ -400,8 +400,8 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                         itineraryBlock.appendChild(headingDiv);
 
                         currentHeadingDisplayed = flight.direction.toUpperCase();
-                    }
-                else if (minutes <= 120 && minutes >= 0) {
+                }
+                if (minutes <= 120 && minutes >= 0) {
                     transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-short';
                 } else if (minutes <= 300 && minutes >= 121){
