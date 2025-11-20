@@ -67,7 +67,7 @@ function reverseString(str) {
 
 async function generateItineraryCanvas(element) { 
     if (!element) throw new Error("Element for canvas generation not found."); // Use a high scale for ultra-clear images (e.g., 3 or 4) 
-    const scaleFactor = (window.devicePixelRatio || 1) * 1.5; // 2x your device pixel ratio 
+    const scaleFactor = (window.devicePixelRatio || 1) * 2; // 2x your device pixel ratio 
     const options = { scale: scaleFactor, backgroundColor: '#ffffff', useCORS: true, allowTaint: true }; 
     return await html2canvas(element, options); 
 }
@@ -372,19 +372,22 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             let currentHeadingDisplayed = null;
 
             if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
-                    const iconSrc = flight.direction === 'OUTBOUND' ? '/icons/takeoff.png' : '';
 
-                    const headingDiv = document.createElement('div');
-                    headingDiv.className = 'itinerary-leg-header';
+                const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
+                    ? '/icons/takeoff.png'
+                    : '/icons/landing.png';
 
-                    headingDiv.innerHTML = `
-                        <span>${flight.direction.toUpperCase()}</span>
-                        <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                    `;
+                const headingDiv = document.createElement('div');
+                headingDiv.className = 'itinerary-leg-header';
 
-                    itineraryBlock.appendChild(headingDiv);
+                headingDiv.innerHTML = `
+                    <span>${flight.direction.toUpperCase()}</span>
+                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                `;
 
-                    currentHeadingDisplayed = flight.direction.toUpperCase();
+                itineraryBlock.appendChild(headingDiv);
+
+                currentHeadingDisplayed = flight.direction.toUpperCase();
             }
 
             if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
@@ -401,35 +404,42 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 if (minutes <= 120 && minutes >= 0) {
                     transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-short';
-                } else if (minutes <= 300 && minutes >= 121){
-                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-minimum'
-                } else if (minutes <= 1440 && minutes >= 301) {
-                    transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-long';
-                } else {
-                    if (flight.direction !== 'OUTBOUND')
-                        flight.direction = 'INBOUND';
-                        const iconSrc = '/icons/landing.png';
 
-                        const headingDiv = document.createElement('div');
-                        headingDiv.className = 'itinerary-leg-header';
-
-                        headingDiv.innerHTML = `
-                            <span>${flight.direction.toUpperCase()}</span>
-                            <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                        `;
-
-                        itineraryBlock.appendChild(headingDiv);
-
-                        currentHeadingDisplayed = flight.direction.toUpperCase();
-                    }
-                }
-
-                if (minutes <= 1440){
                     transitDiv.className = `transit-item ${transitClassName}`;
                     transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
                     itineraryBlock.appendChild(transitDiv);
+                } else if (minutes > 300 && minutes < 1440) {
+                    transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-long';
+
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                    itineraryBlock.appendChild(transitDiv);
+                } else if (minutes <= 300 && minutes >= 121){
+                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-minimum'
+
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                    itineraryBlock.appendChild(transitDiv);
+                } else {
+                    if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
+
+                    const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
+                        ? '/icons/takeoff.png'
+                        : '/icons/landing.png';
+
+                    const headingDiv = document.createElement('div');
+                    headingDiv.className = 'itinerary-leg-header';
+
+                    headingDiv.innerHTML = `
+                        <span>${flight.direction.toUpperCase()}</span>
+                        <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                    `;
+
+                    itineraryBlock.appendChild(headingDiv);
+
+                    currentHeadingDisplayed = flight.direction.toUpperCase();
                 }
             }
 
