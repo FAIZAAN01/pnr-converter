@@ -411,7 +411,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
                 } else {
-                    if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
+                    if (flight.direction.toUpperCase() !== 'OUTBOUND') {
                         flight.direction = 'INBOUND';
                         const iconSrc = '/icons/landing.png';
 
