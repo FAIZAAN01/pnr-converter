@@ -371,24 +371,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             let currentHeadingDisplayed = null;
 
-            if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
-
-                const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND'
-                    ? '/icons/takeoff.png'
-                    : '/icons/landing.png';
-
-                const headingDiv = document.createElement('div');
-                headingDiv.className = 'itinerary-leg-header';
-
-                headingDiv.innerHTML = `
-                    <span>${flight.direction.toUpperCase()}</span>
-                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                `;
-
-                itineraryBlock.appendChild(headingDiv);
-
-                currentHeadingDisplayed = flight.direction.toUpperCase();
-            }
+            
 
             if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
                 const transitDiv = document.createElement('div');
@@ -407,9 +390,26 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 } else if (minutes <= 300 && minutes >= 121){
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
-                } else {
+                } else if (minutes <= 1440 && minutes >= 301) {
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
+                } else {
+                    if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
+                        flight.direction.toUpperCase() = 'INBOUND';
+                        const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND' ? '/icons/takeoff.png' : '/icons/landing.png';
+
+                        const headingDiv = document.createElement('div');
+                        headingDiv.className = 'itinerary-leg-header';
+
+                        headingDiv.innerHTML = `
+                            <span>${flight.direction.toUpperCase()}</span>
+                            <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                        `;
+
+                        itineraryBlock.appendChild(headingDiv);
+
+                        currentHeadingDisplayed = flight.direction.toUpperCase();
+                    }
                 }
 
                 transitDiv.className = `transit-item ${transitClassName}`;
