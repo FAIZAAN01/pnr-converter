@@ -372,7 +372,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
             let currentHeadingDisplayed = null;
 
             if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
-                    const iconSrc = flight.direction.toUppercase() === 'OUTBOUND' ? '/icons/takeoff.png' : '';
+                    const iconSrc = flight.direction === 'OUTBOUND' ? '/icons/takeoff.png' : '';
 
                     const headingDiv = document.createElement('div');
                     headingDiv.className = 'itinerary-leg-header';
