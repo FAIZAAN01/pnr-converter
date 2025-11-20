@@ -409,7 +409,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-minimum'
                 } else {
-                    if (flight.direction && flight.direction.toUpperCase() === 'INBOUND') {
+                        flight.direction = 'INBOUND';
 
                         const iconSrc = '/icons/landing.png';
 
@@ -424,7 +424,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                         itineraryBlock.appendChild(headingDiv);
 
                         currentHeadingDisplayed = flight.direction.toUpperCase();
-                    }
+                    
                 }
                 if (minutes <= 1440){
                     transitDiv.className = `transit-item ${transitClassName}`;
