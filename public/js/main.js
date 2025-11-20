@@ -395,7 +395,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitClassName = 'transit-long';
                 } else {
                     if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
-                        flight.direction.toUpperCase() = 'INBOUND';
+                        flight.direction = 'INBOUND';
                         const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND' ? '/icons/takeoff.png' : '/icons/landing.png';
 
                         const headingDiv = document.createElement('div');
