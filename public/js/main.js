@@ -412,9 +412,11 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     }
                 }
 
-                transitDiv.className = `transit-item ${transitClassName}`;
-                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                itineraryBlock.appendChild(transitDiv);
+                if (minutes <= 1440){
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                    itineraryBlock.appendChild(transitDiv);
+                }
             }
 
             const flightItem = document.createElement('div');
