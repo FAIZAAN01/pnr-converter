@@ -408,6 +408,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
                 } else {
+                    if (flight.direction !== 'OUTBOUND')
                         flight.direction = 'INBOUND';
                         const iconSrc = '/icons/landing.png';
 
@@ -422,6 +423,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                         itineraryBlock.appendChild(headingDiv);
 
                         currentHeadingDisplayed = flight.direction.toUpperCase();
+                    }
                 }
 
                 if (minutes <= 1440){
