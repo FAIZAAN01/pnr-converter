@@ -65,74 +65,12 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-async function generateItineraryCanvas(element) {
-    if (!element) throw new Error("Element for canvas generation not found.");
-
-    // Clone the element so scrolling/overflow doesn’t interfere
-    const clonedElement = element.cloneNode(true);
-    clonedElement.style.position = "absolute";
-    clonedElement.style.top = "-9999px";
-    clonedElement.style.left = "-9999px";
-    clonedElement.style.transform = "none";
-    clonedElement.style.width = element.scrollWidth + "px"; // Full visible width
-    clonedElement.style.height = element.scrollHeight + "px"; // Full visible height
-
-    document.body.appendChild(clonedElement);
-
-    const canvas = await html2canvas(clonedElement, {
-        backgroundColor: "#ffffff",
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        width: clonedElement.scrollWidth,
-        height: clonedElement.scrollHeight,
-        windowWidth: clonedElement.scrollWidth,
-        windowHeight: clonedElement.scrollHeight,
-    });
-
-    // Remove clone after capturing
-    document.body.removeChild(clonedElement);
-
-    // ✂️ Trim excess right & bottom whitespace
-    return trimCanvas(canvas);
+async function generateItineraryCanvas(element) { 
+    if (!element) throw new Error("Element for canvas generation not found."); // Use a high scale for ultra-clear images (e.g., 3 or 4) 
+    const scaleFactor = (window.devicePixelRatio || 1) * 2; // 2x your device pixel ratio 
+    const options = { scale: scaleFactor, backgroundColor: '#ffffff', useCORS: true, allowTaint: true }; 
+    return await html2canvas(element, options); 
 }
-
-
-// Automatically crop blank space
-function trimCanvas(canvas) {
-    const ctx = canvas.getContext("2d");
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const pixels = imgData.data;
-
-    let top = null, bottom = null, left = null, right = null;
-
-    // detect non-white pixels
-    for (let y = 0; y < canvas.height; y++) {
-        for (let x = 0; x < canvas.width; x++) {
-            const idx = (y * canvas.width + x) * 4;
-            if (!(pixels[idx] > 245 && pixels[idx + 1] > 245 && pixels[idx + 2] > 245)) {
-                if (top === null) top = y;
-                bottom = y;
-                if (left === null || x < left) left = x;
-                if (right === null || x > right) right = x;
-            }
-        }
-    }
-
-    const croppedWidth = right - left + 1;
-    const croppedHeight = bottom - top + 1;
-
-    const croppedCanvas = document.createElement("canvas");
-    croppedCanvas.width = croppedWidth;
-    croppedCanvas.height = croppedHeight;
-    const croppedCtx = croppedCanvas.getContext("2d");
-
-    croppedCtx.drawImage(canvas, left, top, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
-
-    return croppedCanvas;
-}
-
-
 
 // --- ADDED: Helper function to get the unit from the new toggle ---
 function getSelectedUnit() {
