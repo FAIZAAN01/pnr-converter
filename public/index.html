@@ -204,7 +204,9 @@
 
         #baggageAmountInput {
             height: 30px;
-            width: 60px
+            width: 100%;
+            font-size: 20px;
+            font-weight: bolder;
         }
 
         #convertBtn {
@@ -1256,31 +1258,60 @@
 
         #baggageQuickButtons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 6px;
     margin-top: 8px;
 }
 
+/* Quick baggage buttons */
 .bag-btn {
-    padding: 6px 0;
-    border-radius: 6px;
-    font-size: 13px;
-    border: 1px solid var(--border-color, #aaa);
-    background: var(--bg-light, #f5f5f5);
+    padding: 5px 12px;
+    border: 1px solid var(--primary-blue);
+    border-radius: 4px;
     cursor: pointer;
-    transition: 0.2s ease;
-    color: var(--primary-blue-hover);
+    background: var(--bg-button, #fff);
+    color: var(--text-main, #000);
+    transition: 0.2s;
 }
 
+/* Hover effect for light/dark mode */
 .bag-btn:hover {
-    background: var(--text-main);
-    color: var(--bg-card)
+    background: var(--text-secondary, #e0e0e0);
+    color: var(--text-main, #000);
 }
 
+/* Active button highlight */
 .bag-btn.active {
-    background: var(--accent-color, #007bff);
-    color: var(--text-on-accent, #fff);
-    border-color: var(--accent-color, #007bff);
+    background: var(--accent-color, #00aaff);
+    color: #fff;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] .bag-btn {
+    background: white;
+    color: var(--text-main-dark, #000);
+    border-color: var(--primary-blue-dark, #4a69bd);
+}
+
+[data-theme="dark"] .bag-btn:hover {
+    background: var(--text-secondary-dark, #555);
+    color: var(--text-main-dark, #fff);
+}
+
+[data-theme="dark"] .bag-btn.active {
+    background: var(--accent-color-dark, #00ccff);
+    color: #000;
+}
+
+.btn-pcs{
+    background-color: var(--primary-blue-hover);
+    color: white;
+}
+
+[data-theme="dark"] .btn-pcs{
+    background-color:transparent;
+    color: white;
+    border-color: white;
 }
 
     </style>
@@ -1421,31 +1452,16 @@
 
                 <div class="baggage-options">
                     <label for="baggageParticular">Baggage:</label>
-                    <input type="radio" id="baggageNone" name="baggageOption" value="none">
-                    <label for="baggageNone">None</label>
-                    <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked>
-                    <label for="baggageParticular">Per segment</label>
+                    <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked hidden>
+                    <label for="baggageParticular" hidden>Per segment</label>
 
                     <div class="combobox-container" id="baggageCombobox">
                         <label for="baggageAmountInput"></label>
                         <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23"
                             placeholder="Enter Baggage Amount">
-                        <button class="combobox-arrow" type="button" aria-labelledby="dropDownMenu"
-                            title="drop-down-mwenu-button-for-baggage-inputs"></button>
+                        
                         <!-- Quick-Select Baggage Buttons -->
                     </div>
-                    <div id="baggageQuickButtons">
-                        <button class="bag-btn" data-value="0" data-unit="KG">0 KG</button>
-                        <button class="bag-btn" data-value="15" data-unit="KG">15 KG</button>
-                        <button class="bag-btn" data-value="23" data-unit="KG">23 KG</button>
-                    
-                        <button class="bag-btn" data-value="1" data-unit="PC">1 PC</button>
-                        <button class="bag-btn" data-value="2" data-unit="PC">2 PC</button>
-                        <button class="bag-btn" data-value="3" data-unit="PC">3 PC</button>
-                    </div>
-                    
-
-
                     <div class="c-unit-toggle">
                         <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
                         <label class="c-unit-toggle__label" for="unit-selector-checkbox">
@@ -1455,6 +1471,20 @@
                             </span>
                         </label>
                     </div>
+                    <div id="baggageQuickButtons">
+                        <button class="bag-btn" data-value="0" data-unit="KG">0 KG</button>
+                        <button class="bag-btn" data-value="15" data-unit="KG">15 KG</button>
+                        <button class="bag-btn" data-value="23" data-unit="KG">23 KG</button>
+                        <button class="bag-btn" data-value="30" data-unit="KG">30 KG</button>
+                    
+                        <button class="bag-btn btn-pcs" data-value="1" data-unit="PC">1 PC</button>
+                        <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
+                        <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
+                    </div>
+                    
+
+
+                    
                 </div>
                 <div class="loading-spinner" id="loadingSpinner"></div>
             </div>
@@ -1602,15 +1632,16 @@ Contact Info"></textarea>
     <footer>
         <form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
             <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
-            <input id="nameInput" type="text" name="name" placeholder="Name" required>
-            <input id="emailInput" type="email" name="email" placeholder="Email" required>
+            <input id="nameInput" type="text" name="name" placeholder="Name" hidden>
+            <input id="emailInput" type="email" name="email" placeholder="Email" hidden>
             <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
             <button id="submitBtn" type="submit">Send Query</button>
         </form>
         <div class="footer-content">
-            <p>Latest Update: <span id="latestUpdate">Version 1.2.3 deployed on 6 Nov 2025</span></p>
-            <p> |- More than 7000+ airports</p>
-            <p> |- Inbound-outbound bugs fixed</p>
+            <p>Latest Update: <span id="latestUpdate">Version 1.2.4 deployed on 6 Nov 2025</span></p>
+            <p> |- Modern Baggage Input System</p>
+            <p> |- Inbound-Outbound bugs fixed (Accuracy 87.4%)</p>
+            <p> |- AT fare class (i.e. P) set to eco</p>
         </div>
     </footer>
 
