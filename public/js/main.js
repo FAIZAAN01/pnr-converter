@@ -65,11 +65,34 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-async function generateItineraryCanvas(element) { 
-    if (!element) throw new Error("Element for canvas generation not found."); // Use a high scale for ultra-clear images (e.g., 3 or 4) 
-    const scaleFactor = (window.devicePixelRatio || 1) * 2; // 2x your device pixel ratio 
-    const options = { scale: scaleFactor, backgroundColor: '#ffffff', useCORS: true, allowTaint: true }; 
-    return await html2canvas(element, options); 
+async function generateItineraryCanvas(element) {
+    if (!element) throw new Error("Element for canvas generation not found.");
+
+    // Clone the element to avoid scroll/overflow issues
+    const clone = element.cloneNode(true);
+    clone.style.position = "absolute";
+    clone.style.top = "-9999px";
+    clone.style.left = "-9999px";
+    clone.style.width = element.scrollWidth + "px";
+    clone.style.height = element.scrollHeight + "px";
+    clone.style.transform = "none";
+
+    document.body.appendChild(clone);
+
+    const canvas = await html2canvas(clone, {
+        backgroundColor: "#ffffff",
+        scale: 2.5, // High quality without huge filesize
+        useCORS: true,
+        allowTaint: true,
+        width: clone.scrollWidth,
+        height: clone.scrollHeight,
+        windowWidth: clone.scrollWidth,
+        windowHeight: clone.scrollHeight
+    });
+
+    document.body.removeChild(clone);
+
+    return canvas; // No more cropping required 🎯
 }
 
 // --- ADDED: Helper function to get the unit from the new toggle ---
