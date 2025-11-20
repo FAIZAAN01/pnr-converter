@@ -401,7 +401,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
                         currentHeadingDisplayed = flight.direction.toUpperCase();
                     }
-                if (minutes <= 120 && minutes >= 0) {
+                else if (minutes <= 120 && minutes >= 0) {
                     transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-short';
                 } else if (minutes <= 300 && minutes >= 121){
@@ -411,7 +411,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
                 } else {
-                    if (flight.direction.toUpperCase() !== 'OUTBOUND') {
                         flight.direction = 'INBOUND';
                         const iconSrc = '/icons/landing.png';
 
@@ -426,7 +425,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                         itineraryBlock.appendChild(headingDiv);
 
                         currentHeadingDisplayed = flight.direction.toUpperCase();
-                    }
                 }
 
                 if (minutes <= 1440){
