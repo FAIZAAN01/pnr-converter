@@ -384,8 +384,10 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
 
                 let transitLabel, transitClassName;
+
                 if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
-                        const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND' ? '/icons/takeoff.png' : '/icons/landing.png';
+                    flight.direction = 'OUTBOUND'
+                        const iconSrc =  '/icons/takeoff.png';
 
                         const headingDiv = document.createElement('div');
                         headingDiv.className = 'itinerary-leg-header';
@@ -411,7 +413,7 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 } else {
                     if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
                         flight.direction = 'INBOUND';
-                        const iconSrc = flight.direction.toUpperCase() === 'OUTBOUND' ? '/icons/takeoff.png' : '/icons/landing.png';
+                        const iconSrc = '/icons/landing.png';
 
                         const headingDiv = document.createElement('div');
                         headingDiv.className = 'itinerary-leg-header';
