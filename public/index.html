@@ -1314,6 +1314,45 @@
     border-color: white;
 }
 
+        #reportErrorBtn {
+            position: relative;
+            padding: 9px 17px;
+            cursor: pointer;
+            background-color: #c70508;
+            color: white;
+            border: 1px solid #a00405;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        #reportErrorBtn:hover {
+            background-color: #a00405;
+        }
+
+        /* Tooltip */
+        #reportErrorBtn .tooltip {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 6px;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        #reportErrorBtn:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
     </style>
 </head>
 
@@ -1490,6 +1529,10 @@
             </div>
             <div class="output-area card">
                 <div class="output-actions">
+                    <button id="reportErrorBtn">
+                        Report Error
+                        <span class="tooltip">Click to report last PNR</span>
+                    </button>
                     <div>
                         <h3>Converted Itinerary</h3>
                         <button id="screenshotBtn">📷 Copy Screenshot</button>
@@ -1501,9 +1544,11 @@
                         <span class="switch-body"></span>
                     </label>
                 </div>
+                
                 <div id="output">
                     <div class="info">Enter PNR data and click Convert to begin.</div>
                 </div>
+                
             </div>
         </div>
 
@@ -1632,22 +1677,51 @@ Contact Info"></textarea>
     <footer>
         <form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
             <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
-            <input id="nameInput" type="text" name="name" placeholder="Name" hidden>
-            <input id="emailInput" type="email" name="email" placeholder="Email" hidden>
+            <input id="nameInput" type="text" name="name" placeholder="Name" required>
+            <input id="emailInput" type="email" name="email" placeholder="Email" required>
+            <input type="hidden" name="pnr" id="pnrHidden">
             <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
             <button id="submitBtn" type="submit">Send Query</button>
         </form>
         <div class="footer-content">
-            <p>Latest Update: <span id="latestUpdate">Version 1.2.4 deployed on 20 Nov 2025</span></p>
-            <p> |- Modern Baggage Input System</p>
-            <p> |- Inbound-Outbound bugs fixed (Accuracy 87.4%)</p>
-            <p> |- AT fare class (i.e. P) set to eco</p>
+            <p>Latest Update: <span id="latestUpdate">Version 1.2.3 deployed on 6 Nov 2025</span></p>
+            <p> |- More than 7000+ airports</p>
+            <p> |- Inbound-outbound bugs fixed</p>
         </div>
     </footer>
 
     <script src="/js/html2canvas.min.js"></script>
     <script src="/js/main.js"></script>
     <!-- Put this script at the very bottom of your body, after all elements -->
+
+    <script>
+        // Grab the already existing PNR input field
+        const pnrInput = document.getElementById("pnrInput"); // Must exist on page
+        const pnrHidden = document.getElementById("pnrHidden");
+
+        // Report Error button
+        const reportBtn = document.getElementById("reportErrorBtn");
+        reportBtn.addEventListener("click", () => {
+            const latestPNR = pnrInput.value.trim();
+            if (!latestPNR) {
+                alert("No PNR found to report!");
+                return;
+            }
+
+            // Set PNR in hidden field and submit
+            pnrHidden.value = latestPNR;
+            document.getElementById("contactForm").submit();
+        });
+
+        // Update tooltip dynamically
+        reportBtn.addEventListener("mouseenter", () => {
+            const tooltip = reportBtn.querySelector(".tooltip");
+            tooltip.textContent = pnrInput.value
+                ? "Click to report last PNR: " + pnrInput.value
+                : "Click to report last PNR";
+        });
+    </script>
+
     <script>
         function startRefreshTimer(hours = 6) {
             const timerEl = document.getElementById("timer");
