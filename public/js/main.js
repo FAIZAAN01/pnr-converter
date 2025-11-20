@@ -67,7 +67,7 @@ function reverseString(str) {
 
 async function generateItineraryCanvas(element) { 
     if (!element) throw new Error("Element for canvas generation not found."); // Use a high scale for ultra-clear images (e.g., 3 or 4) 
-    const scaleFactor = (window.devicePixelRatio || 0.5) * 2; // 2x your device pixel ratio 
+    const scaleFactor = (window.devicePixelRatio || 0.5) * 1; // 2x your device pixel ratio 
     const options = { scale: scaleFactor, backgroundColor: '#ffffff', useCORS: true, allowTaint: true }; 
     return await html2canvas(element, options); 
 }
