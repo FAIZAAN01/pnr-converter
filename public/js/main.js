@@ -371,7 +371,22 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
 
             let currentHeadingDisplayed = null;
 
-            
+            if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
+                    flight.direction = 'OUTBOUND'
+                    const iconSrc =  '/icons/takeoff.png';
+
+                    const headingDiv = document.createElement('div');
+                    headingDiv.className = 'itinerary-leg-header';
+
+                    headingDiv.innerHTML = `
+                        <span>${flight.direction.toUpperCase()}</span>
+                        <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                    `;
+
+                    itineraryBlock.appendChild(headingDiv);
+
+                    currentHeadingDisplayed = flight.direction.toUpperCase();
+            }
 
             if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
                 const transitDiv = document.createElement('div');
@@ -384,23 +399,6 @@ function displayResults(pnrResult, displayPnrOptions, fareDetails, baggageDetail
                 const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
 
                 let transitLabel, transitClassName;
-
-                if (flight.direction && flight.direction.toUpperCase() !== currentHeadingDisplayed) {
-                    flight.direction = 'OUTBOUND'
-                        const iconSrc =  '/icons/takeoff.png';
-
-                        const headingDiv = document.createElement('div');
-                        headingDiv.className = 'itinerary-leg-header';
-
-                        headingDiv.innerHTML = `
-                            <span>${flight.direction.toUpperCase()}</span>
-                            <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                        `;
-
-                        itineraryBlock.appendChild(headingDiv);
-
-                        currentHeadingDisplayed = flight.direction.toUpperCase();
-                }
                 if (minutes <= 120 && minutes >= 0) {
                     transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-short';
