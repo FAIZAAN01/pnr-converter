@@ -1957,20 +1957,22 @@ Contact Info"></textarea>
         }, refreshTime);
     </script>
         <script>
-        function closeBoxOnOutside(e) {
-            const box = document.getElementById("modalContent");
-            if (!box.contains(e.target)) {
-                closeBox();
-            }
-        }
+        function enableModalOutsideClose(modalId) {
+    const modal = document.getElementById(modalId);
+    const content = modal.querySelector('.modal-content');
 
-        function closeBox() {
-            document.getElementById("modalContent").style.display = "none";
-            document.getElementById("historyModal").style.display = "none";
-
-            // Clean up listener
-            document.removeEventListener("click", closeBoxOnOutside);
+    function closeIfClickedOutside(e) {
+        if (!content.contains(e.target)) {
+            modal.classList.add('hidden');
+            document.removeEventListener('click', closeIfClickedOutside);
         }
+    }
+
+    // Delay to avoid immediate close on the opening click
+    setTimeout(() => {
+        document.addEventListener('click', closeIfClickedOutside);
+    }, 10);
+}
     </script>
 
 </body>
