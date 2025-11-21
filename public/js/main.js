@@ -641,7 +641,7 @@ const historyManager = {
                         ${item.pax}
                     </div>
                     <div class="history-item-details">
-                        <span style="font-weight:bold; color:black;">
+                        <span style="font-weight:bold;">
                             ${item.route}
                         </span>
                         <br>
