@@ -1529,15 +1529,15 @@
             </div>
             <div class="output-area card">
                 <div class="output-actions">
-                    <button id="reportErrorBtn">
-                        Report Error
-                        <span class="tooltip">Click to report last PNR</span>
-                    </button>
                     <div>
                         <h3>Converted Itinerary</h3>
                         <button id="screenshotBtn">📷 Copy Screenshot</button>
                         <button id="copyTextBtn">📋 Copy Text</button>
                     </div>
+                    <button id="reportErrorBtn">
+                        Report Error
+                        <span class="tooltip">Click to report last PNR</span>
+                    </button>
                     <label class="toggle-switch" title="Enable to make small text corrections directly in the output.">
                         <span class="toggle-switch-label">Enable Editing</span>
                         <input type="checkbox" id="editableToggle">
@@ -1675,7 +1675,7 @@ Contact Info"></textarea>
     <div id="popupContainer" class="popup-notification-container"></div>
 
     <footer>
-        <form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
+        <form action="" method="POST" id="contactForm" class="contact-form">
             <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
             <input id="nameInput" type="text" name="name" placeholder="Name" required>
             <input id="emailInput" type="email" name="email" placeholder="Email" required>
