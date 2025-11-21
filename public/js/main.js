@@ -255,7 +255,7 @@ async function handleConvertClick() {
 function liveUpdateDisplay(pnrProcessingAttempted = false) {
     if (!lastPnrResult) {
         if (pnrProcessingAttempted) {
-            document.getElementById('output').innerHTML = '<div class="info">No flight segments found or PNR format not recognized.</div>';
+            document.getElementById('output').innerHTML = '<div class="info" style="color: white">No flight segments found or PNR format not recognized.</div>';
         }
         document.getElementById('screenshotBtn').style.display = 'none';
         document.getElementById('copyTextBtn').style.display = 'none';
