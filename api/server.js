@@ -360,9 +360,27 @@ function parseGalileoEnhanced(pnrText, options) {
 
             const validMealCharsRegex = /^[BLDSMFHCVKOPRWYNG]+$/i;
             let mealCode = null;
+
             for (const p of detailsParts) {
+                // 1. SKIP VALIDATION:
+                // If the part contains a number (e.g., "HK1", "738", "23KG"), it is NOT a meal code.
+                if (/\d/.test(p)) continue;
+
+                // If the part contains a slash (e.g., "WB/ABC123"), it is a PNR reference, NOT a meal.
+                if (p.includes('/')) continue;
+
+                // If the part is the specific "E" indicator (E-Ticket) often found in Galileo, skip it.
+                // (Your regex list doesn't include 'E', so this is implicitly safe, but good to be explicit)
+                if (p.toUpperCase() === 'E') continue;
+
+                // 2. CLEAN AND CHECK:
                 const tok = p.replace(/[^A-Za-z]/g, '');
-                if (validMealCharsRegex.test(tok)) { mealCode = tok; break; }
+                
+                // Only accept if it matches valid characters AND is not an empty string
+                if (tok.length > 0 && validMealCharsRegex.test(tok)) { 
+                    mealCode = tok; 
+                    break; 
+                }
             }
 
             const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
