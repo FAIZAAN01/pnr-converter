@@ -17,1133 +17,1143 @@
         content="Easily convert airline PNR data into a clear, human-readable itinerary format.">
     <meta property="og:image" content="pass.png">
     <meta property="og:type" content="website">
-            <style>
-            /* --- THEME VARIABLES --- */
-            :root {
-                /* Color Palette */
-                --primary-blue: #4A69BD;
-                --primary-blue-hover: #415C9E;
-                --secondary-dark: #8395A7;
-                --secondary-dark-hover: #748392;
-                --danger-red: #E57373;
-                --danger-red-hover: #D35454;
-                --success-green: #2ECC71;
-                --success-green-hover: #28B463;
-                --history-purple: #D4AF37;
-                --history-purple-hover: #BC9B31;
-                --transit-long-yellow: #f39c12;
-        
-                /* Light Theme (Default) */
-                --bg-main: #F5F7FA;
-                --bg-card: #FFFFFF;
-                --bg-input: var(--light-bg);
-                --bg-hover: #e9ecef;
-                --text-main: #34495E;
-                --text-secondary: Gray;
-                --border-main: #E0E6EC;
-            }
-        
-            /* Dark Theme Definition */
-            [data-theme='dark'] {
-                --bg-main: #2c3e50;
-                --bg-card: #34495e;
-                --bg-input: #2c3e50;
-                --bg-hover: #4a69bd;
-                --text-main: #ecf0f1;
-                --text-secondary: white;
-                --border-main: #4a69bd;
-            }
-        
-            /* --- BASE STYLES --- */
-            body {
-                font-family: Raleway, sans-serif;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: var(--bg-main);
-                color: var(--text-main);
-                transition: background-color 0.3s, color 0.3s;
-                margin-bottom: 20px;
-            }
-        
-            h1,
-            h2,
-            h3 {
-                color: var(--text-main);
-            }
-        
-            h1 {
-                text-align: center;
-                margin-bottom: 30px;
-            }
-        
-            hr {
-                border: 0;
-                border-top: 1px solid var(--border-main);
-            }
-        
-            .container {
-                display: flex;
-                gap: 30px;
-                align-items: flex-start;
-                max-width: 1400px;
-                margin: 0 auto;
-            }
-        
-            .main-content {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 30px;
-                min-width: 0;
-            }
-        
-            .input-area,
-            .output-area,
-            .sidebar {
-                background: var(--bg-card);
-                padding: 25px;
-                border-radius: 12px;
-                border: 1px solid var(--border-main);
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-                transition: background-color 0.3s, border-color 0.3s;
-            }
-        
-            .card-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-        
-            .card-header h3 {
-                margin: 0;
-            }
-        
-            .header-actions {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-        
-            .header-btn {
-                background-color: var(--bg-input);
-                border: 1px solid var(--border-main);
-                color: var(--text-secondary);
-                padding: 8px 12px;
-                border-radius: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                font-weight: 600;
-                font-size: 14px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
-        
-            .header-btn:hover {
-                background-color: var(--bg-hover);
-                color: var(--text-main);
-                border-color: #d1d9e0;
-            }
-        
-            .header-btn svg {
-                width: 18px;
-                height: 18px;
-                stroke: currentColor;
-            }
-        
-            #themeToggleBtn .moon-icon {
-                display: none;
-            }
-        
-            #themeToggleBtn .sun-icon {
-                display: block;
-            }
-        
-            [data-theme='dark'] #themeToggleBtn .moon-icon {
-                display: block;
-            }
-        
-            [data-theme='dark'] #themeToggleBtn .sun-icon {
-                display: none;
-            }
-        
-        
-            #mobileMenuBtn {
-                display: none;
-            }
-        
-            #inputControls {
-                display: flex;
-                align-items: stretch;
-            }
-        
-            textarea#pnrInput {
-                flex-grow: 1;
-                width: 100%;
-                height: 120px;
-                padding: 15px;
-                border: 1px solid var(--border-main);
-                border-right: none;
-                border-radius: 6px 0 0 6px;
-                font-family: Raleway, sans-serif;
-                resize: vertical;
-                box-sizing: border-box;
-                background-color: var(--bg-main);
-                color: var(--text-main);
-            }
-        
-            textarea#pnrInput:focus {
-                outline: none;
-                border-color: var(--primary-blue);
-                box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
-                position: relative;
-                z-index: 2;
-            }
-        
-            #baggageAmountInput {
-                height: 30px;
-                width: 100%;
-                font-size: 20px;
-                font-weight: bolder;
-            }
-        
-            #convertBtn {
-                background-color: var(--primary-blue);
-                color: white;
-                font-size: 16px;
-                margin: 0;
-                border-radius: 0;
-                border: 1px solid var(--primary-blue);
-                border-left: none;
-                padding: 10px 18px;
-                cursor: pointer;
-            }
-        
-            #convertBtn:hover {
-                background-color: var(--primary-blue-hover);
-            }
-        
-            .vertical-icon-group {
-                display: flex;
-                flex-direction: column;
-            }
-        
-            .control-icon-btn {
-                background-color: var(--bg-input);
-                color: var(--text-secondary);
-                border: 1px solid var(--border-main);
-                border-left: none;
-                padding: 10px;
-                min-width: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: background-color 0.2s ease;
-                flex: 1;
-            }
-        
-            .control-icon-btn:hover {
-                background-color: var(--bg-hover);
-                color: var(--text-main);
-                z-index: 1;
-            }
-        
-            #pasteBtn {
-                border-radius: 0 6px 0 0;
-                border-bottom: 0.5px solid var(--border-main);
-            }
-        
-            #clearBtn {
-                border-radius: 0 0 6px 0;
-                border-top: 0.5px solid var(--border-main);
-            }
-        
-            .input-actions-group {
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                margin-top: 15px;
-            }
-        
-            button {
-                padding: 10px 18px;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: 600;
-                font-size: 14px;
-                transition: all 0.2s ease;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-            }
-        
-            #adultCountInput,
-            #childCountInput,
-            #infantCountInput {
-                width: 50px;
-                text-align: center;
-            }
-        
-            #currencySelect {
-                width: 100px;
-                padding: 8px;
-                border: 1px solid var(--border-main);
-                border-radius: 4px;
-                font-size: 14px;
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
-        
-            .leg-header-icon {
-                width: 24px;
-                height: 24px;
-                margin: 0 0 -6px 10px;
-                /* This puts space to the left of the icon */
-            }
-        
-            .toggle-switch {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-        
-            .toggle-switch-label {
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--text-secondary);
-                cursor: pointer;
-            }
-        
-            .toggle-switch input[type="checkbox"] {
-                height: 0;
-                width: 0;
-                visibility: hidden;
-            }
-        
-            .toggle-switch .switch-body {
-                cursor: pointer;
-                width: 48px;
-                height: 24px;
-                background: #ccc;
-                display: block;
-                border-radius: 100px;
-                position: relative;
-                transition: background-color 0.2s;
-            }
-        
-            [data-theme='dark'] .toggle-switch .switch-body {
-                background: var(--secondary-dark);
-            }
-        
-            .toggle-switch .switch-body::after {
-                content: '';
-                position: absolute;
-                top: 2px;
-                left: 2px;
-                width: 20px;
-                height: 20px;
-                background: #fff;
-                border-radius: 20px;
-                transition: 0.2s;
-            }
-        
-            .toggle-switch input:checked+.switch-body {
-                background: var(--success-green);
-            }
-        
-            .toggle-switch input:checked+.switch-body::after {
-                left: calc(100% - 2px);
-                transform: translateX(-100%);
-            }
-        
-            .c-unit-toggle {
-                position: relative;
-                display: inline-block;
-                width: 48px;
-                height: 24px;
-            }
-        
-            .c-unit-toggle__input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-        
-            .c-unit-toggle__label {
-                position: absolute;
-                cursor: pointer;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: var(--primary-blue);
-                border-radius: 40px;
-                transition: background-color 0.3s;
-            }
-        
-            .c-unit-toggle__label::before {
-                position: absolute;
-                content: "";
-                height: 19px;
-                width: 20px;
-                top: 3px;
-                left: 4px;
-                background-color: white;
-                border-radius: 50%;
-                transition: transform 0.3s;
-            }
-        
-            .c-unit-toggle__options {
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                height: 105%;
-                padding: 0 6px;
-                color: white;
-                font-weight: bold;
-                font-size: 10px;
-            }
-        
-            .c-unit-toggle__input:checked+.c-unit-toggle__label {
-                background-color: var(--success-green);
-            }
-        
-            .c-unit-toggle__input:checked+.c-unit-toggle__label::before {
-                transform: translateX(21px);
-            }
-        
-            .fare-options-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 25px;
-                margin-top: 15px;
-            }
-        
-            .fare-group {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-            }
-        
-            .fare-group.hidden {
-                display: none;
-            }
-        
-            .fare-group label {
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--text-secondary);
-            }
-        
-            .fare-group input,
-            .fare-group select {
-                padding: 8px;
-                border: 1px solid var(--border-main);
-                border-radius: 4px;
-                width: 100%;
-                box-sizing: border-box;
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
-        
-            .fare-group .count-fare-wrapper {
-                display: flex;
-            }
-        
-            .fare-group .count-fare-wrapper>div {
-                flex: 0.4;
-            }
-        
-            .baggage-options {
-                margin-top: 20px;
-                display: flex;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 10px 20px;
-            }
-        
-            .combobox-container {
-                position: relative;
-                width: 90px;
-            }
-        
-            .toggle-text {
-                color: var(--text-secondary);
-            }
-        
-            .combobox-input {
-                width: 55px;
-                padding: 4px 2px 4px 8px;
-                border-radius: 4px;
-                border: 1px solid var(--border-main);
-                text-align: center;
-                box-sizing: border-box;
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
-        
-            .combobox-arrow {
-                position: absolute;
-                right: 0;
-                top: 0;
-                height: 100%;
-                width: 24px;
-                background: transparent;
-                border: none;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-        
-            .combobox-arrow::after {
-                content: '';
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 5px solid var(--text-secondary);
-            }
-        
-            .combobox-dropdown {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                border: 1px solid var(--border-main);
-                border-radius: 4px;
-                background: var(--bg-card);
-                z-index: 100;
-                max-height: 150px;
-                overflow-y: auto;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                display: none;
-            }
-        
-            .combobox-dropdown.open {
-                display: block;
-            }
-        
-            .combobox-option {
-                padding: 8px;
-                cursor: pointer;
-            }
-        
-            .combobox-option:hover {
-                background-color: var(--bg-hover);
-            }
-        
-            #allTheWayInputs {
-                display: none;
-                align-items: center;
-                gap: 10px;
-            }
-        
-            #allTheWayInputs.visible {
-                display: flex;
-            }
-        
-            .output-area .output-actions {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-            }
-        
-            #output {
-                width: fit-content;
-                min-width: 300px;
-                max-width: 100%;
-                overflow-x: auto;
-                margin: 15px 0 200px 0;
-            }
-        
-            #output[contenteditable="true"] {
-                border: 2px dashed #3498db;
-                padding: 10px;
-                border-radius: 8px;
-                background-color: #fafdff;
-            }
-        
-            .info {
-                color: #fff;
-                padding: 15px;
-                background-color: #000;
-                border: 1px solid #2980b9;
-                border-radius: 8px;
-            }
-        
-            .error {
-                color: #e74c3c;
-                padding: 15px;
-                background-color: #fdecea;
-                border: 1px solid #ef9a9a;
-                border-radius: 8px;
-            }
-        
-            /* === FULLY CORRECTED AND ISOLATED ITINERARY STYLES === */
-            #output .output-container {
-                border: 1px solid #e0e6ec !important;
-                background: #ffffff !important;
-                box-sizing: border-box !important;
-            }
-        
-            #output .output-container * {
-                /* Base text color */
-                color: #000000;
-            }
-        
-            #output .itinerary-main-logo-container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 5px 10px;
-                border-bottom: 1px solid #eee !important;
-            }
-        
-            #output .itinerary-main-logo {
-                max-width: 150px;
-                max-height: 45px;
-                object-fit: contain;
-            }
-        
-            #output .itinerary-logo-text {
-                font-size: .8em;
-                text-align: right;
-                line-height: 1.3;
-                white-space: pre-line;
-                color: #5f6c7b !important;
-            }
-        
-            #output .itinerary-header {
-                padding: 15px;
-                border-bottom: 1px solid #eee !important;
-            }
-        
-            #output .itinerary-header p {
-                margin: 0;
-                font-size: 14px;
-            }
-        
-            #output .itinerary-leg-header {
-                text-align: center;
-                font-weight: bold;
-                font-size: 1.1em;
-                margin-top: 10px;
-                margin-bottom: 10px;
-                padding-bottom: 8px;
-                border-bottom: 2px solid #e0e6ec !important;
-                text-transform: uppercase;
-                color: #3498db !important;
-                /* Original blue from first file */
-            }
-        
-            #output .itinerary-leg-header:first-of-type {
-                margin-top: 10px;
-            }
-        
-            #output .flight-item {
-                padding: 7px 15px 0px;
-                /* border-bottom: 1px dashed #ccc !important; */
-            }
-        
-            #output .flight-item:last-child {
-                border-bottom: none !important;
-            }
-        
-            #output .transit-item {
-                font-style: italic;
-                text-align: center;
-                padding: 8px 0;
-                margin-top: -1px;
-                background: #fff !important;
-                font-size: 15px;
-                font-weight: bold;
-            }
-        
-            #output .transit-item.transit-short {
-                color: #e74c3c !important;
-                /* Original red */
-            }
-        
-            #output .transit-item.transit-minimum {
-                color: #27ae60 !important;
-                /* Original green */
-            }
-        
-            #output .transit-item.transit-long {
-                color: #f39c12 !important;
-                /* Original yellow */
-            }
-        
-            #output .airline-logo {
-                width: 95px;
-                height: 65px;
-                object-fit: contain;
-                border-radius: 5px;
-            }
-        
-            #output .flight-header {
-                font-weight: 600;
-                font-size: 14px;
-                margin-bottom: 10px;
-            }
-        
-            #output .flight-detail {
-                font-size: 13px;
-                margin-bottom: 5px;
-                color: #34495e !important;
-            }
-        
-            #output .flight-detail.notes-detail {
-                white-space: pre-wrap;
-                word-break: break-word;
-            }
-        
-            #output .flight-detail strong {
-                margin-right: 5px;
-                color: #5f6c7b !important;
-            }
-        
-            #output .flight-content {
-                display: flex;
-                gap: 15px;
-                align-items: center;
-            }
-        
-            #output .fare-summary {
-                font-weight: 500;
-                margin: -1px 0 5px 10px;
-                padding-top: 15px;
-                border-top: 1px solid #e0e6ec !important;
-                font-size: 14px;
-                white-space: pre-line;
-            }
-        
-            #output .fare-summary strong {
-                font-size: 1.1em;
-            }
-        
-            /* --- sidebar scroll bar styling --- */
-            body::-webkit-scrollbar {
-                width: 1px;
-                max-height: 10px;
-            }
-        
-            body::-webkit-scrollbar-thumb {
-                background-color: blue;
-                top: 50px;
-                border-radius: 20px;
-            }
-        
-            body::-webkit-scrollbar-thumb:hover {
-                background-color: white;
-            }
-        
-            /* --- sidebar scroll bar styling --- */
-            .sidebar::-webkit-scrollbar {
-                width: 0px;
-                max-height: 10px;
-            }
-        
-            .sidebar::-webkit-scrollbar-thumb {
-                background-color: white;
-                top: 50px;
-                border-radius: 20px;
-            }
-        
-            .sidebar::-webkit-scrollbar-thumb:hover {
-                background-color: white;
-            }
-        
-            /* --- Sidebar & Modal Styles --- */
-            .sidebar {
-                position: sticky;
-                top: 20px;
-                max-height: calc(100vh - 40px);
-                overflow-y: auto
-            }
-        
-            .sidebar h3 {
-                margin-top: 0
-            }
-        
-            .sidebar h4 {
-                margin: 20px 0 10px;
-                color: var(--text-main);
-            }
-        
-            .options label {
-                display: block;
-                margin: 10px 0;
-                cursor: pointer;
-                font-size: 15px
-            }
-        
-            .time-format-group label {
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                margin-right: 20px;
-            }
-        
-            .custom-transit-input {
-                margin-left: 25px;
-                margin-top: 8px;
-                display: flex;
-                align-items: center;
-                gap: 8px
-            }
-        
-            .custom-transit-input.hidden {
-                display: none
-            }
-        
-            .custom-transit-input label {
-                margin: 0;
-                font-size: 14px
-            }
-        
-            #customBrandingSection {
-                margin-top: 20px;
-                padding-top: 20px;
-                border-top: 1px solid var(--border-main)
-            }
-        
-            #customBrandingSection.hidden {
-                display: none
-            }
-        
-            .custom-branding-input {
-                margin-bottom: 15px
-            }
-        
-            .custom-branding-input label {
-                font-weight: 500;
-                margin-bottom: 8px;
-                display: block
-            }
-        
-            .custom-branding-input input[type=file],
-            .custom-branding-input textarea {
-                width: 100%;
-                box-sizing: border-box;
-                padding: 8px;
-                border-radius: 4px;
-                border: 1px solid var(--border-main);
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
-        
-            .clear-btn {
-                background-color: white;
-                color: red;
-                border: 1px solid rgba(255, 0, 0, 0.5);
-                border-radius: 4x;
-            }
-        
-            .custom-logo-preview {
-                max-height: 45px;
-                max-width: 150px;
-                margin-top: 8px;
-                display: none;
-                border: 1px solid #ddd;
-                padding: 3px;
-                border-radius: 4px
-            }
-        
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0, 0, 0, .6);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 2000;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity .3s, visibility .3s
-            }
-        
-            .modal-overlay:not(.hidden) {
-                opacity: 1;
-                visibility: visible
-            }
-        
-            .modal-content {
-    background: var(--bg-card);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, .3);
-    width: 95%;
-    max-width: 1100px; /* Increased width */
-    height: 85vh;      /* Fixed height for scrolling */
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-}
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            /* Color Palette */
+            --primary-blue: #4A69BD;
+            --primary-blue-hover: #415C9E;
+            --secondary-dark: #8395A7;
+            --secondary-dark-hover: #748392;
+            --danger-red: #E57373;
+            --danger-red-hover: #D35454;
+            --success-green: #2ECC71;
+            --success-green-hover: #28B463;
+            --history-purple: #D4AF37;
+            --history-purple-hover: #BC9B31;
+            --transit-long-yellow: #f39c12;
 
-/* 2. Create a wrapper to hold List (Left) and Preview (Right) */
-.history-split-container {
-    display: flex;
-    flex: 1;            /* Take remaining height */
-    overflow: hidden;   /* Prevent body scroll */
-    gap: 20px;
-    margin-top: 10px;
-    border-top: 1px solid var(--border-main);
-}
-        
-            .modal-overlay:not(.hidden) .modal-content {
-                transform: scale(1)
-            }
-        
-            .modal-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid var(--border-main);
-                padding-bottom: 15px;
-                margin-bottom: 15px
-            }
-        
-            .modal-header .close-btn {
-                background: 0 0;
-                border: none;
-                font-size: 2.5rem;
-                line-height: 1;
-                color: var(--text-secondary);
-                cursor: pointer;
-                padding: 0;
-                margin: 0
-            }
-        
-            .close-btn {
-                color: var(--primary-blue-hover);
-            }
-        
-            .history-controls {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 15px
-            }
-        
-            #screenshotBtn,
-            #copyTextBtn {
-                display: none;
-            }
-        
-            #showNotesLabel {
-                display: none;
-            }
-        
-            #showTransitLabel {
-                display: none;
-            }
-        
-            #transitSymbolInput {
-                width: 120px;
-                padding: 5px;
-                background-color: #cbcbcb;
-                border: 1px solid var(--border-main);
-                color: white;
-                border-radius: 4px;
-            }
-        
-            #formatTransitTime {
-                display: none;
-            }
-        
-            #showNotes {
-                display: none;
-            }
-        
-            #screenshotBtn,
-            #copyTextBtn,
-            .use-history-btn {
-                background: var(--secondary-dark);
-            }
-        
-            #screenshotBtn:hover,
-            #copyTextBtn:hover,
-            .use-history-btn:hover {
-                background: var(--secondary-dark-hover);
-            }
-        
-            #historySearchInput,
-            #historySortSelect {
-                padding: 8px;
-                border: 1px solid var(--border-main);
-                border-radius: 4px;
-                flex-grow: 1;
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
-        
-            /* 3. Style the List (Left Side) */
-.history-list {
-    flex: 0 0 350px;   /* Fixed width for list */
-    overflow-y: auto;
-    border-right: 1px solid var(--border-main);
-    padding-right: 10px;
-}
+            /* Light Theme (Default) */
+            --bg-main: #F5F7FA;
+            --bg-card: #FFFFFF;
+            --bg-input: var(--light-bg);
+            --bg-hover: #e9ecef;
+            --text-main: #34495E;
+            --text-secondary: Gray;
+            --border-main: #E0E6EC;
+        }
 
-        
-            .history-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px;
-                border-bottom: 1px solid var(--border-main);
-                transition: background-color .2s, transform .2s
-            }
-        
-            .history-item:hover {
-                background-color: var(--bg-hover);
-                transform: translateX(5px)
-            }
+        /* Dark Theme Definition */
+        [data-theme='dark'] {
+            --bg-main: #2c3e50;
+            --bg-card: #34495e;
+            --bg-input: #2c3e50;
+            --bg-hover: #4a69bd;
+            --text-main: #ecf0f1;
+            --text-secondary: white;
+            --border-main: #4a69bd;
+        }
 
-            history-item:active{
-                transform: translateX(2px)
-            }
-        
-            .history-item-pax {
-                font-weight: 700;
-                color: var(--text-main);
-                margin-bottom: 5px
-            }
-        
-            .history-item-details {
-                font-size: .9em;
-                color: var(--text-secondary);
-            }
-        
-            /* 4. Style the Preview (Right Side) */
-#historyPreviewPanel {
-    position: relative; /* Reset from absolute */
-    top: auto;
-    left: auto;
-    width: auto;
-    height: auto;
-    background: var(--bg-card);
-    transform: none !important; /* Disable slide animation */
-    flex: 1; /* Take remaining width */
-    display: flex;
-    flex-direction: column;
-    padding: 0 0 0 10px;
-    z-index: 1;
-}
-            #historyPreviewPanel:not(.hidden) {
-                transform: translateX(0%)
-            }
+        /* --- BASE STYLES --- */
+        body {
+            font-family: Raleway, sans-serif;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.3s, color 0.3s;
+            margin-bottom: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--text-main);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border-main);
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            min-width: 0;
+        }
+
+        .input-area,
+        .output-area,
+        .sidebar {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-main);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h3 {
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-main);
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-main);
+            border-color: #d1d9e0;
+        }
+
+        .header-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+        }
+
+        #themeToggleBtn .moon-icon {
+            display: none;
+        }
+
+        #themeToggleBtn .sun-icon {
+            display: block;
+        }
+
+        [data-theme='dark'] #themeToggleBtn .moon-icon {
+            display: block;
+        }
+
+        [data-theme='dark'] #themeToggleBtn .sun-icon {
+            display: none;
+        }
+
+
+        #mobileMenuBtn {
+            display: none;
+        }
+
+        #inputControls {
+            display: flex;
+            align-items: stretch;
+        }
+
+        textarea#pnrInput {
+            flex-grow: 1;
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid var(--border-main);
+            border-right: none;
+            border-radius: 6px 0 0 6px;
+            font-family: Raleway, sans-serif;
+            resize: vertical;
+            box-sizing: border-box;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        textarea#pnrInput:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        #baggageAmountInput {
+            height: 30px;
+            width: 100%;
+            font-size: 20px;
+            font-weight: bolder;
+        }
+
+        #convertBtn {
+            background-color: var(--primary-blue);
+            color: white;
+            font-size: 16px;
+            margin: 0;
+            border-radius: 0;
+            border: 1px solid var(--primary-blue);
+            border-left: none;
+            padding: 10px 18px;
+            cursor: pointer;
+        }
+
+        #convertBtn:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .vertical-icon-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-icon-btn {
+            background-color: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-main);
+            border-left: none;
+            padding: 10px;
+            min-width: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            flex: 1;
+        }
+
+        .control-icon-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-main);
+            z-index: 1;
+        }
+
+        #pasteBtn {
+            border-radius: 0 6px 0 0;
+            border-bottom: 0.5px solid var(--border-main);
+        }
+
+        #clearBtn {
+            border-radius: 0 0 6px 0;
+            border-top: 0.5px solid var(--border-main);
+        }
+
+        .input-actions-group {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 18px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #adultCountInput,
+        #childCountInput,
+        #infantCountInput {
+            width: 50px;
+            text-align: center;
+        }
+
+        #currencySelect {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid var(--border-main);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .leg-header-icon {
+            width: 24px;
+            height: 24px;
+            margin: 0 0 -6px 10px;
+            /* This puts space to the left of the icon */
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+        }
+
+        .toggle-switch .switch-body {
+            cursor: pointer;
+            width: 48px;
+            height: 24px;
+            background: #ccc;
+            display: block;
+            border-radius: 100px;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        [data-theme='dark'] .toggle-switch .switch-body {
+            background: var(--secondary-dark);
+        }
+
+        .toggle-switch .switch-body::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+
+        .toggle-switch input:checked+.switch-body {
+            background: var(--success-green);
+        }
+
+        .toggle-switch input:checked+.switch-body::after {
+            left: calc(100% - 2px);
+            transform: translateX(-100%);
+        }
+
+        .c-unit-toggle {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .c-unit-toggle__input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .c-unit-toggle__label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--primary-blue);
+            border-radius: 40px;
+            transition: background-color 0.3s;
+        }
+
+        .c-unit-toggle__label::before {
+            position: absolute;
+            content: "";
+            height: 19px;
+            width: 20px;
+            top: 3px;
+            left: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .c-unit-toggle__options {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 105%;
+            padding: 0 6px;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .c-unit-toggle__input:checked+.c-unit-toggle__label {
+            background-color: var(--success-green);
+        }
+
+        .c-unit-toggle__input:checked+.c-unit-toggle__label::before {
+            transform: translateX(21px);
+        }
+
+        .fare-options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 25px;
+            margin-top: 15px;
+        }
+
+        .fare-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .fare-group.hidden {
+            display: none;
+        }
+
+        .fare-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .fare-group input,
+        .fare-group select {
+            padding: 8px;
+            border: 1px solid var(--border-main);
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .fare-group .count-fare-wrapper {
+            display: flex;
+        }
+
+        .fare-group .count-fare-wrapper>div {
+            flex: 0.4;
+        }
+
+        .baggage-options {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+        }
+
+        .combobox-container {
+            position: relative;
+            width: 90px;
+        }
+
+        .toggle-text {
+            color: var(--text-secondary);
+        }
+
+        .combobox-input {
+            width: 55px;
+            padding: 4px 2px 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-main);
+            text-align: center;
+            box-sizing: border-box;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .combobox-arrow {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .combobox-arrow::after {
+            content: '';
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--text-secondary);
+        }
+
+        .combobox-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            border: 1px solid var(--border-main);
+            border-radius: 4px;
+            background: var(--bg-card);
+            z-index: 100;
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .combobox-dropdown.open {
+            display: block;
+        }
+
+        .combobox-option {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .combobox-option:hover {
+            background-color: var(--bg-hover);
+        }
+
+        #allTheWayInputs {
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #allTheWayInputs.visible {
+            display: flex;
+        }
+
+        .output-area .output-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #output {
+            width: fit-content;
+            min-width: 300px;
+            max-width: 100%;
+            overflow-x: auto;
+            margin: 15px 0 200px 0;
+        }
+
+        #output[contenteditable="true"] {
+            border: 2px dashed #3498db;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #fafdff;
+        }
+
+        .info {
+            color: #fff;
+            padding: 15px;
+            background-color: #000;
+            border: 1px solid #2980b9;
+            border-radius: 8px;
+        }
+
+        .error {
+            color: #e74c3c;
+            padding: 15px;
+            background-color: #fdecea;
+            border: 1px solid #ef9a9a;
+            border-radius: 8px;
+        }
+
+        /* === FULLY CORRECTED AND ISOLATED ITINERARY STYLES === */
+        #output .output-container {
+            border: 1px solid #e0e6ec !important;
+            background: #ffffff !important;
+            box-sizing: border-box !important;
+        }
+
+        #output .output-container * {
+            /* Base text color */
+            color: #000000;
+        }
+
+        #output .itinerary-main-logo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 10px;
+            border-bottom: 1px solid #eee !important;
+        }
+
+        #output .itinerary-main-logo {
+            max-width: 150px;
+            max-height: 45px;
+            object-fit: contain;
+        }
+
+        #output .itinerary-logo-text {
+            font-size: .8em;
+            text-align: right;
+            line-height: 1.3;
+            white-space: pre-line;
+            color: #5f6c7b !important;
+        }
+
+        #output .itinerary-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee !important;
+        }
+
+        #output .itinerary-header p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        #output .itinerary-leg-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e6ec !important;
+            text-transform: uppercase;
+            color: #3498db !important;
+            /* Original blue from first file */
+        }
+
+        #output .itinerary-leg-header:first-of-type {
+            margin-top: 10px;
+        }
+
+        #output .flight-item {
+            padding: 7px 15px 0px;
+            /* border-bottom: 1px dashed #ccc !important; */
+        }
+
+        #output .flight-item:last-child {
+            border-bottom: none !important;
+        }
+
+        #output .transit-item {
+            font-style: italic;
+            text-align: center;
+            padding: 8px 0;
+            margin-top: -1px;
+            background: #fff !important;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        #output .transit-item.transit-short {
+            color: #e74c3c !important;
+            /* Original red */
+        }
+
+        #output .transit-item.transit-minimum {
+            color: #27ae60 !important;
+            /* Original green */
+        }
+
+        #output .transit-item.transit-long {
+            color: #f39c12 !important;
+            /* Original yellow */
+        }
+
+        #output .airline-logo {
+            width: 95px;
+            height: 65px;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+
+        #output .flight-header {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        #output .flight-detail {
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #34495e !important;
+        }
+
+        #output .flight-detail.notes-detail {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        #output .flight-detail strong {
+            margin-right: 5px;
+            color: #5f6c7b !important;
+        }
+
+        #output .flight-content {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        #output .fare-summary {
+            font-weight: 500;
+            margin: -1px 0 5px 10px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e6ec !important;
+            font-size: 14px;
+            white-space: pre-line;
+        }
+
+        #output .fare-summary strong {
+            font-size: 1.1em;
+        }
+
+        /* --- sidebar scroll bar styling --- */
+        body::-webkit-scrollbar {
+            width: 1px;
+            max-height: 10px;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background-color: blue;
+            top: 50px;
+            border-radius: 20px;
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background-color: white;
+        }
+
+        /* --- sidebar scroll bar styling --- */
+        .sidebar::-webkit-scrollbar {
+            width: 0px;
+            max-height: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: white;
+            top: 50px;
+            border-radius: 20px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: white;
+        }
+
+        /* --- Sidebar & Modal Styles --- */
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto
+        }
+
+        .sidebar h3 {
+            margin-top: 0
+        }
+
+        .sidebar h4 {
+            margin: 20px 0 10px;
+            color: var(--text-main);
+        }
+
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            font-size: 15px
+        }
+
+        .time-format-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 20px;
+        }
+
+        .custom-transit-input {
+            margin-left: 25px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .custom-transit-input.hidden {
+            display: none
+        }
+
+        .custom-transit-input label {
+            margin: 0;
+            font-size: 14px
+        }
+
+        #customBrandingSection {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-main)
+        }
+
+        #customBrandingSection.hidden {
+            display: none
+        }
+
+        .custom-branding-input {
+            margin-bottom: 15px
+        }
+
+        .custom-branding-input label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block
+        }
+
+        .custom-branding-input input[type=file],
+        .custom-branding-input textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-main);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        .clear-btn {
+            background-color: white;
+            color: red;
+            border: 1px solid rgba(255, 0, 0, 0.5);
+            border-radius: 4x;
+        }
+
+        .custom-logo-preview {
+            max-height: 45px;
+            max-width: 150px;
+            margin-top: 8px;
+            display: none;
+            border: 1px solid #ddd;
+            padding: 3px;
+            border-radius: 4px
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, .6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s, visibility .3s
+        }
+
+        .modal-overlay:not(.hidden) {
+            opacity: 1;
+            visibility: visible
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .3);
+            width: 95%;
+            max-width: 1100px;
+            /* Increased width */
+            height: 85vh;
+            /* Fixed height for scrolling */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 2. Create a wrapper to hold List (Left) and Preview (Right) */
+        .history-split-container {
+            display: flex;
+            flex: 1;
+            /* Take remaining height */
+            overflow: hidden;
+            /* Prevent body scroll */
+            gap: 20px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-main);
+        }
+
+        .modal-overlay:not(.hidden) .modal-content {
+            transform: scale(1)
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-main);
+            padding-bottom: 15px;
+            margin-bottom: 15px
+        }
+
+        .modal-header .close-btn {
+            background: 0 0;
+            border: none;
+            font-size: 2.5rem;
+            line-height: 1;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            margin: 0
+        }
+
+        .close-btn {
+            color: var(--primary-blue-hover);
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px
+        }
+
+        #screenshotBtn,
+        #copyTextBtn {
+            display: none;
+        }
+
+        #showNotesLabel {
+            display: none;
+        }
+
+        #showTransitLabel {
+            display: none;
+        }
+
+        #transitSymbolInput {
+            width: 120px;
+            padding: 5px;
+            background-color: #cbcbcb;
+            border: 1px solid var(--border-main);
+            color: white;
+            border-radius: 4px;
+        }
+
+        #formatTransitTime {
+            display: none;
+        }
+
+        #showNotes {
+            display: none;
+        }
+
+        #screenshotBtn,
+        #copyTextBtn,
+        .use-history-btn {
+            background: var(--secondary-dark);
+        }
+
+        #screenshotBtn:hover,
+        #copyTextBtn:hover,
+        .use-history-btn:hover {
+            background: var(--secondary-dark-hover);
+        }
+
+        #historySearchInput,
+        #historySortSelect {
+            padding: 8px;
+            border: 1px solid var(--border-main);
+            border-radius: 4px;
+            flex-grow: 1;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        /* 3. Style the List (Left Side) */
+        .history-list {
+            flex: 0 0 350px;
+            /* Fixed width for list */
+            overflow-y: auto;
+            border-right: 1px solid var(--border-main);
+            padding-right: 10px;
+        }
+
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-main);
+            transition: background-color .2s, transform .2s
+        }
+
+        .history-item:hover {
+            background-color: var(--bg-hover);
+            transform: translateX(5px)
+        }
+
+        history-item:active {
+            transform: translateX(2px)
+        }
+
+        .history-item-pax {
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px
+        }
+
+        .history-item-details {
+            font-size: .9em;
+            color: var(--text-secondary);
+        }
+
+        /* 4. Style the Preview (Right Side) */
+        #historyPreviewPanel {
+            position: relative;
+            /* Reset from absolute */
+            top: auto;
+            left: auto;
+            width: auto;
+            height: auto;
+            background: var(--bg-card);
+            transform: none !important;
+            /* Disable slide animation */
+            flex: 1;
+            /* Take remaining width */
+            display: flex;
+            flex-direction: column;
+            padding: 0 0 0 10px;
+            z-index: 1;
+        }
+
+        #historyPreviewPanel:not(.hidden) {
+            transform: translateX(0%)
+        }
+
         /* Hide the close button inside the preview panel on desktop (not needed) */
-#historyPreviewPanel .preview-header #closePreviewBtn {
-    display: none;
-}
+        #historyPreviewPanel .preview-header #closePreviewBtn {
+            display: none;
+        }
 
-#historyPreviewPanel:empty::before {
-    content: "Select an item from the list to view details.";
-    display: block;
-    text-align: center;
-    margin-top: 50px;
-    color: var(--text-secondary);
-}
+        #historyPreviewPanel:empty::before {
+            content: "Select an item from the list to view details.";
+            display: block;
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-secondary);
+        }
 
 
-            .preview-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px 25px;
-                border-bottom: 1px solid var(--border-main);
-                flex-shrink: 0
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-main);
+            flex-shrink: 0
+        }
+
+        .preview-content {
+            padding: 20px;
+            overflow: auto;
+            flex-grow: 1
+        }
+
+        .preview-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #ddd
+        }
+
+        .preview-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: var(--bg-main);
+            padding: 15px;
+            border-radius: 4px
+        }
+
+        .popup-notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2050;
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .popup-notification {
+            background-color: var(--secondary-dark);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all .5s cubic-bezier(.68, -.55, .27, 1.55)
+        }
+
+        .popup-notification.show {
+            opacity: 1;
+            transform: translateX(0)
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid var(--bg-hover);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0)
             }
-        
-            .preview-content {
-                padding: 20px;
-                overflow: auto;
-                flex-grow: 1
+
+            100% {
+                transform: rotate(360deg)
             }
-        
-            .preview-content img {
-                max-width: 100%;
-                height: auto;
-                display: block;
-                margin: 0 auto;
-                border: 1px solid #ddd
+        }
+
+        @media (max-width:1000px) {
+            body {
+                padding: 10px
             }
-        
-            .preview-content pre {
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                background: var(--bg-main);
-                padding: 15px;
-                border-radius: 4px
-            }
-        
-            .popup-notification-container {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 2050;
-                display: flex;
-                flex-direction: column;
-                gap: 10px
-            }
-        
-            .popup-notification {
-                background-color: var(--secondary-dark);
-                color: #fff;
-                padding: 12px 20px;
-                border-radius: 6px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
-                opacity: 0;
-                transform: translateX(100%);
-                transition: all .5s cubic-bezier(.68, -.55, .27, 1.55)
-            }
-        
-            .popup-notification.show {
-                opacity: 1;
-                transform: translateX(0)
-            }
-        
-            .loading-spinner {
-                display: none;
-                width: 40px;
-                height: 40px;
-                margin: 20px auto;
-                border: 4px solid var(--bg-hover);
-                border-top: 4px solid var(--primary-blue);
-                border-radius: 50%;
-                animation: spin 1s linear infinite
-            }
-        
-            @keyframes spin {
-                0% {
-                    transform: rotate(0)
-                }
-        
-                100% {
-                    transform: rotate(360deg)
-                }
-            }
-        
-            @media (max-width:1000px) {
-                body {
-                    padding: 10px
-                }
-        
-                /* #inputControls {
+
+            /* #inputControls {
                 flex-wrap: wrap;
             } */
-                /* 
+            /* 
             textarea#pnrInput {
                 border-radius: 6px;
                 border-right: 1px solid var(--border-main);
@@ -1151,271 +1161,396 @@
                 flex-basis: 100%;
                 margin-bottom: 8px;
             } */
-        
-                /* #convertBtn {
+
+            /* #convertBtn {
                 flex-basis: 100%;
                 border-radius: 6px !important;
                 border-left: 1px solid var(--border-main) !important;
                 margin-bottom: 8px;
             } */
-        
-                /* .vertical-icon-group {
+
+            /* .vertical-icon-group {
                 flex-direction: row;
                 width: 100%;
             } */
-        
-                /* .control-icon-btn {
+
+            /* .control-icon-btn {
                 flex-grow: 1;
                 border-radius: 6px !important;
                 border: 1px solid var(--border-main) !important;
             } */
-        
-                .container {
-                    gap: 20px
-                }
-        
-                #mobileMenuBtn {
-                    display: flex;
-                }
-        
-                .sidebar {
-                    position: fixed;
-                    top: 0;
-                    right: 0;
-                    height: 100%;
-                    z-index: 1020;
-                    width: 300px;
-                    max-width: 80vw;
-                    box-shadow: -5px 0 15px rgba(0, 0, 0, .2);
-                    transform: translateX(100%);
-                    transition: transform .7s ease-in-out
-                }
-        
-                .sidebar.is-open {
-                    transform: translateX(0)
-                }
+
+            .container {
+                gap: 20px
             }
-        
-            #notes-header {
-                padding-left: 15px;
-                color: red !important;
+
+            #mobileMenuBtn {
+                display: flex;
             }
-        
-            .itinerary-notes {
-                padding-left: 15px;
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                height: 100%;
+                z-index: 1020;
+                width: 300px;
+                max-width: 80vw;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, .2);
+                transform: translateX(100%);
+                transition: transform .7s ease-in-out
             }
-        
-            #refreshBtn {
-                font-family: 'Courier New', Courier, monospace;
-                background-color: transparent;
-                cursor: pointer;
-                display: none;
-                margin: 0;
+
+            .sidebar.is-open {
+                transform: translateX(0)
+            }
+        }
+
+        #notes-header {
+            padding-left: 15px;
+            color: red !important;
+        }
+
+        .itinerary-notes {
+            padding-left: 15px;
+        }
+
+        #refreshBtn {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: transparent;
+            cursor: pointer;
+            display: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #span-pc {
+            padding-right: 4px;
+            padding-left: -5px;
+        }
+
+        footer {
+            height: 200px;
+            width: 95%;
+            background-color: var(--bg-footer);
+            margin: 0 auto;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            padding-top: 10px;
+            height: 202px;
+        }
+
+        .footer-content {
+            color: var(--text-secondary);
+            max-width: 400px
+        }
+
+        .contact-form,
+        .footer-content {
+            border: 1px solid var(--border-main);
+            gap: 10px;
+            height: 100%;
+            margin: 0 auto;
+            padding-left: 20px;
+            padding-right: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 127, 255, 0.6);
+        }
+
+        #nameInput,
+        #emailInput,
+        #messageInput {
+            padding: 8px;
+            border: 1px solid var(--border-main);
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+
+        button#submitBtn {
+            background-color: var(--primary-blue);
+        }
+
+        .halts-direct {
+            color: green;
+            font-weight: bold;
+        }
+
+        .halts-with-stop {
+            color: orange;
+            /* Example: You can choose any color or default */
+        }
+
+        #baggageQuickButtons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        /* Quick baggage buttons */
+        .bag-btn {
+            padding: 5px 12px;
+            border: 1px solid var(--primary-blue);
+            border-radius: 4px;
+            cursor: pointer;
+            background: var(--bg-button, #fff);
+            color: var(--text-main, #000);
+            transition: 0.2s;
+        }
+
+        /* Hover effect for light/dark mode */
+        .bag-btn:hover {
+            background: var(--text-secondary, #e0e0e0);
+            color: var(--text-main, #000);
+        }
+
+        /* Active button highlight */
+        .bag-btn.active {
+            background: var(--accent-color, #00aaff);
+            color: #fff;
+        }
+
+        /* Dark mode overrides */
+        [data-theme="dark"] .bag-btn {
+            background: white;
+            color: var(--text-main-dark, #000);
+            border-color: var(--primary-blue-dark, #4a69bd);
+        }
+
+        [data-theme="dark"] .bag-btn:hover {
+            background: var(--text-secondary-dark, #555);
+            color: var(--text-main-dark, #fff);
+        }
+
+        [data-theme="dark"] .bag-btn.active {
+            background: var(--accent-color-dark, #00ccff);
+            color: #000;
+        }
+
+        .btn-pcs {
+            background-color: var(--primary-blue-hover);
+            color: white;
+        }
+
+        [data-theme="dark"] .btn-pcs {
+            background-color: transparent;
+            color: white;
+            border-color: white;
+        }
+
+        #reportErrorBtn {
+            position: relative;
+            padding: 9px 17px;
+            cursor: pointer;
+            background-color: #c70508;
+            color: white;
+            border: 1px solid #a00405;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        #reportErrorBtn:hover {
+            background-color: #a00405;
+        }
+
+        /* Tooltip */
+        #reportErrorBtn .tooltip {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 6px;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        #reportErrorBtn:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .history-split-container {
+                display: block;
+                /* Stack them (or rely on absolute positioning) */
+                position: relative;
+            }
+
+            .history-list {
+                width: 100%;
+                border-right: none;
+            }
+
+            #historyPreviewPanel {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                transform: translateX(100%) !important;
+                /* Re-enable slide */
+                transition: transform 0.3s ease;
+                background: var(--bg-card);
                 padding: 0;
             }
-        
-            #span-pc {
-                padding-right: 4px;
-                padding-left: -5px;
-            }
-        
-            footer {
-                height: 200px;
-                width: 95%;
-                background-color: var(--bg-footer);
-                margin: 0 auto;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-                margin-top: 20px;
-            }
-        
-            .contact-form {
-                display: flex;
-                flex-direction: column;
-                max-width: 400px;
-                width: 100%;
-                box-sizing: border-box;
-                padding-top: 10px;
-                height: 202px;
-            }
-        
-            .footer-content {
-                color: var(--text-secondary);
-                max-width: 400px
-            }
-        
-            .contact-form,
-            .footer-content {
-                border: 1px solid var(--border-main);
-                gap: 10px;
-                height: 100%;
-                margin: 0 auto;
-                padding-left: 20px;
-                padding-right: 20px;
-                border-radius: 5px;
-                box-shadow: 0px 0px 5px rgba(0, 127, 255, 0.6);
-            }
-        
-            #nameInput,
-            #emailInput,
-            #messageInput {
-                padding: 8px;
-                border: 1px solid var(--border-main);
-                border-radius: 4px;
-                width: 100%;
-                box-sizing: border-box;
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
-        
-            button#submitBtn {
-                background-color: var(--primary-blue);
-            }
-        
-            .halts-direct {
-                color: green;
-                font-weight: bold;
-            }
-        
-            .halts-with-stop {
-                color: orange;
-                /* Example: You can choose any color or default */
-            }
-        
-            #baggageQuickButtons {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 6px;
-                margin-top: 8px;
-            }
-        
-            /* Quick baggage buttons */
-            .bag-btn {
-                padding: 5px 12px;
-                border: 1px solid var(--primary-blue);
-                border-radius: 4px;
-                cursor: pointer;
-                background: var(--bg-button, #fff);
-                color: var(--text-main, #000);
-                transition: 0.2s;
-            }
-        
-            /* Hover effect for light/dark mode */
-            .bag-btn:hover {
-                background: var(--text-secondary, #e0e0e0);
-                color: var(--text-main, #000);
-            }
-        
-            /* Active button highlight */
-            .bag-btn.active {
-                background: var(--accent-color, #00aaff);
-                color: #fff;
-            }
-        
-            /* Dark mode overrides */
-            [data-theme="dark"] .bag-btn {
-                background: white;
-                color: var(--text-main-dark, #000);
-                border-color: var(--primary-blue-dark, #4a69bd);
-            }
-        
-            [data-theme="dark"] .bag-btn:hover {
-                background: var(--text-secondary-dark, #555);
-                color: var(--text-main-dark, #fff);
-            }
-        
-            [data-theme="dark"] .bag-btn.active {
-                background: var(--accent-color-dark, #00ccff);
-                color: #000;
-            }
-        
-            .btn-pcs {
-                background-color: var(--primary-blue-hover);
-                color: white;
-            }
-        
-            [data-theme="dark"] .btn-pcs {
-                background-color: transparent;
-                color: white;
-                border-color: white;
-            }
-        
-            #reportErrorBtn {
-                position: relative;
-                padding: 9px 17px;
-                cursor: pointer;
-                background-color: #c70508;
-                color: white;
-                border: 1px solid #a00405;
-                border-radius: 6px;
-                font-weight: bold;
-                font-size: 16px;
-            }
-        
-            #reportErrorBtn:hover {
-                background-color: #a00405;
-            }
-        
-            /* Tooltip */
-            #reportErrorBtn .tooltip {
-                visibility: hidden;
-                width: 220px;
-                background-color: #333;
-                color: #fff;
-                text-align: center;
-                border-radius: 5px;
-                padding: 6px;
-                position: absolute;
-                bottom: 125%;
-                left: 50%;
-                transform: translateX(-50%);
-                opacity: 0;
-                transition: opacity 0.3s;
-                z-index: 1000;
-                pointer-events: none;
-            }
-        
-            #reportErrorBtn:hover .tooltip {
-                visibility: visible;
-                opacity: 1;
+
+            #historyPreviewPanel:not(.hidden) {
+                transform: translateX(0) !important;
             }
 
-            @media (max-width: 768px) {
-    .history-split-container {
-        display: block; /* Stack them (or rely on absolute positioning) */
-        position: relative;
+            #historyPreviewPanel .preview-header #closePreviewBtn {
+                display: block;
+                /* Show close button on mobile */
+            }
+        }
+
+        /* Settings Modal Specific Styles */
+.settings-modal {
+    max-width: 800px;
+    height: 600px; /* Fixed height */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-modal .modal-header {
+    padding: 20px;
+    margin: 0;
+    border-bottom: 1px solid var(--border-main);
+}
+
+.settings-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden; /* Prevents full modal scroll */
+}
+
+/* Left Side Tabs */
+.settings-tabs {
+    width: 200px;
+    background-color: var(--bg-main);
+    border-right: 1px solid var(--border-main);
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-btn {
+    padding: 15px 20px;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+    border-left: 3px solid transparent;
+    border-radius: 0;
+    justify-content: flex-start;
+}
+
+.tab-btn:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-main);
+}
+
+.tab-btn.active {
+    background-color: var(--bg-card);
+    color: var(--primary-blue);
+    border-left-color: var(--primary-blue);
+}
+
+/* Right Side Content */
+.settings-content {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+    background-color: var(--bg-card);
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Settings Form Elements */
+.checkbox-grid-settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.setting-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid var(--border-main);
+    border-radius: 6px;
+}
+
+.setting-group h4 {
+    margin-top: 0;
+    color: var(--primary-blue);
+}
+
+/* Responsive Settings */
+@media (max-width: 768px) {
+    .settings-container {
+        flex-direction: column;
     }
-    
-    .history-list {
+    .settings-tabs {
         width: 100%;
+        flex-direction: row;
         border-right: none;
+        border-bottom: 1px solid var(--border-main);
+        overflow-x: auto;
     }
-
-    #historyPreviewPanel {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        transform: translateX(100%) !important; /* Re-enable slide */
-        transition: transform 0.3s ease;
-        background: var(--bg-card);
-        padding: 0;
+    .tab-btn {
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
     }
-
-    #historyPreviewPanel:not(.hidden) {
-        transform: translateX(0) !important;
+    .tab-btn.active {
+        border-left-color: transparent;
+        border-bottom-color: var(--primary-blue);
     }
-
-    #historyPreviewPanel .preview-header #closePreviewBtn {
-        display: block; /* Show close button on mobile */
+    .checkbox-grid-settings {
+        grid-template-columns: 1fr;
     }
 }
-        </style>
+    </style>
 </head>
 
 <body>
@@ -1431,6 +1566,16 @@
                     </div>
 
                     <div class="header-actions">
+                        <button id="advancedSettingsBtn" class="header-btn" title="Advanced Settings">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                </path>
+                            </svg>
+                            Settings
+                        </button>
                         <button id="historyBtn" class="header-btn" title="View history">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -1498,8 +1643,7 @@
 
                 <div class="input-actions-group">
                     <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
-                        <span class="toggle-switch-label"><span
-                                class="toggle-text">Auto
+                        <span class="toggle-switch-label"><span class="toggle-text">Auto
                                 Convert</span></span>
                         <input type="checkbox" id="autoConvertToggle">
                         <span class="switch-body"></span>
@@ -1561,7 +1705,7 @@
                         <label for="baggageAmountInput"></label>
                         <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput" value="23"
                             placeholder="Enter Baggage Amount">
-                        
+
                         <!-- Quick-Select Baggage Buttons -->
                     </div>
                     <div class="c-unit-toggle">
@@ -1578,15 +1722,15 @@
                         <button class="bag-btn" data-value="15" data-unit="KG">15 KG</button>
                         <button class="bag-btn" data-value="23" data-unit="KG">23 KG</button>
                         <button class="bag-btn" data-value="30" data-unit="KG">30 KG</button>
-                    
+
                         <button class="bag-btn btn-pcs" data-value="1" data-unit="PC">1 PC</button>
                         <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
                         <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
                     </div>
-                    
 
 
-                    
+
+
                 </div>
                 <div class="loading-spinner" id="loadingSpinner"></div>
             </div>
@@ -1607,11 +1751,11 @@
                         <span class="switch-body"></span>
                     </label>
                 </div>
-                
+
                 <div id="output">
                     <div class="info">Enter PNR data and click Convert to begin.</div>
                 </div>
-                
+
             </div>
         </div>
 
@@ -1626,7 +1770,7 @@
                 <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show
                     Notes</label>
 
-                <hr>
+                <!-- <hr>
                 <h4>Segment Time Format</h4>
                 <div class="time-format-group">
                     <label><input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour</label>
@@ -1639,12 +1783,12 @@
                 <div id="transitSymbolContainer" class="custom-transit-input">
                     <label for="transitSymbolInput">Separator:</label>
                     <input type="text" id="transitSymbolInput" placeholder=":::::::">
-                </div>
+                </div> -->
 
-                <hr>
+                <!-- <hr>
                 <h4>Fare Display Options</h4>
                 <label><input type="checkbox" id="showTaxes" checked> Show Taxes</label>
-                <label><input type="checkbox" id="showFees" checked> Show Fees</label>
+                <label><input type="checkbox" id="showFees" checked> Show Fees</label> -->
 
                 <hr>
                 <div class="options-group">
@@ -1683,7 +1827,7 @@
                     </div>
                 </div>
                 <hr>
-                <h4>Branding</h4>
+                <!-- <h4>Branding</h4>
                 <label><input type="checkbox" id="showItineraryLogo" checked>Show Main Itinerary Logo</label>
                 <div id="customBrandingSection">
                     <div class="custom-branding-input">
@@ -1697,7 +1841,7 @@
 Contact Info"></textarea>
                     </div>
                     <button id="clearCustomBrandingBtn" class="clear-btn">Clear Branding</button>
-                </div>
+                </div> -->
                 <div id="formatTransitTime">
                     <h4>Transit Time Format</h4>
                     <div class="time-format-group">
@@ -1718,7 +1862,7 @@ Contact Info"></textarea>
                 <h2>Conversion History</h2>
                 <button id="closeHistoryBtn" class="close-btn">×</button>
             </div>
-    
+
             <!-- Controls Section -->
             <div class="history-controls">
                 <input type="text" id="historySearchInput" placeholder="Search by passenger or route...">
@@ -1727,15 +1871,15 @@ Contact Info"></textarea>
                     <option value="oldest">Sort by Oldest First</option>
                 </select>
             </div>
-    
+
             <!-- NEW Split Container -->
             <div class="history-split-container">
-    
+
                 <!-- Left Side: List -->
                 <div id="historyList" class="history-list">
                     <!-- Items will be injected here by JS -->
                 </div>
-    
+
                 <!-- Right Side: Preview -->
                 <div id="historyPreviewPanel" class="hidden">
                     <div class="preview-header">
@@ -1746,13 +1890,108 @@ Contact Info"></textarea>
                         <!-- Preview details injected here -->
                     </div>
                 </div>
-    
+
             </div>
             <!-- End Split Container -->
         </div>
     </div>
 
     <div id="popupContainer" class="popup-notification-container"></div>
+
+    <div id="advancedSettingsModal" class="modal-overlay hidden">
+        <div class="modal-content settings-modal">
+            <div class="modal-header">
+                <h2>Advanced Settings</h2>
+                <button id="closeSettingsBtn" class="close-btn">×</button>
+            </div>
+    
+            <div class="settings-container">
+                <!-- Sidebar / Tabs for Settings -->
+                <div class="settings-tabs">
+                    <button class="tab-btn active" data-tab="general">General Display</button>
+                    <button class="tab-btn" data-tab="formats">Time & Formats</button>
+                    <button class="tab-btn" data-tab="branding">Branding & Logo</button>
+                </div>
+    
+                <!-- Settings Content Area -->
+                <div class="settings-content">
+    
+                    <!-- Tab 1: General Display -->
+                    <div id="tab-general" class="tab-pane active">
+                        <h3>Visibility Options</h3>
+                        <div class="checkbox-grid-settings">
+                            <label><input type="checkbox" id="showAirline" checked> Show Airline Logo/Name</label>
+                            <label><input type="checkbox" id="showAircraft" checked> Show Aircraft Type</label>
+                            <label><input type="checkbox" id="showOperatedBy" checked> Show "Operated By"</label>
+                            <label><input type="checkbox" id="showClass"> Show Cabin Class</label>
+                            <label><input type="checkbox" id="showMeal"> Show Meal Service</label>
+                            <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show PNR Notes</label>
+                        </div>
+    
+                        <hr>
+                        <h3>Fare Details</h3>
+                        <div class="checkbox-grid-settings">
+                            <label><input type="checkbox" id="showTaxes" checked> Show Taxes Breakdown</label>
+                            <label><input type="checkbox" id="showFees" checked> Show Fees Breakdown</label>
+                        </div>
+                    </div>
+    
+                    <!-- Tab 2: Time & Formats -->
+                    <div id="tab-formats" class="tab-pane">
+                        <h3>Time Format</h3>
+                        <div class="setting-group">
+                            <h4>Flight Segments</h4>
+                            <div class="time-format-group">
+                                <label><input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour
+                                    (02:00 PM)</label>
+                                <label><input type="radio" id="segmentTime24" name="segmentTimeFormat" value="24h" checked>
+                                    24-Hour (14:00)</label>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h4>Transit/Layover</h4>
+                            <div class="time-format-group">
+                                <label><input type="radio" id="transitTime12" name="transitTimeFormat" value="12h">
+                                    12-Hour</label>
+                                <label><input type="radio" id="transitTime24" name="transitTimeFormat" value="24h" checked>
+                                    24-Hour</label>
+                            </div>
+                        </div>
+    
+                        <hr>
+                        <h3>Transit Visuals</h3>
+                        <label id="showTransitLabel"><input type="checkbox" id="showTransit" checked> Show Transit Rows in
+                            Itinerary</label>
+                        <div id="transitSymbolContainer" class="custom-transit-input" style="margin-top: 10px;">
+                            <label for="transitSymbolInput">Separator Symbol:</label>
+                            <input type="text" id="transitSymbolInput" placeholder=":::::::">
+                        </div>
+                    </div>
+    
+                    <!-- Tab 3: Branding -->
+                    <div id="tab-branding" class="tab-pane">
+                        <h3>Custom Branding</h3>
+                        <label><input type="checkbox" id="showItineraryLogo" checked> Enable Main Itinerary Logo</label>
+    
+                        <div id="customBrandingSection">
+                            <div class="custom-branding-input">
+                                <label for="customLogoInput">Upload Agency Logo:</label>
+                                <input type="file" id="customLogoInput" accept="image/png, image/jpeg, image/gif">
+                                <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
+                            </div>
+                            <div class="custom-branding-input">
+                                <label for="customTextInput">Agency Contact Info:</label>
+                                <textarea id="customTextInput" rows="4"
+                                    placeholder="Your Company Name&#10;Address&#10;Phone Number"></textarea>
+                            </div>
+                            <button id="clearCustomBrandingBtn" class="clear-btn">Reset Branding</button>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+        </div>
+    </div>
 
     <hr>
 
@@ -1766,9 +2005,9 @@ Contact Info"></textarea>
             <button id="submitBtn" type="submit">Send Query</button>
         </form>
         <div class="footer-content">
-            <p>Latest Update: <span id="latestUpdate">Version 1.2.3 deployed on 6 Nov 2025</span></p>
-            <p> |- More than 7000+ airports</p>
-            <p> |- Inbound-outbound bugs fixed</p>
+            <p>Latest Update: <span id="latestUpdate">Version 1.2.5 deployed on 21 Nov 2025</span></p>
+            <p> |- New Advance Settings Option</p>
+            <p> |- more accessible interface</p>
         </div>
     </footer>
 
@@ -2037,6 +2276,59 @@ Contact Info"></textarea>
             // Optional: Auto refresh after 10 seconds of showing the message
             // setTimeout(() => location.reload(), 10000);
         }, refreshTime);
+    </script>
+    <script>
+        // --- Advanced Settings Modal Logic ---
+
+            const settingsModal = document.getElementById('advancedSettingsModal');
+            const settingsBtn = document.getElementById('advancedSettingsBtn');
+            const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+            const settingsTabs = document.querySelectorAll('.settings-tabs .tab-btn');
+            const settingsPanes = document.querySelectorAll('.settings-content .tab-pane');
+
+            // Open Modal
+            if (settingsBtn && settingsModal) {
+                settingsBtn.addEventListener('click', () => {
+                    settingsModal.classList.remove('hidden');
+                });
+            }
+
+            // Close Modal (Button)
+            if (closeSettingsBtn) {
+                closeSettingsBtn.addEventListener('click', () => {
+                    settingsModal.classList.add('hidden');
+                });
+            }
+
+            // Close Modal (Click Outside)
+            if (settingsModal) {
+                settingsModal.addEventListener('click', (e) => {
+                    // Ensure we only close if clicking the overlay, not the content
+                    if (e.target === settingsModal) {
+                        settingsModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Tab Switching Logic
+            settingsTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 1. Remove active class from all tabs
+                    settingsTabs.forEach(t => t.classList.remove('active'));
+                    // 2. Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    // 3. Hide all panes
+                    settingsPanes.forEach(pane => pane.classList.remove('active'));
+
+                    // 4. Show target pane
+                    const targetId = `tab-${tab.dataset.tab}`;
+                    const targetPane = document.getElementById(targetId);
+                    if (targetPane) {
+                        targetPane.classList.add('active');
+                    }
+                });
+            });
     </script>
 
 </body>
