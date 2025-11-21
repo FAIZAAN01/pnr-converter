@@ -1649,7 +1649,7 @@ Contact Info"></textarea>
     </div>
 
     <div id="historyModal" class="modal-overlay hidden">
-        <div class="modal-content">
+        <div id="modalContent" class="modal-content">
             <div class="modal-header">
                 <h2>Conversion History</h2>
                 <button id="closeHistoryBtn" class="close-btn">×</button>
@@ -1955,6 +1955,32 @@ Contact Info"></textarea>
             // Optional: Auto refresh after 10 seconds of showing the message
             // setTimeout(() => location.reload(), 10000);
         }, refreshTime);
+    </script>
+        <script>
+        function openBox() {
+            document.getElementById("modalContent").style.display = "block";
+            document.getElementById("historyModal").style.display = "block";
+
+            // Allow click-outside after box is visible
+            setTimeout(() => {
+                document.addEventListener("click", closeBoxOnOutside);
+            }, 50);
+        }
+
+        function closeBoxOnOutside(e) {
+            const box = document.getElementById("modalContent");
+            if (!box.contains(e.target)) {
+                closeBox();
+            }
+        }
+
+        function closeBox() {
+            document.getElementById("modalContent").style.display = "none";
+            document.getElementById("historyModal").style.display = "none";
+
+            // Clean up listener
+            document.removeEventListener("click", closeBoxOnOutside);
+        }
     </script>
 
 </body>
