@@ -1649,7 +1649,7 @@ Contact Info"></textarea>
     </div>
 
     <div id="historyModal" class="modal-overlay hidden">
-        <div id="modalContent" class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-content">
             <div class="modal-header">
                 <h2>Conversion History</h2>
                 <button id="closeHistoryBtn" class="close-btn">×</button>
@@ -1955,24 +1955,6 @@ Contact Info"></textarea>
             // Optional: Auto refresh after 10 seconds of showing the message
             // setTimeout(() => location.reload(), 10000);
         }, refreshTime);
-    </script>
-        <script>
-        function enableModalOutsideClose(modalId) {
-    const modal = document.getElementById(modalId);
-    const content = modal.querySelector('.modal-content');
-
-    function closeIfClickedOutside(e) {
-        if (!content.contains(e.target)) {
-            modal.classList.add('hidden');
-            document.removeEventListener('click', closeIfClickedOutside);
-        }
-    }
-
-    // Delay to avoid immediate close on the opening click
-    setTimeout(() => {
-        document.addEventListener('click', closeIfClickedOutside);
-    }, 10);
-}
     </script>
 
 </body>
