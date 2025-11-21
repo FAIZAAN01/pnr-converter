@@ -657,36 +657,65 @@ const historyManager = {
             `).join('');
     },
     init: function () {
-        document.getElementById('historyBtn')?.addEventListener('click', () => {
-            this.render(); document.getElementById('historyModal')?.classList.remove('hidden');
-        });
-        document.getElementById('closeHistoryBtn')?.addEventListener('click', () => {
-            document.getElementById('historyModal')?.classList.add('hidden');
-            document.getElementById('historyPreviewPanel')?.classList.add('hidden');
-        });
-        document.getElementById('historySearchInput')?.addEventListener('input', () => this.render());
-        document.getElementById('historySortSelect')?.addEventListener('change', () => this.render());
-        document.getElementById('historyList')?.addEventListener('click', (e) => {
-            const itemEl = e.target.closest('.history-item');
-            if (!itemEl) return;
-            const id = Number(itemEl.dataset.id);
-            const entry = this.get().find(item => item.id === id);
-            if (!entry) return;
-            if (e.target.classList.contains('use-history-btn')) {
-                document.getElementById('pnrInput').value = entry.pnrText;
-                document.getElementById('historyModal').classList.add('hidden'); handleConvertClick();
-            } else {
-                const previewContent = document.getElementById('previewContent');
-                previewContent.innerHTML = `<h4>Screenshot</h4><img src="${entry.screenshot}" alt="Itinerary Screenshot"><hr><h4>Raw PNR Data</h4><pre>${entry.pnrText}</pre>`;
-                document.getElementById('historyPreviewPanel').classList.remove('hidden');
-            }
-        });
-        document.getElementById('closePreviewBtn')?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.getElementById('historyPreviewPanel').classList.add('hidden');
+    const historyModal = document.getElementById('historyModal');
+    const historyContent = historyModal.querySelector('.modal-content');
 
-        });
-    }
+    // Open history modal
+    document.getElementById('historyBtn')?.addEventListener('click', () => {
+        this.render();
+        historyModal.classList.remove('hidden');
+    });
+
+    // Close history modal via close button
+    document.getElementById('closeHistoryBtn')?.addEventListener('click', () => {
+        historyModal.classList.add('hidden');
+        document.getElementById('historyPreviewPanel')?.classList.add('hidden');
+    });
+
+    // Close history modal by clicking outside content
+    historyModal.addEventListener('click', (e) => {
+        if (!historyContent.contains(e.target)) {
+            historyModal.classList.add('hidden');
+            document.getElementById('historyPreviewPanel')?.classList.add('hidden');
+        }
+    });
+
+    // Input and sorting triggers
+    document.getElementById('historySearchInput')?.addEventListener('input', () => this.render());
+    document.getElementById('historySortSelect')?.addEventListener('change', () => this.render());
+
+    // Click on history item
+    document.getElementById('historyList')?.addEventListener('click', (e) => {
+        const itemEl = e.target.closest('.history-item');
+        if (!itemEl) return;
+        const id = Number(itemEl.dataset.id);
+        const entry = this.get().find(item => item.id === id);
+        if (!entry) return;
+
+        if (e.target.classList.contains('use-history-btn')) {
+            document.getElementById('pnrInput').value = entry.pnrText;
+            historyModal.classList.add('hidden');
+            handleConvertClick();
+        } else {
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = `
+                <h4>Screenshot</h4>
+                <img src="${entry.screenshot}" alt="Itinerary Screenshot">
+                <hr>
+                <h4>Raw PNR Data</h4>
+                <pre>${entry.pnrText}</pre>
+            `;
+            document.getElementById('historyPreviewPanel').classList.remove('hidden');
+        }
+    });
+
+    // Close preview panel
+    document.getElementById('closePreviewBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('historyPreviewPanel').classList.add('hidden');
+    });
+}
+
 };
 
 // --- EVENT LISTENERS & APP INITIALIZATION ---
