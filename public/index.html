@@ -1227,14 +1227,7 @@
             animation: pulse 1s infinite;
         }
 
-        @keyframes pulse {
-            0% {
-                color: white;
-            }
-            100% {
-                color: blue;
-            }
-        }
+        
 
         #span-pc {
             padding-right: 4px;
@@ -1575,6 +1568,63 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .refreshBtn{
+            border: 1px solid white;
+        }
+
+        @keyframes pulse {
+            0% {
+                color: rgb(0, 15, 148);
+                /* scale: 1.2; */
+            }
+
+            100% {
+                color: white;
+            }
+        }
+
+        .old-version{
+            font-size: 15px;
+            font-weight: bold;
+            font-family: monospace;
+            background-color: var(--text-main);
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: var(--bg-main);
+        }
+
+        .active-version{
+            font-size: 15px;
+            font-weight: bold;
+            font-family: monospace;
+            background-color: var(--primary-blue);
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .non-active-version{
+            font-size: 15px;
+            font-weight: bold;
+            font-family: monospace;
+            background-color: var(--bg-main);
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            border: 1px dotted var(--border-main);
+        }
+        
+        .non-active-version:hover{
+            cursor: pointer;
+            background-color: var(--primary-blue);
+            color: white;
+            border: 1px solid white;
+        }
+        .non-active-version a{
+            text-decoration: none;
+            color: inherit;
+        }
     </style>
 </head>
 
@@ -1587,7 +1637,7 @@
                     <h3>Input PNR Data</h3>
                     <div id="refreshTimer" class="popup-notification-refresh header-btn">
                         <span id="timer">02:00:00</span>
-                        <button id="refreshBtn" onclick="refeshPage()">Refresh Now</button>
+                        <button id="refreshBtn" onclick="refreshPage()">Refresh Now</button>
                     </div>
 
                     <div class="header-actions">
@@ -1819,6 +1869,8 @@
                     <div class="modal-content settings-modal">
                         <div class="modal-header">
                             <h2>Advanced Settings</h2>
+                            <div class="old-version non-active-version"><a href="https://pnrconverter.vercel.app">Old Version 1.0</a></div>
+                            <div class="new-version active-version">New Version 1.1</div>
                             <button id="closeSettingsBtn" class="close-btn">×</button>
                         </div>
 
@@ -1836,16 +1888,15 @@
                                 <!-- Tab 1: General Display -->
                                 <div id="tab-general" class="tab-pane active">
                                     <!-- <h3>Visibility Options</h3>
-                        <div class="checkbox-grid-settings">
-                            <label><input type="checkbox" id="showAirline" checked> Show Airline Logo/Name</label>
-                            <label><input type="checkbox" id="showAircraft" checked> Show Aircraft Type</label>
-                            <label><input type="checkbox" id="showOperatedBy" checked> Show "Operated By"</label>
-                            <label><input type="checkbox" id="showClass"> Show Cabin Class</label>
-                            <label><input type="checkbox" id="showMeal"> Show Meal Service</label>
-                            <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show PNR Notes</label>
-                        </div>-->
+                                    <div class="checkbox-grid-settings">
+                                        <label><input type="checkbox" id="showAirline" checked> Show Airline Logo/Name</label>
+                                        <label><input type="checkbox" id="showAircraft" checked> Show Aircraft Type</label>
+                                        <label><input type="checkbox" id="showOperatedBy" checked> Show "Operated By"</label>
+                                        <label><input type="checkbox" id="showClass"> Show Cabin Class</label>
+                                        <label><input type="checkbox" id="showMeal"> Show Meal Service</label>
+                                        <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show PNR Notes</label>
+                                    </div>-->
 
-                                    <hr>
                                     <h3>Fare Details</h3>
                                     <div class="checkbox-grid-settings">
                                         <label><input type="checkbox" id="showTaxes"> Display Tax Input Block</label>
@@ -1912,7 +1963,9 @@
                                         <button id="clearCustomBrandingBtn" class="clear-btn">Reset Branding</button>
                                     </div>
                                 </div>
+                                <hr>
 
+                                
                             </div>
                         </div>
                     </div>
@@ -2107,7 +2160,7 @@
                 // When time runs out
                 if (totalSeconds < 0) {
                     clearInterval(window.refreshInterval);
-                    timerEl.textContent = "REFRESH NOW";
+                    timerEl.textContent = "";
                     timerEl.style.color = "#00ff80"; // optional highlight
                     refreshBtn.style.display = "flex";
 
@@ -2122,11 +2175,6 @@
         window.addEventListener("DOMContentLoaded", () => {
             startRefreshTimer(2); // 2 hours by default
         });
-    </script>
-    <script>
-        function refreshPage() {
-            location.reload();
-        }
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -2302,16 +2350,20 @@
         });
     </script>
     <script>
-        // 5 hours in milliseconds
-        const refreshTime = 5 * 60 * 60 * 1000;
+        // 2 hours in milliseconds
+        const refreshTime = 2 * 60 * 60 * 1000;
 
         setTimeout(() => {
             const refreshNotice = document.getElementById("refreshNotice");
-            refreshNotice.textContent = "⚠ It's been 5 hours. Please refresh the page to get the latest updates!";
+            refreshNotice.textContent = "⚠ It's been 2 hours. Please refresh the page to get the latest updates!";
 
             // Optional: Auto refresh after 10 seconds of showing the message
             // setTimeout(() => location.reload(), 10000);
         }, refreshTime);
+
+        function refreshPage() {
+            location.reload();
+        }
     </script>
     <script>
         // --- Advanced Settings Modal Logic ---
