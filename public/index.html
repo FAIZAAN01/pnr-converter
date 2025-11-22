@@ -1587,7 +1587,7 @@
                     <h3>Input PNR Data</h3>
                     <div id="refreshTimer" class="popup-notification-refresh header-btn">
                         <span id="timer">02:00:00</span>
-                        <button id="refreshBtn">Refresh Now</button>
+                        <button id="refreshBtn" onclick="refeshPage()">Refresh Now</button>
                     </div>
 
                     <div class="header-actions">
@@ -2123,6 +2123,11 @@
         window.addEventListener("DOMContentLoaded", () => {
             startRefreshTimer(2); // 2 hours by default
         });
+    </script>
+    <script>
+        function refreshPage() {
+            location.reload();
+        }
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
