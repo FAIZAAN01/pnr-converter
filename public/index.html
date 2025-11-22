@@ -1224,6 +1224,19 @@
             display: none;
             margin: 0;
             padding: 0;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         #span-pc {
@@ -1576,7 +1589,7 @@
                 <div class="card-header">
                     <h3>Input PNR Data</h3>
                     <div id="refreshTimer" class="popup-notification-refresh header-btn">
-                        <span id="timer">06:00:00</span>
+                        <span id="timer">02:00:00</span>
                         <button id="refreshBtn">Refresh Now</button>
                     </div>
 
@@ -2066,7 +2079,7 @@
     </script>
 
     <script>
-        function startRefreshTimer(hours = 6) {
+        function startRefreshTimer(hours = 2) {
             const timerEl = document.getElementById("timer");
             const refreshBtn = document.getElementById("refreshBtn");
 
