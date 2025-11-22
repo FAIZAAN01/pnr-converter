@@ -729,9 +729,7 @@
         }
 
         /* --- sidebar scroll bar styling --- */
-        body::-webkit-scrollbar ,
-        .history-list::-webkit-scrollbar,
-        .preview-content::-webkit-scrollbar {
+        body::-webkit-scrollbar {
             width: 1px;
             max-height: 10px;
         }
@@ -1627,10 +1625,24 @@
             text-decoration: none;
             color: inherit;
         }
+ .blur-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 10vh; /* 30% of screen height */
+    backdrop-filter: blur(20px);
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+    opacity: 1;
+    box-shadow: inset 10px 10px -10px -10px rgba(0, 0, 0, 0.3);
+  }
     </style>
 </head>
 
 <body>
+    <div class="blur-bottom" id="blurSection"></div>
     <div class="container">
         <div class="main-content">
             <div class="input-area card">
@@ -2058,6 +2070,7 @@
 
                 <!-- Left Side: List -->
                 <div id="historyList" class="history-list">
+                    <div class="blur-bottom" id="blurSection"></div>
                     <!-- Items will be injected here by JS -->
                 </div>
 
@@ -2069,6 +2082,7 @@
                     </div>
                     <div id="previewContent" class="preview-content">
                         <!-- Preview details injected here -->
+                        <div class="blur-bottom" id="blurSection"></div>
                     </div>
                 </div>
 
@@ -2366,6 +2380,20 @@
         function refreshPage() {
             location.reload();
         }
+    </script>
+    <script>
+        const blurEl = document.getElementById('blurSection');
+
+        window.addEventListener('scroll', () => {
+            const scrollPos = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+
+            if (scrollPos >= pageHeight) {
+                blurEl.style.opacity = "0"; // Hide blur at bottom
+            } else {
+                blurEl.style.opacity = "1"; // Show blur while scrolling
+            }
+        });
     </script>
     <script>
         // --- Advanced Settings Modal Logic ---
