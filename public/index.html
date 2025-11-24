@@ -2118,32 +2118,39 @@
     <!-- Put this script at the very bottom of your body, after all elements -->
 
     <script>
-        // Grab the already existing PNR input field
-        const pnrInput = document.getElementById("pnrInput"); // Must exist on page
-        const pnrHidden = document.getElementById("pnrHidden");
+    let lastPastedPNR = ""; // Always preserve latest pasted value
 
-        // Report Error button
-        const reportBtn = document.getElementById("reportErrorBtn");
-        reportBtn.addEventListener("click", () => {
-            const latestPNR = pnrInput.value.trim();
-            if (!latestPNR) {
-                alert("No PNR found to report!");
-                return;
-            }
+    const pnrInput = document.getElementById("pnrInput");
+    const pnrHidden = document.getElementById("pnrHidden");
+    const reportBtn = document.getElementById("reportErrorBtn");
 
-            // Set PNR in hidden field and submit
-            pnrHidden.value = latestPNR;
-            document.getElementById("contactForm").submit();
-        });
+    // Track only paste event
+    pnrInput.addEventListener("paste", (e) => {
+        const pastedText = (e.clipboardData || window.clipboardData).getData("text").trim();
+        if (pastedText) {
+            lastPastedPNR = pastedText; // Store permanently until new paste
+        }
+    });
 
-        // Update tooltip dynamically
-        reportBtn.addEventListener("mouseenter", () => {
-            const tooltip = reportBtn.querySelector(".tooltip");
-            tooltip.textContent = pnrInput.value
-                ? "Click to report last PNR: " + pnrInput.value
-                : "Click to report last PNR";
-        });
-    </script>
+    // Button click: use last pasted PNR only
+    reportBtn.addEventListener("click", () => {
+        if (!lastPastedPNR) {
+            alert("No PNR pasted yet!");
+            return;
+        }
+        pnrHidden.value = lastPastedPNR;
+        document.getElementById("contactForm").submit();
+    });
+
+    // Tooltip update
+    reportBtn.addEventListener("mouseenter", () => {
+        const tooltip = reportBtn.querySelector(".tooltip");
+        tooltip.textContent = lastPastedPNR
+            ? "Click to report PNR: " + lastPastedPNR
+            : "Click to report PNR";
+    });
+</script>
+
 
     <script>
         function startRefreshTimer(hours = 2) {
