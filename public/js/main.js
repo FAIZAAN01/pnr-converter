@@ -706,6 +706,22 @@ const historyManager = {
                 <pre>${entry.pnrText}</pre>
             `;
             document.getElementById('historyPreviewPanel').classList.remove('hidden');
+
+            document.addEventListener('click', function(e) {
+    if(e.target.matches('.copy-btn')) {
+        const targetSelector = e.target.getAttribute('data-copy-target');
+        const target = document.querySelector(targetSelector);
+        if(target) {
+            // Copy text content
+                    navigator.clipboard.writeText(target.textContent.trim()).then(() => {
+                        e.target.textContent = 'Copied!';
+                        setTimeout(() => e.target.textContent = 'Copy', 1000);
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                    });
+                }
+            }
+        });
         }
     });
 
@@ -733,15 +749,37 @@ document.addEventListener('DOMContentLoaded', () => {
         liveUpdateDisplay(false);
     });
 
-    document.getElementById('pasteBtn').addEventListener('click', async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            document.getElementById('pnrInput').value = text;
-            if (document.getElementById('autoConvertToggle').checked) {
-                handleConvertClick();
-            }
-        } catch (err) { showPopup('Could not paste from clipboard.'); }
-    });
+document.getElementById('pasteBtn').addEventListener('click', async () => {
+    const input = document.getElementById('pnrInput');
+
+    try {
+        const text = await navigator.clipboard.readText();
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+
+        // Insert like real paste (at cursor)
+        const before = input.value.slice(0, start);
+        const after = input.value.slice(end);
+
+        input.value = before + text + after;
+
+        // Update cursor position after paste
+        const newPos = start + text.length;
+        input.setSelectionRange(newPos, newPos);
+
+        // Trigger real input event so anything listening gets updated
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+
+        // Optional: Auto Convert logic
+        if (document.getElementById('autoConvertToggle').checked) {
+            handleConvertClick();
+        }
+
+    } catch (err) {
+        showPopup('Could not paste from clipboard.');
+    }
+});
+
 
     document.getElementById('editableToggle').addEventListener('change', () => {
         updateEditableState();
