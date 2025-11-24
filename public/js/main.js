@@ -702,26 +702,26 @@ const historyManager = {
                 <h4>Screenshot</h4>
                 <img src="${entry.screenshot}" alt="Itinerary Screenshot">
                 <hr>
-                <h4>Raw PNR Data</h4>
-                <pre>${entry.pnrText}</pre>
+                <h4>Raw PNR Data</h4><button class="copy-btn" data-copy-target=".text2">Copy Text 2</button>
+                <pre class="text2">${entry.pnrText}</pre>
             `;
             document.getElementById('historyPreviewPanel').classList.remove('hidden');
 
             document.addEventListener('click', function(e) {
-    if(e.target.matches('.copy-btn')) {
-        const targetSelector = e.target.getAttribute('data-copy-target');
-        const target = document.querySelector(targetSelector);
-        if(target) {
-            // Copy text content
-                    navigator.clipboard.writeText(target.textContent.trim()).then(() => {
+                if(e.target.matches('.copy-btn')) {
+                    const targetSelector = e.target.getAttribute('data-copy-target');
+                    const target = document.querySelector(targetSelector);
+                    if(target) {
+                        // Copy text content
+                        navigator.clipboard.writeText(target.textContent.trim()).then(() => {
                         e.target.textContent = 'Copied!';
                         setTimeout(() => e.target.textContent = 'Copy', 1000);
-                    }).catch(err => {
+                        }).catch(err => {
                         console.error('Failed to copy text: ', err);
-                    });
+                        });
+                    }
                 }
-            }
-        });
+            });
         }
     });
 
