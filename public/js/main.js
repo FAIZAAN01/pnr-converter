@@ -754,30 +754,42 @@ document.getElementById('pasteBtn').addEventListener('click', async () => {
 
     try {
         const pastedText = await navigator.clipboard.readText();
+        if (!pastedText) return;
 
-        // Create a real paste event
-        const pasteEvent = new ClipboardEvent('paste', {
-            clipboardData: new DataTransfer()
+        // Remember cursor position
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+
+        // 🔥 Insert text like real paste
+        const before = input.value.slice(0, start);
+        const after  = input.value.slice(end);
+        input.value = before + pastedText + after;
+
+        // Move cursor after pasted text
+        const newPos = start + pastedText.length;
+        input.setSelectionRange(newPos, newPos);
+
+        // 🔥 Simulate REAL paste event (so listeners react like Ctrl+V)
+        const data = new DataTransfer();
+        data.setData("text/plain", pastedText);
+
+        const pasteEvent = new ClipboardEvent("paste", {
+            clipboardData: data,
+            bubbles: true,
+            cancelable: true
         });
-        pasteEvent.clipboardData.setData('text/plain', pastedText);
 
-        // Dispatch the paste event → other scripts detect Ctrl+V
         input.dispatchEvent(pasteEvent);
 
-        // Fallback text insertion if no listeners handled it
-        if (!input.value.includes(pastedText)) {
-            const start = input.selectionStart;
-            const end = input.selectionEnd;
-
-            input.value =
-                input.value.slice(0, start) +
-                pastedText +
-                input.value.slice(end);
-
-            input.setSelectionRange(start + pastedText.length, start + pastedText.length);
-        }
+        // 🔥 Trigger input event (compatibility with reactive scripts)
+        input.dispatchEvent(new Event("input", { bubbles: true }));
 
         input.focus();
+
+        // Optional auto convert if enabled
+        if (document.getElementById('autoConvertToggle')?.checked) {
+            handleConvertClick();
+        }
 
     } catch (err) {
         showPopup("Clipboard access blocked!");
