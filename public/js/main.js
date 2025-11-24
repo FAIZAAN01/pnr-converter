@@ -702,7 +702,7 @@ const historyManager = {
                 <h4>Screenshot</h4>
                 <img src="${entry.screenshot}" alt="Itinerary Screenshot">
                 <hr>
-                <h4>Raw PNR Data</h4><button class="copy-btn" data-copy-target=".text2" style="color:black">Copy Text 2</button>
+                <button class="copy-btn" data-copy-target=".text2" style="color:black"><h4>Click to Copy Raw PNR Data</h4></button>
                 <pre class="text2">${entry.pnrText}</pre>
             `;
             document.getElementById('historyPreviewPanel').classList.remove('hidden');
