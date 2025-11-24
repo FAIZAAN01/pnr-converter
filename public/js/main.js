@@ -695,7 +695,7 @@ const historyManager = {
         if (e.target.classList.contains('use-history-btn')) {
             document.getElementById('pnrInput').value = entry.pnrText;
             historyModal.classList.add('hidden');
-            handleConvertClick();
+            //handleConvertClick();
         } else {
             const previewContent = document.getElementById('previewContent');
             previewContent.innerHTML = `
