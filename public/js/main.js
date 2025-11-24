@@ -753,30 +753,34 @@ document.getElementById('pasteBtn').addEventListener('click', async () => {
     const input = document.getElementById('pnrInput');
 
     try {
-        const text = await navigator.clipboard.readText();
-        const start = input.selectionStart;
-        const end = input.selectionEnd;
+        const pastedText = await navigator.clipboard.readText();
 
-        // Insert like real paste (at cursor)
-        const before = input.value.slice(0, start);
-        const after = input.value.slice(end);
+        // Create a real paste event
+        const pasteEvent = new ClipboardEvent('paste', {
+            clipboardData: new DataTransfer()
+        });
+        pasteEvent.clipboardData.setData('text/plain', pastedText);
 
-        input.value = before + text + after;
+        // Dispatch the paste event → other scripts detect Ctrl+V
+        input.dispatchEvent(pasteEvent);
 
-        // Update cursor position after paste
-        const newPos = start + text.length;
-        input.setSelectionRange(newPos, newPos);
+        // Fallback text insertion if no listeners handled it
+        if (!input.value.includes(pastedText)) {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
 
-        // Trigger real input event so anything listening gets updated
-        input.dispatchEvent(new Event("input", { bubbles: true }));
+            input.value =
+                input.value.slice(0, start) +
+                pastedText +
+                input.value.slice(end);
 
-        // Optional: Auto Convert logic
-        if (document.getElementById('autoConvertToggle').checked) {
-            handleConvertClick();
+            input.setSelectionRange(start + pastedText.length, start + pastedText.length);
         }
 
+        input.focus();
+
     } catch (err) {
-        showPopup('Could not paste from clipboard.');
+        showPopup("Clipboard access blocked!");
     }
 });
 
