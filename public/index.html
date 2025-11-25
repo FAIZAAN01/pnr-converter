@@ -1336,6 +1336,29 @@
 
         }
 
+        .boxScale{
+            animation: boxScale 2s infinite;
+        }
+
+        @keyframes boxScale{
+            0% {
+                transform: scale(1);
+            }
+
+            33% {
+                transform: scale(0.2);
+            }
+
+            66% {
+                transform: scale(1);
+                background-color: black;
+            }
+            100% {
+                transform: scale(1);
+                color: white;
+            }
+        }
+
         #aboutDeveloper{
             font-size: large;
             margin-top: 15px;
@@ -2283,25 +2306,25 @@
                 <div class="box change10s"></div>
         
                 <div class="box change4s"></div>
-                <div class="box"></div>
-                <div class="box"></div>
-                <div class="box"></div>
+                <div class="box boxScale"></div>
+                <div class="box boxScale"></div>
+                <div class="box boxScale"></div>
                 <div class="box change9s"></div>
         
                 <div class="box change3s"></div>
                 <div class="box change3s"></div>
-                <div class="box"></div>
+                <div class="box boxScale"></div>
                 <div class="box change9s"></div>
                 <div class="box change8s"></div>
         
                 <div class="box change2s"></div>
-                <div class="box"></div>
-                <div class="box"></div>
-                <div class="box"></div>
+                <div class="box boxScale"></div>
+                <div class="box boxScale"></div>
+                <div class="box boxScale"></div>
                 <div class="box change9s"></div>
         
                 <div class="box change1s"></div>
-                <div class="box"></div>
+                <div class="box boxScale"></div>
                 <div class="box change10s"></div>
                 <div class="box change11s"></div>
                 <div class="box change10s"></div>
