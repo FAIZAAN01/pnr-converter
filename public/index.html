@@ -1238,33 +1238,36 @@
 
         footer {
             height: 200px;
-            width: 95%;
+            width: 100%;
             background-color: var(--bg-footer);
             margin: 0 auto;
             flex-direction: row;
             justify-content: center;
             align-items: center;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 5px;
             margin-top: 20px;
         }
 
         .contact-form {
-            display: flex;
+            display: inline-flex;
             flex-direction: column;
             max-width: 400px;
             width: 100%;
             box-sizing: border-box;
             padding-top: 10px;
             height: 202px;
+            position: relative;
         }
 
         .footer-content {
             color: var(--text-secondary);
-            max-width: 400px
+            max-width: 400px;
+            display: inline-block;
         }
 
+        .about-me,
         .contact-form,
         .footer-content {
             border: 1px solid var(--border-main);
@@ -1275,6 +1278,167 @@
             padding-right: 20px;
             border-radius: 5px;
             box-shadow: 0px 0px 5px rgba(0, 127, 255, 0.6);
+        }
+
+        .about-me {
+            font-family: monospace;
+            display: inline-flex;
+            font-size: large;
+            min-width: 400px;
+            max-width: 400px;
+        }
+
+        .about-me a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .about-me a:hover {
+            text-decoration: underline;
+        }
+
+        .about-me img {
+            width: 40px;
+            height: 40px;
+            margin-left: 5px;
+        }
+
+        .about-me img:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        .myLogo {
+            width: 50px;
+            height: 50px;
+            background: #3b82f6;
+            position: sticky;
+            margin-top: 15px;
+            left: 100%;
+            border-radius: 0px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .box {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: white;
+            margin: 0px;
+            border: 1px solid black;
+            grid-template-columns: 5fr 1fr;
+
+        }
+
+        #aboutDeveloper{
+            font-size: large;
+            margin-top: 15px;
+            font-family: sans-serif;
+        }
+
+        #developerName{
+            font-size: x-large;
+            font-weight: bold;
+            border-radius: 15px;
+            background-color: rgba(0, 127, 255, 0.3);
+            font-family: cursive;
+            box-shadow: 0px 2px 50px 5px rgba(0, 127, 255, 0.6);
+        }
+        #developerName:hover {
+            animation: nameColor 2s infinite;
+        }
+
+        @keyframes nameColor{
+            0% {
+                color: var(--primary-blue);
+            }
+
+            25% {
+                color: rgb(0, 0, 0);
+            }
+            50% {
+                color: rgb(80, 65, 52);
+            }
+            75% {
+                color: rgb(252, 144, 149);
+            }
+
+            100% {
+                color: var(--primary-blue);
+            }
+        }
+
+        .change1s {
+            animation: moveBoxes 2s infinite;
+        }
+
+        .change2s {
+            animation: moveBoxes 2s 0.5s infinite;
+        }
+
+        .change3s {
+            animation: moveBoxes 2s 1s infinite;
+        }
+
+        .change4s {
+            animation: moveBoxes 2s 1.5s infinite;
+        }
+
+        .change5s {
+            animation: moveBoxes 2s 2s infinite;
+        }
+
+        .change6s {
+            animation: moveBoxes 2s 2.5s infinite;
+        }
+
+        .change7s {
+            animation: moveBoxesColor 2s 3s infinite;
+        }
+
+        .change8s {
+            animation: moveBoxesColor 2s 3.5s infinite;
+        }
+
+        .change9s {
+            animation: moveBoxesColor 2s 4s infinite;
+        }
+
+        .change10s {
+            animation: moveBoxesColor 2s 4.5s infinite;
+        }
+
+        .change11s {
+            animation: moveBoxesColor 2s 5s infinite;
+        }
+
+        @keyframes moveBoxes {
+            0% {
+                background-color: white;
+            }
+
+            50% {
+                background-color: rgb(255, 2, 14);
+            }
+
+            100% {
+                background-color: white;
+            }
+        }
+
+        @keyframes moveBoxesColor {
+            0% {
+                background-color: white;
+            }
+
+            50% {
+                background-color: rgb(255, 123, 0);
+            }
+
+            100% {
+                background-color: white;
+            }
         }
 
         #nameInput,
@@ -2097,6 +2261,46 @@
     <hr>
 
     <footer>
+        <div class="about-me">
+            <div class="about-me-text">
+                <p id="aboutDeveloper">About Developer</p>
+                <p id="developerName">FAIZAAN BHATI</p>
+                <a href="mailto:faizaanbhati95719@gmail.com"><img src="google.png" alt="gmail" ></a>
+                <a href="https://github.com/FAIZAAN01/"><img src="github.png" alt="github"></a>
+                <a href="https://www.linkedin.com/in/faizaan-bhati-5905b1248/"><img src="linkedin.png" alt="linkedin"></a>
+            </div>
+            <div class="myLogo">
+                <div class="box change1s"></div>
+                <div class="box change6s"></div>
+                <div class="box change7s"></div>
+                <div class="box change11s"></div>
+                <div class="box change10s"></div>
+        
+                <div class="box change4s"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box change9s"></div>
+        
+                <div class="box change3s"></div>
+                <div class="box change3s"></div>
+                <div class="box"></div>
+                <div class="box change9s"></div>
+                <div class="box change8s"></div>
+        
+                <div class="box change2s"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box"></div>
+                <div class="box change9s"></div>
+        
+                <div class="box change1s"></div>
+                <div class="box"></div>
+                <div class="box change10s"></div>
+                <div class="box change11s"></div>
+                <div class="box change10s"></div>
+            </div>
+        </div>
         <form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
             <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
             <input id="nameInput" type="text" name="name" placeholder="Name" required>
@@ -2111,6 +2315,8 @@
             <p> |- more accessible interface</p>
             <p> |- Bug fixes and performance improvements</p>
         </div>
+        <!-- all rights are reseverd by faizaan bhati -->
+         <p> &copy; 2025. Faizaan Bhati</p>
     </footer>
 
     <script src="/js/html2canvas.min.js"></script>
