@@ -660,16 +660,14 @@ const historyManager = {
     const historyModal = document.getElementById('historyModal');
     const historyContent = historyModal.querySelector('.modal-content');
 
-    // Open history modal
-    document.getElementById('historyBtn')?.addEventListener('click', () => {
-        this.render();
-        historyModal.classList.remove('hidden');
+    document.getElementById('historyBtn').addEventListener('click', () => {
+        document.getElementById('historyModal').classList.remove('hidden');
+        document.body.classList.add('body-no-scroll');
     });
 
-    // Close history modal via close button
-    document.getElementById('closeHistoryBtn')?.addEventListener('click', () => {
-        historyModal.classList.add('hidden');
-        document.getElementById('historyPreviewPanel')?.classList.add('hidden');
+    document.getElementById('closeHistoryBtn').addEventListener('click', () => {
+        document.getElementById('historyModal').classList.add('hidden');
+        document.body.classList.remove('body-no-scroll');
     });
 
     // Close history modal by clicking outside content

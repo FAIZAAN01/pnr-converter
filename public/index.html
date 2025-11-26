@@ -1019,9 +1019,9 @@
             transform: translateX(5px)
         }
 
-        .history-item:active {
-            transform: translateX(2px);
+        .history-item-active{
             background-color: var(--bg-hover);
+            transform: translateX(5px)
         }
 
         .history-item-pax {
@@ -1154,7 +1154,10 @@
             body {
                 padding: 10px
             }
-
+            .body-no-scroll {
+                overflow: hidden !important;
+                height: 100vh;
+            }
             /* #inputControls {
                 flex-wrap: wrap;
             } */
