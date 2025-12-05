@@ -189,6 +189,50 @@ function loadOptions() {
     } catch (e) { console.error("Failed to load options:", e); }
 }
 
+function loadPresetLogoGrid() {
+    const grid = document.getElementById("logoSelectGrid");
+    const preview = document.getElementById("selectedLogoPreview");
+    if (!grid) return;
+
+    grid.innerHTML = "";
+    const savedLogo = localStorage.getItem(CUSTOM_LOGO_KEY);
+
+    PRESET_LOGOS.forEach((logo, index) => {
+        const btn = document.createElement("div");
+        btn.className = "logo-option";
+
+        // Pre-select previously chosen logo
+        if (savedLogo === logo.url) btn.classList.add("selected");
+
+        btn.innerHTML = `<img src="${logo.url}" alt="${logo.name}">`;
+
+        btn.addEventListener("click", () => {
+            // Remove previous selections
+            document.querySelectorAll(".logo-option").forEach(el => el.classList.remove("selected"));
+            btn.classList.add("selected");
+
+            // Save selected logo
+            localStorage.setItem(CUSTOM_LOGO_KEY, logo.url);
+
+            // Update preview
+            preview.src = logo.url;
+            preview.style.display = "block";
+
+            // Refresh itinerary
+            liveUpdateDisplay(true);
+        });
+
+        grid.appendChild(btn);
+    });
+
+    // Show preview if saved earlier
+    if (savedLogo) {
+        preview.src = savedLogo;
+        preview.style.display = "block";
+    }
+}
+
+
 // --- CORE APP LOGIC ---
 async function handleConvertClick() {
 
@@ -737,6 +781,7 @@ const historyManager = {
 // --- EVENT LISTENERS & APP INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     loadOptions();
+    loadPresetLogoGrid();
     historyManager.init();
 
     document.getElementById('convertBtn').addEventListener('click', handleConvertClick);
