@@ -48,11 +48,21 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-async function generateItineraryCanvas(element) {
-    if (!element) throw new Error("Element for canvas generation not found.");
-    const scaleFactor = (window.devicePixelRatio || 1) * 2;
-    const options = { scale: scaleFactor, backgroundColor: '#ffffff', useCORS: true, allowTaint: true };
-    return await html2canvas(element, options);
+async function generateItineraryCanvas(element) { 
+    if (!element) throw new Error("Element for canvas generation not found."); 
+    
+    // FIX: Lock scale to 2. 
+    // This gives "Retina" quality (sharp text) without creating a massive file.
+    // (Your old code was likely doing 2 * 2 = 4x scale, which is unnecessary).
+    const scaleFactor = 2; 
+
+    const options = { 
+        scale: scaleFactor, 
+        backgroundColor: '#ffffff', 
+        useCORS: true, 
+        allowTaint: true
+    }; 
+    return await html2canvas(element, options); 
 }
 
 function getSelectedUnit() {
