@@ -48,29 +48,23 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
+// --- SCREENSHOT FUNCTION (Fixed for Document Width) ---
 async function generateItineraryCanvas(element) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
     // THE GOLDILOCKS SETTINGS:
-    // Layout Width: 800px (Standard paper/document width)
-    // Quality: 2x (High Definition / Retina)
-    // Resulting Image Width: 1600px (800 x 2)
-    const targetWidth = 800;
-    const scaleFactor = 2; 
+    const targetWidth = 800; // Force Standard Document Width
+    const scaleFactor = 2;   // High Quality (Retina)
 
     const options = { 
         scale: scaleFactor, 
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
-        
-        // 1. Force the rendering window to be narrow
         windowWidth: targetWidth,
         width: targetWidth,
         
-        // 2. FORCE the layout to reflow to 800px inside the screenshot engine
         onclone: (clonedDoc) => {
-            // A. Force the invisible "browser window" body to 800px
             const clonedBody = clonedDoc.body;
             clonedBody.style.width = targetWidth + 'px';
             clonedBody.style.minWidth = targetWidth + 'px';
@@ -78,19 +72,13 @@ async function generateItineraryCanvas(element) {
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0';
             
-            // B. Find the specific container and lock its width
             const clonedElement = clonedDoc.querySelector('.output-container');
             if (clonedElement) {
-                // Important: Reset any existing width logic
                 clonedElement.style.width = targetWidth + 'px';
                 clonedElement.style.maxWidth = targetWidth + 'px';
                 clonedElement.style.minWidth = targetWidth + 'px';
-                
-                // Remove margins so it fits the canvas exactly
                 clonedElement.style.margin = '0'; 
                 clonedElement.style.boxSizing = 'border-box';
-                
-                // Ensure it's not centered or offset
                 clonedElement.style.position = 'absolute';
                 clonedElement.style.left = '0';
                 clonedElement.style.top = '0';
@@ -158,7 +146,6 @@ function saveOptions() {
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
             baggageUnit: getSelectedUnit(),
-            // Updated: Save the new toggle state
             useModernLayout: document.getElementById('modernLayoutToggle') ? document.getElementById('modernLayoutToggle').checked : false
         };
         localStorage.setItem(OPTIONS_STORAGE_KEY, JSON.stringify(optionsToSave));
@@ -172,7 +159,6 @@ function loadOptions() {
         document.getElementById('autoConvertToggle').checked = savedOptions.autoConvertOnPaste ?? false;
         document.getElementById('editableToggle').checked = savedOptions.isEditable ?? false;
 
-        // Radios
         const setRadio = (name, val) => {
             if (!val) return;
             const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
@@ -181,7 +167,6 @@ function loadOptions() {
         setRadio('segmentTimeFormat', savedOptions.segmentTimeFormat || '24h');
         setRadio('transitTimeFormat', savedOptions.transitTimeFormat || '24h');
 
-        // Checkboxes
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
             'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
@@ -195,7 +180,6 @@ function loadOptions() {
             if (el) el.checked = savedOptions[id] ?? (defaultValues[id] || false);
         });
 
-        // Load New Toggle
         if(document.getElementById('modernLayoutToggle')) {
             document.getElementById('modernLayoutToggle').checked = savedOptions.useModernLayout ?? false;
         }
@@ -204,7 +188,6 @@ function loadOptions() {
         if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
-        // Branding
         const customLogoData = localStorage.getItem(CUSTOM_LOGO_KEY);
         const customTextData = localStorage.getItem(CUSTOM_TEXT_KEY);
         if (customLogoData) {
@@ -388,7 +371,7 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
     }
 
     const outputContainer = document.createElement('div');
-    outputContainer.className = 'output-container modern-layout'; // Adds modern styling
+    outputContainer.className = 'output-container modern-layout';
 
     // A. Logo Section
     if (displayPnrOptions.showItineraryLogo) {
@@ -405,12 +388,29 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         outputContainer.appendChild(logoContainer);
     }
 
-    // B. Header
+    // B. Header (UPDATED FOR SAME-LINE DISPLAY)
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
-        let headerHTML = `<h4>Passengers</h4><p>${passengers.join(', ')}</p>`;
-        if (recordLocator) headerHTML += `<h4>Booking Ref</h4><p style="margin-bottom:0">${recordLocator}</p>`;
+        
+        // We use Flexbox to put "Itinerary for: Name" on left and "Ref: CODE" on right
+        let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
+        
+        // Left Side: Label + Names
+        headerHTML += `<div>`;
+        headerHTML += `<h4 style="margin:0 0 5px 0;">Passengers</h4>`;
+        headerHTML += `<p style="margin:0;">${passengers.join(', ')}</p>`;
+        headerHTML += `</div>`;
+
+        // Right Side: Booking Ref (If exists)
+        if (recordLocator) {
+            headerHTML += `<div style="text-align:right;">`;
+            headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref</h4>`;
+            headerHTML += `<p style="margin:0; font-family:monospace; font-size:18px;">${recordLocator}</p>`;
+            headerHTML += `</div>`;
+        }
+        
+        headerHTML += `</div>`;
         headerDiv.innerHTML = headerHTML;
         outputContainer.appendChild(headerDiv);
     }
@@ -420,7 +420,6 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
     itineraryBlock.className = 'itinerary-block';
 
     flights.forEach((flight, i) => {
-        // Direction Header
         if (flight.direction && (i === 0 || flight.direction !== flights[i-1].direction)) {
             const headingDiv = document.createElement('div');
             headingDiv.className = 'itinerary-leg-header';
@@ -429,7 +428,6 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
             itineraryBlock.appendChild(headingDiv);
         }
 
-        // Transit Pill
         if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
             const minutes = flight.transitDurationMinutes;
             let transitClass = '';
@@ -440,7 +438,6 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
             itineraryBlock.appendChild(transitDiv);
         }
 
-        // Flight Card
         const flightCard = document.createElement('div');
         flightCard.className = 'flight-item';
 
@@ -489,8 +486,6 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         itineraryBlock.appendChild(flightCard);
     });
 
-    // --- FARE CALCULATION (Modern) ---
-    // Notes
     const notesContainer = document.createElement('div');
     let notesHtml = getCheckboxNotesHtml(checkboxOutputs);
     if (notesHtml) {
@@ -498,7 +493,6 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         itineraryBlock.appendChild(notesContainer);
     }
 
-    // Fare
     const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
     const totalPax = (parseInt(adultCount)||0) + (parseInt(childCount)||0) + (parseInt(infantCount)||0);
 
@@ -506,15 +500,12 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         const adultCountNum = parseInt(adultCount) || 0;
         const adultFareNum = parseFloat(adultFare) || 0;
         const adultBaseTotal = adultCountNum * adultFareNum;
-        
         const childCountNum = parseInt(childCount) || 0;
         const childFareNum = parseFloat(childFare) || 0;
         const childBaseTotal = childCountNum * childFareNum;
-
         const infantCountNum = parseInt(infantCount) || 0;
         const infantFareNum = parseFloat(infantFare) || 0;
         const infantBaseTotal = infantCountNum * infantFareNum;
-
         const taxNum = parseFloat(tax) || 0;
         const totalTaxes = showTaxes ? totalPax * taxNum : 0;
         const feeNum = parseFloat(fee) || 0;
@@ -571,7 +562,6 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     const outputContainer = document.createElement('div');
     outputContainer.className = 'output-container';
 
-    // A. Logo
     if (displayPnrOptions.showItineraryLogo) {
         const logoContainer = document.createElement('div');
         logoContainer.className = 'itinerary-main-logo-container';
@@ -586,23 +576,36 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         outputContainer.appendChild(logoContainer);
     }
 
-    // B. Passengers
+    // B. Header (UPDATED FOR SAME-LINE DISPLAY)
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
-        let headerHTML = `<h4 style="margin-top: 0;">Itinerary for:</h4><p>${passengers.join('<br>')}</p>`;
-        if (recordLocator) headerHTML += `<h4 style="margin-top: 10px;">Booking Ref:</h4><p>${recordLocator}</p>`;
-        if (passengers.length > 1) headerHTML += `<p style="margin-top: 8px; font-style: italic;">Total Passengers: ${passengers.length}</p>`;
+        
+        let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
+        
+        // Left: Label + Name
+        headerHTML += `<div>`;
+        headerHTML += `<h4 style="margin:0 0 5px 0;">Itinerary For:</h4>`;
+        headerHTML += `<p style="margin:0;">${passengers.join('<br>')}</p>`;
+        headerHTML += `</div>`;
+        
+        // Right: Booking Ref
+        if (recordLocator) {
+            headerHTML += `<div style="text-align:right;">`;
+            headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref:</h4>`;
+            headerHTML += `<p style="margin:0; font-family:monospace; font-size:16px;">${recordLocator}</p>`;
+            headerHTML += `</div>`;
+        }
+        
+        headerHTML += `</div>`;
         headerDiv.innerHTML = headerHTML;
         outputContainer.appendChild(headerDiv);
     }
 
-    // C. Flights
     const itineraryBlock = document.createElement('div');
     itineraryBlock.className = 'itinerary-block';
 
     flights.forEach((flight, i) => {
-        // Leg Header
         if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
             const iconSrc = '/icons/takeoff.png';
             const headingDiv = document.createElement('div');
@@ -611,7 +614,6 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             itineraryBlock.appendChild(headingDiv);
         }
 
-        // Transit
         if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
             const transitDiv = document.createElement('div');
             const minutes = flight.transitDurationMinutes;
@@ -645,7 +647,6 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             }
         }
 
-        // Flight Item
         const flightItem = document.createElement('div');
         flightItem.className = 'flight-item';
 
@@ -688,13 +689,10 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         itineraryBlock.appendChild(flightItem);
     });
 
-    // --- FARE CALCULATION (Classic) ---
-    // Notes
     const notesContainer = document.createElement('div');
     notesContainer.className = 'itinerary-notes';
     let notesHtml = getCheckboxNotesHtml(checkboxOutputs);
     
-    // Fare
     const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
     const totalPax = (parseInt(adultCount)||0) + (parseInt(childCount)||0) + (parseInt(infantCount)||0);
 
@@ -702,15 +700,12 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const adultCountNum = parseInt(adultCount) || 0;
         const adultFareNum = parseFloat(adultFare) || 0;
         const adultBaseTotal = adultCountNum * adultFareNum;
-        
         const childCountNum = parseInt(childCount) || 0;
         const childFareNum = parseFloat(childFare) || 0;
         const childBaseTotal = childCountNum * childFareNum;
-
         const infantCountNum = parseInt(infantCount) || 0;
         const infantFareNum = parseFloat(infantFare) || 0;
         const infantBaseTotal = infantCountNum * infantFareNum;
-
         const taxNum = parseFloat(tax) || 0;
         const totalTaxes = showTaxes ? totalPax * taxNum : 0;
         const feeNum = parseFloat(fee) || 0;
