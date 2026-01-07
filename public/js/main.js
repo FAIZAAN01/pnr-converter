@@ -51,8 +51,11 @@ function reverseString(str) {
 async function generateItineraryCanvas(element) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
-    // 1. Maintain High Quality (2x Scale)
-    // This ensures text remains sharp (Retina quality).
+    // THE GOLDILOCKS SETTINGS:
+    // Layout Width: 800px (Standard paper/document width)
+    // Quality: 2x (High Definition / Retina)
+    // Resulting Image Width: 1600px (800 x 2)
+    const targetWidth = 800;
     const scaleFactor = 2; 
 
     const options = { 
@@ -60,24 +63,37 @@ async function generateItineraryCanvas(element) {
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
-
-        // 2. Force the "Virtual Camera" width
-        // This tells the tool: "Even if my screen is huge, capture this as if it's 800px wide."
-        windowWidth: 800, 
         
-        // 3. Resize the element internally just for the photo
+        // 1. Force the rendering window to be narrow
+        windowWidth: targetWidth,
+        width: targetWidth,
+        
+        // 2. FORCE the layout to reflow to 800px inside the screenshot engine
         onclone: (clonedDoc) => {
-            // We find the cloned version of your container
+            // A. Force the invisible "browser window" body to 800px
+            const clonedBody = clonedDoc.body;
+            clonedBody.style.width = targetWidth + 'px';
+            clonedBody.style.minWidth = targetWidth + 'px';
+            clonedBody.style.maxWidth = targetWidth + 'px';
+            clonedBody.style.margin = '0';
+            clonedBody.style.padding = '0';
+            
+            // B. Find the specific container and lock its width
             const clonedElement = clonedDoc.querySelector('.output-container');
             if (clonedElement) {
-                // We force it to a fixed document width
-                clonedElement.style.width = '800px'; 
-                clonedElement.style.maxWidth = '800px';
-                clonedElement.style.margin = '0 auto'; // Center it
+                // Important: Reset any existing width logic
+                clonedElement.style.width = targetWidth + 'px';
+                clonedElement.style.maxWidth = targetWidth + 'px';
+                clonedElement.style.minWidth = targetWidth + 'px';
                 
-                // Ensure formatting inside fits nicely
-                clonedElement.style.height = 'auto';
-                clonedElement.style.overflow = 'visible';
+                // Remove margins so it fits the canvas exactly
+                clonedElement.style.margin = '0'; 
+                clonedElement.style.boxSizing = 'border-box';
+                
+                // Ensure it's not centered or offset
+                clonedElement.style.position = 'absolute';
+                clonedElement.style.left = '0';
+                clonedElement.style.top = '0';
             }
         }
     }; 
