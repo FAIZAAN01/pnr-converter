@@ -51,17 +51,37 @@ function reverseString(str) {
 async function generateItineraryCanvas(element) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
-    // FIX: Lock scale to 2. 
-    // This gives "Retina" quality (sharp text) without creating a massive file.
-    // (Your old code was likely doing 2 * 2 = 4x scale, which is unnecessary).
+    // 1. Maintain High Quality (2x Scale)
+    // This ensures text remains sharp (Retina quality).
     const scaleFactor = 2; 
 
     const options = { 
         scale: scaleFactor, 
         backgroundColor: '#ffffff', 
         useCORS: true, 
-        allowTaint: true
+        allowTaint: true,
+
+        // 2. Force the "Virtual Camera" width
+        // This tells the tool: "Even if my screen is huge, capture this as if it's 800px wide."
+        windowWidth: 800, 
+        
+        // 3. Resize the element internally just for the photo
+        onclone: (clonedDoc) => {
+            // We find the cloned version of your container
+            const clonedElement = clonedDoc.querySelector('.output-container');
+            if (clonedElement) {
+                // We force it to a fixed document width
+                clonedElement.style.width = '800px'; 
+                clonedElement.style.maxWidth = '800px';
+                clonedElement.style.margin = '0 auto'; // Center it
+                
+                // Ensure formatting inside fits nicely
+                clonedElement.style.height = 'auto';
+                clonedElement.style.overflow = 'visible';
+            }
+        }
     }; 
+
     return await html2canvas(element, options); 
 }
 
