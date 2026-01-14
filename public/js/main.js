@@ -53,7 +53,7 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
     if (!element) throw new Error("Element for canvas generation not found."); 
     
     // 1. Calculate dynamic width based on the content + buffer
-    const contentWidth = element.scrollWidth + 40; 
+    const contentWidth = element.scrollWidth; 
     
     const options = { 
         scale: customScale, // Uses the passed argument (1 or 2)
@@ -1003,14 +1003,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const stdResBtn = document.getElementById('copyTextBtn');
     if (stdResBtn) {
         // Renaming the button to reflect new purpose
-        stdResBtn.innerText = "SD Screenshot"; 
+        stdResBtn.innerText = "📧 Screenshot"; 
         
         stdResBtn.addEventListener('click', async () => {
             const outputEl = document.getElementById('output').querySelector('.output-container');
             if (!outputEl) { showPopup('Nothing to capture.'); return; }
             
             const originalText = stdResBtn.innerText;
-            stdResBtn.innerText = "SD Capturing...";
+            stdResBtn.innerText = "Capturing...";
 
             try {
                 // PASS 1 FOR STANDARD QUALITY
