@@ -48,29 +48,25 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width) ---
-async function generateItineraryCanvas(element) { 
+// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width + Custom Scale) ---
+async function generateItineraryCanvasDoc(element, customScale = 2) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
-    // 1. Calculate dynamic width based on the content
-    // We add a small buffer (e.g., 40px) to prevent text wrapping on the edges
-    const contentWidth = element.scrollWidth; 
-    const scaleFactor = 1; // Recommended: Use 2 for better Retina/High DPI clarity
-
+    // 1. Calculate dynamic width based on the content + buffer
+    const contentWidth = element.scrollWidth + 40; 
+    
     const options = { 
-        scale: scaleFactor, 
+        scale: customScale, // Uses the passed argument (1 or 2)
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
-        // Remove fixed windowWidth/width constraints to allow auto-sizing
-        // windowWidth: contentWidth, // Optional: define only if layout breaks
         
         onclone: (clonedDoc) => {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
 
             // 2. Set the body to fit the content width
-            clonedBody.style.width = 'auto'; // Allow it to grow
+            clonedBody.style.width = 'auto'; 
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0';
@@ -78,10 +74,9 @@ async function generateItineraryCanvas(element) {
             if (clonedElement) {
                 // 3. Force the specific element to maintain its full content width
                 clonedElement.style.width = 'fit-content'; 
-                clonedElement.style.minWidth = contentWidth + 'px'; // Ensure it doesn't shrink
+                clonedElement.style.minWidth = contentWidth + 'px'; 
                 clonedElement.style.margin = '0'; 
                 clonedElement.style.boxSizing = 'border-box';
-                // Remove absolute positioning if it causes cropping in 'fit-content' modes
                 clonedElement.style.position = 'static'; 
             }
         }
@@ -89,6 +84,7 @@ async function generateItineraryCanvas(element) {
 
     return await html2canvas(element, options); 
 }
+
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
     return unitToggle?.checked ? 'Pcs' : 'Kgs';
@@ -618,8 +614,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             const transitDiv = document.createElement('div');
             const minutes = flight.transitDurationMinutes;
             const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
-            const startSeparator = rawSymbol.replace(/ /g, ' ');
-            const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
+            const startSeparator = rawSymbol.replace(/ /g, ' ');
+            const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
             const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
 
             let transitLabel, transitClassName;
@@ -772,7 +768,8 @@ const historyManager = {
         const outputEl = document.getElementById('output').querySelector('.output-container');
         if (!outputEl) return;
         try {
-            const canvas = await generateItineraryCanvas(outputEl);
+            // Save with low scale (1) for history to save storage space
+            const canvas = await generateItineraryCanvasDoc(outputEl, 1);
             const screenshot = canvas.toDataURL('image/jpeg');
             let history = this.get();
             const currentPnrText = data.pnrText;
@@ -933,7 +930,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // NEW TOGGLE
     if(document.getElementById('modernLayoutToggle')){
         document.getElementById('modernLayoutToggle').addEventListener('change', () => {
             saveOptions();
@@ -976,24 +972,59 @@ document.addEventListener('DOMContentLoaded', () => {
         saveOptions();
         liveUpdateDisplay();
     });
-    document.getElementById('screenshotBtn').addEventListener('click', async () => {
-        const outputEl = document.getElementById('output').querySelector('.output-container');
-        if (!outputEl) { showPopup('Nothing to capture.'); return; }
-        try {
-            const canvas = await generateItineraryCanvas(outputEl);
-            canvas.toBlob(blob => {
-                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                showPopup('Screenshot copied to clipboard!');
-            }, 'image/png');
-        } catch (err) {
-            console.error("Screenshot failed:", err);
-            showPopup('Could not copy screenshot.');
-        }
-    });
-    document.getElementById('copyTextBtn').addEventListener('click', () => {
-        const text = document.getElementById('output').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            showPopup('Itinerary copied as text!');
-        }).catch(() => showPopup('Failed to copy text.'));
-    });
+
+    // --- BUTTON 1: High Quality Screenshot (Scale 2) ---
+    const screenshotBtn = document.getElementById('screenshotBtn');
+    if (screenshotBtn) {
+        screenshotBtn.addEventListener('click', async () => {
+            const outputEl = document.getElementById('output').querySelector('.output-container');
+            if (!outputEl) { showPopup('Nothing to capture.'); return; }
+            
+            const originalText = screenshotBtn.innerText;
+            screenshotBtn.innerText = "HQ Capturing...";
+            
+            try {
+                // PASS 2 FOR HIGH QUALITY
+                const canvas = await generateItineraryCanvasDoc(outputEl, 2);
+                canvas.toBlob(blob => {
+                    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                    showPopup('HQ Screenshot copied to clipboard!');
+                    screenshotBtn.innerText = originalText;
+                }, 'image/png');
+            } catch (err) {
+                console.error("Screenshot failed:", err);
+                showPopup('Could not copy screenshot.');
+                screenshotBtn.innerText = originalText;
+            }
+        });
+    }
+
+    // --- BUTTON 2: Standard Quality Screenshot (Scale 1) ---
+    const stdResBtn = document.getElementById('copyTextBtn');
+    if (stdResBtn) {
+        // Renaming the button to reflect new purpose
+        stdResBtn.innerText = "SD Screenshot"; 
+        
+        stdResBtn.addEventListener('click', async () => {
+            const outputEl = document.getElementById('output').querySelector('.output-container');
+            if (!outputEl) { showPopup('Nothing to capture.'); return; }
+            
+            const originalText = stdResBtn.innerText;
+            stdResBtn.innerText = "SD Capturing...";
+
+            try {
+                // PASS 1 FOR STANDARD QUALITY
+                const canvas = await generateItineraryCanvasDoc(outputEl, 1);
+                canvas.toBlob(blob => {
+                    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                    showPopup('SD Screenshot copied to clipboard!');
+                    stdResBtn.innerText = originalText;
+                }, 'image/png');
+            } catch (err) {
+                console.error("Screenshot failed:", err);
+                showPopup('Could not copy screenshot.');
+                stdResBtn.innerText = originalText;
+            }
+        });
+    }
 });
