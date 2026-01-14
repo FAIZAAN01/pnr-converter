@@ -48,47 +48,47 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-// --- SCREENSHOT FUNCTION (Fixed for Document Width) ---
+// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width) ---
 async function generateItineraryCanvas(element) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
-    // THE GOLDILOCKS SETTINGS:
-    const targetWidth = 800; // Force Standard Document Width
-    const scaleFactor = 1;   // High Quality (Retina)
+    // 1. Calculate dynamic width based on the content
+    // We add a small buffer (e.g., 40px) to prevent text wrapping on the edges
+    const contentWidth = element.scrollWidth + 40; 
+    const scaleFactor = 2; // Recommended: Use 2 for better Retina/High DPI clarity
 
     const options = { 
         scale: scaleFactor, 
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
-        windowWidth: targetWidth,
-        width: targetWidth,
+        // Remove fixed windowWidth/width constraints to allow auto-sizing
+        // windowWidth: contentWidth, // Optional: define only if layout breaks
         
         onclone: (clonedDoc) => {
             const clonedBody = clonedDoc.body;
-            clonedBody.style.width = targetWidth + 'px';
-            clonedBody.style.minWidth = targetWidth + 'px';
-            clonedBody.style.maxWidth = targetWidth + 'px';
+            const clonedElement = clonedDoc.querySelector('.output-container');
+
+            // 2. Set the body to fit the content width
+            clonedBody.style.width = 'auto'; // Allow it to grow
+            clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0';
             
-            const clonedElement = clonedDoc.querySelector('.output-container');
             if (clonedElement) {
-                clonedElement.style.width = targetWidth + 'px';
-                clonedElement.style.maxWidth = targetWidth + 'px';
-                clonedElement.style.minWidth = targetWidth + 'px';
+                // 3. Force the specific element to maintain its full content width
+                clonedElement.style.width = 'fit-content'; 
+                clonedElement.style.minWidth = contentWidth + 'px'; // Ensure it doesn't shrink
                 clonedElement.style.margin = '0'; 
                 clonedElement.style.boxSizing = 'border-box';
-                clonedElement.style.position = 'absolute';
-                clonedElement.style.left = '0';
-                clonedElement.style.top = '0';
+                // Remove absolute positioning if it causes cropping in 'fit-content' modes
+                clonedElement.style.position = 'static'; 
             }
         }
     }; 
 
     return await html2canvas(element, options); 
 }
-
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
     return unitToggle?.checked ? 'Pcs' : 'Kgs';
