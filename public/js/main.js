@@ -54,7 +54,7 @@ async function generateItineraryCanvas(element) {
     
     // THE GOLDILOCKS SETTINGS:
     const targetWidth = 800; // Force Standard Document Width
-    const scaleFactor = 2;   // High Quality (Retina)
+    const scaleFactor = 1;   // High Quality (Retina)
 
     const options = { 
         scale: scaleFactor, 
