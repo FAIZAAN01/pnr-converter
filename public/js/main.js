@@ -54,8 +54,8 @@ async function generateItineraryCanvas(element) {
     
     // 1. Calculate dynamic width based on the content
     // We add a small buffer (e.g., 40px) to prevent text wrapping on the edges
-    const contentWidth = element.scrollWidth + 40; 
-    const scaleFactor = 0.5; // Recommended: Use 2 for better Retina/High DPI clarity
+    const contentWidth = element.scrollWidth; 
+    const scaleFactor = 1; // Recommended: Use 2 for better Retina/High DPI clarity
 
     const options = { 
         scale: scaleFactor, 
