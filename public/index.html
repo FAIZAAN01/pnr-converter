@@ -2239,52 +2239,13 @@
                 </div>
 
                 <div class="baggage-options">
-                    <div
-                        style="width: 100%; margin-bottom: 10px; border-bottom: 1px solid var(--border-main); padding-bottom: 10px;">
-                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Baggage Mode:</label>
-                        <div style="display: flex; gap: 20px;">
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="baggageMode" value="global" checked> Same for all flights
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="radio" name="baggageMode" value="segment"> Custom per flight
-                            </label>
-                        </div>
+                    <div style="width: 100%; margin-bottom: 10px; border-bottom: 1px solid var(--border-main); padding-bottom: 5px;">
+                        <label style="font-weight: bold; color: var(--primary-blue);">Baggage Allowance per Flight</label>
                     </div>
 
-                    <div id="globalBaggageContainer" style="display: block;">
-                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                            <div class="combobox-container" id="baggageCombobox">
-                                <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
-                                    placeholder="23">
-                            </div>
-
-                            <div class="c-unit-toggle">
-                                <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
-                                <label class="c-unit-toggle__label" for="unit-selector-checkbox">
-                                    <span class="c-unit-toggle__options">
-                                        <span id="span-pc">PC</span>
-                                        <span> KG</span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div id="baggageQuickButtons">
-                            <button class="bag-btn" data-value="0" data-unit="KG">0 KG</button>
-                            <button class="bag-btn" data-value="23" data-unit="KG">23 KG</button>
-                            <button class="bag-btn" data-value="30" data-unit="KG">30 KG</button>
-                            <button class="bag-btn" data-value="40" data-unit="KG">40 KG</button>
-                            <button class="bag-btn btn-pcs" data-value="1" data-unit="PC">1 PC</button>
-                            <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
-                            <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
-                        </div>
-                    </div>
-
-                    <div id="segmentBaggageContainer" style="display: none; width: 100%; margin-top: 10px;">
-                        <div class="info"
-                            style="background: var(--bg-input); color: var(--text-secondary); border: 1px dashed var(--border-main);">
-                            Convert a PNR to see per-flight baggage options.
+                    <div id="segmentBaggageContainer" style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                        <div class="info" style="background: var(--bg-input); color: var(--text-secondary); border: 1px dashed var(--border-main); padding:10px;">
+                            Convert a PNR to load baggage options for each leg.
                         </div>
                     </div>
                 </div>
