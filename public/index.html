@@ -590,10 +590,12 @@
             border: 1px solid #e0e6ec !important;
             background: #ffffff !important;
             box-sizing: border-box !important;
-    
+
             /* ADD THESE 2 LINES: */
-            max-width: 1000px; /* Restricts width to a document size */
-            margin: 0 auto;   /* Centers it on the page */
+            max-width: 1000px;
+            /* Restricts width to a document size */
+            margin: 0 auto;
+            /* Centers it on the page */
         }
 
         #output .output-container * {
@@ -983,8 +985,8 @@
             background: var(--secondary-dark);
         }
 
-        #screenshotBtn:hover{
-            background : green;
+        #screenshotBtn:hover {
+            background: green;
         }
 
         #copyTextBtn:hover,
@@ -2237,92 +2239,109 @@
                 </div>
 
                 <div class="baggage-options">
-                    <label for="baggageParticular">Baggage:</label>
-                    <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked hidden>
-                    <label for="baggageParticular" hidden>Per segment</label>
-
-                    <div class="combobox-container" id="baggageCombobox">
-                        <label for="baggageAmountInput"></label>
-                        <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
-                            placeholder="23">
-
-                        <!-- Quick-Select Baggage Buttons -->
-                    </div>
-                    <div class="c-unit-toggle">
-                        <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
-                        <label class="c-unit-toggle__label" for="unit-selector-checkbox">
-                            <span class="c-unit-toggle__options">
-                                <span id="span-pc">PC</span>
-                                <span> KG</span>
-                            </span>
-                        </label>
-                    </div>
-                    <div id="baggageQuickButtons">
-                        <button class="bag-btn" data-value="0" data-unit="KG">0 KG</button>
-                        <button class="bag-btn" data-value="15" data-unit="KG">15 KG</button>
-                        <button class="bag-btn" data-value="23" data-unit="KG">23 KG</button>
-                        <button class="bag-btn" data-value="30" data-unit="KG">30 KG</button>
-
-                        <button class="bag-btn btn-pcs" data-value="1" data-unit="PC">1 PC</button>
-                        <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
-                        <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
+                    <div
+                        style="width: 100%; margin-bottom: 10px; border-bottom: 1px solid var(--border-main); padding-bottom: 10px;">
+                        <label style="font-weight: bold; margin-bottom: 5px; display: block;">Baggage Mode:</label>
+                        <div style="display: flex; gap: 20px;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="baggageMode" value="global" checked> Same for all flights
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                <input type="radio" name="baggageMode" value="segment"> Custom per flight
+                            </label>
+                        </div>
                     </div>
 
+                    <div id="globalBaggageContainer" style="display: block;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <div class="combobox-container" id="baggageCombobox">
+                                <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
+                                    placeholder="23">
+                            </div>
 
+                            <div class="c-unit-toggle">
+                                <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
+                                <label class="c-unit-toggle__label" for="unit-selector-checkbox">
+                                    <span class="c-unit-toggle__options">
+                                        <span id="span-pc">PC</span>
+                                        <span> KG</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
 
+                        <div id="baggageQuickButtons">
+                            <button class="bag-btn" data-value="0" data-unit="KG">0 KG</button>
+                            <button class="bag-btn" data-value="23" data-unit="KG">23 KG</button>
+                            <button class="bag-btn" data-value="30" data-unit="KG">30 KG</button>
+                            <button class="bag-btn" data-value="40" data-unit="KG">40 KG</button>
+                            <button class="bag-btn btn-pcs" data-value="1" data-unit="PC">1 PC</button>
+                            <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
+                            <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
+                        </div>
+                    </div>
 
+                    <div id="segmentBaggageContainer" style="display: none; width: 100%; margin-top: 10px;">
+                        <div class="info"
+                            style="background: var(--bg-input); color: var(--text-secondary); border: 1px dashed var(--border-main);">
+                            Convert a PNR to see per-flight baggage options.
+                        </div>
+                    </div>
                 </div>
-                <div class="loading-spinner" id="loadingSpinner"></div>
             </div>
-            <div class="output-area card">
-                <div class="output-actions">
-                    <div>
-                        <h3>Converted Itinerary</h3>
-                        <button id="screenshotBtn"><svg xmlns="http://www.w3.org/2000/svg" fill="#00ff00" width="15px" height="15px" viewBox="0 0 32 32" version="1.1">
-<title>whatsapp</title>
-<path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z"/>
-</svg> Copy Screenshot</button>
-                        <button id="copyTextBtn">📋 Copy Text</button>
-                    </div>
-                    <button id="reportErrorBtn">
-                        Report Error
-                        <span class="tooltip">Click to report last PNR</span>
-                    </button>
-                    <label class="toggle-switch" title="Enable to make small text corrections directly in the output.">
-                        <span class="toggle-switch-label">Enable Editing</span>
-                        <input type="checkbox" id="editableToggle">
-                        <span class="switch-body"></span>
-                    </label>
-                </div>
-
-                <div id="output">
-                    <div class="info">Enter PNR data and click Convert to begin.</div>
-                </div>
-
-            </div>
+            <div class="loading-spinner" id="loadingSpinner"></div>
         </div>
-
-        <div class="sidebar card">
-            <div
-                style="background: #e8f0fe; padding: 10px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #b8cce4;">
-                <label class="toggle-switch" style="margin:0;">
-                    <span class="toggle-switch-label" style="color: #4a69bd; font-weight:bold;">Use Modern Layout</span>
-                    <input type="checkbox" id="modernLayoutToggle">
+        <div class="output-area card">
+            <div class="output-actions">
+                <div>
+                    <h3>Converted Itinerary</h3>
+                    <button id="screenshotBtn"><svg xmlns="http://www.w3.org/2000/svg" fill="#00ff00" width="15px"
+                            height="15px" viewBox="0 0 32 32" version="1.1">
+                            <title>whatsapp</title>
+                            <path
+                                d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z" />
+                        </svg> Copy Screenshot</button>
+                    <button id="copyTextBtn">📋 Copy Text</button>
+                </div>
+                <button id="reportErrorBtn">
+                    Report Error
+                    <span class="tooltip">Click to report last PNR</span>
+                </button>
+                <label class="toggle-switch" title="Enable to make small text corrections directly in the output.">
+                    <span class="toggle-switch-label">Enable Editing</span>
+                    <input type="checkbox" id="editableToggle">
                     <span class="switch-body"></span>
                 </label>
             </div>
-            <hr>
-            <div class="options">
-                <h3>Display Options</h3>
-                <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
-                <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
-                <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
-                <label><input type="checkbox" id="showClass"> Show Cabin</label>
-                <label><input type="checkbox" id="showMeal"> Show Meal</label>
-                <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show
-                    Notes</label>
 
-                <!-- <hr>
+            <div id="output">
+                <div class="info">Enter PNR data and click Convert to begin.</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="sidebar card">
+        <div
+            style="background: #e8f0fe; padding: 10px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #b8cce4;">
+            <label class="toggle-switch" style="margin:0;">
+                <span class="toggle-switch-label" style="color: #4a69bd; font-weight:bold;">Use Modern Layout</span>
+                <input type="checkbox" id="modernLayoutToggle">
+                <span class="switch-body"></span>
+            </label>
+        </div>
+        <hr>
+        <div class="options">
+            <h3>Display Options</h3>
+            <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
+            <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
+            <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
+            <label><input type="checkbox" id="showClass"> Show Cabin</label>
+            <label><input type="checkbox" id="showMeal"> Show Meal</label>
+            <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show
+                Notes</label>
+
+            <!-- <hr>
                 <h4>Segment Time Format</h4>
                 <div class="time-format-group">
                     <label><input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour</label>
@@ -2337,35 +2356,35 @@
                     <input type="text" id="transitSymbolInput" placeholder=":::::::">
                 </div> -->
 
-                <!-- <hr>
+            <!-- <hr>
                 <h4>Fare Display Options</h4>
                 <label><input type="checkbox" id="showTaxes" checked> Show Taxes</label>
                 <label><input type="checkbox" id="showFees" checked> Show Fees</label> -->
 
-                <div id="advancedSettingsModal" class="modal-overlay hidden">
-                    <div class="modal-content settings-modal">
-                        <div class="modal-header">
-                            <h2>Advanced Settings</h2>
-                            <div class="old-version non-active-version" onclick="https://pnrconverter.vercel.app/"><a
-                                    href="https://pnrconverter.vercel.app">Old Version 1.0</a></div>
-                            <div class="new-version active-version">New Version 1.2.5</div>
-                            <button id="closeSettingsBtn" class="close-btn">×</button>
+            <div id="advancedSettingsModal" class="modal-overlay hidden">
+                <div class="modal-content settings-modal">
+                    <div class="modal-header">
+                        <h2>Advanced Settings</h2>
+                        <div class="old-version non-active-version" onclick="https://pnrconverter.vercel.app/"><a
+                                href="https://pnrconverter.vercel.app">Old Version 1.0</a></div>
+                        <div class="new-version active-version">New Version 1.2.5</div>
+                        <button id="closeSettingsBtn" class="close-btn">×</button>
+                    </div>
+
+                    <div class="settings-container">
+                        <!-- Sidebar / Tabs for Settings -->
+                        <div class="settings-tabs">
+                            <button class="tab-btn active" data-tab="general">General Display</button>
+                            <button class="tab-btn" data-tab="formats">Time & Formats</button>
+                            <button class="tab-btn" data-tab="branding">Branding & Logo</button>
                         </div>
 
-                        <div class="settings-container">
-                            <!-- Sidebar / Tabs for Settings -->
-                            <div class="settings-tabs">
-                                <button class="tab-btn active" data-tab="general">General Display</button>
-                                <button class="tab-btn" data-tab="formats">Time & Formats</button>
-                                <button class="tab-btn" data-tab="branding">Branding & Logo</button>
-                            </div>
+                        <!-- Settings Content Area -->
+                        <div class="settings-content">
 
-                            <!-- Settings Content Area -->
-                            <div class="settings-content">
-
-                                <!-- Tab 1: General Display -->
-                                <div id="tab-general" class="tab-pane active">
-                                    <!-- <h3>Visibility Options</h3>
+                            <!-- Tab 1: General Display -->
+                            <div id="tab-general" class="tab-pane active">
+                                <!-- <h3>Visibility Options</h3>
                                     <div class="checkbox-grid-settings">
                                         <label><input type="checkbox" id="showAirline" checked> Show Airline Logo/Name</label>
                                         <label><input type="checkbox" id="showAircraft" checked> Show Aircraft Type</label>
@@ -2375,125 +2394,124 @@
                                         <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show PNR Notes</label>
                                     </div>-->
 
-                                    <h3>Fare Details</h3>
-                                    <div class="checkbox-grid-settings">
-                                        <label><input type="checkbox" id="showTaxes"> Display Tax Input Block</label>
-                                        <label><input type="checkbox" id="showFees"> Display Fee Input Block</label>
-                                    </div>
+                                <h3>Fare Details</h3>
+                                <div class="checkbox-grid-settings">
+                                    <label><input type="checkbox" id="showTaxes"> Display Tax Input Block</label>
+                                    <label><input type="checkbox" id="showFees"> Display Fee Input Block</label>
                                 </div>
-
-                                <!-- Tab 2: Time & Formats -->
-                                <div id="tab-formats" class="tab-pane">
-                                    <h3>Time Format</h3>
-                                    <div class="setting-group">
-                                        <h4>Flight Segments</h4>
-                                        <div class="time-format-group">
-                                            <label><input type="radio" id="segmentTime12" name="segmentTimeFormat"
-                                                    value="12h"> 12-Hour
-                                                (02:00 PM)</label>
-                                            <label><input type="radio" id="segmentTime24" name="segmentTimeFormat"
-                                                    value="24h" checked>
-                                                24-Hour (14:00)</label>
-                                        </div>
-                                    </div>
-                                    <div class="setting-group">
-                                        <h4>Transit/Layover</h4>
-                                        <div class="time-format-group">
-                                            <label><input type="radio" id="transitTime12" name="transitTimeFormat"
-                                                    value="12h">
-                                                12-Hour</label>
-                                            <label><input type="radio" id="transitTime24" name="transitTimeFormat"
-                                                    value="24h" checked>
-                                                24-Hour</label>
-                                        </div>
-                                    </div>
-
-                                    <hr>
-                                    <h3>Transit Visuals</h3>
-                                    <label id="showTransitLabel"><input type="checkbox" id="showTransit" checked> Show
-                                        Transit Rows in
-                                        Itinerary</label>
-                                    <div id="transitSymbolContainer" class="custom-transit-input"
-                                        style="margin-top: 10px;">
-                                        <label for="transitSymbolInput">Separator Symbol:</label>
-                                        <input type="text" id="transitSymbolInput" placeholder=":::::::">
-                                    </div>
-                                </div>
-
-                                <!-- Tab 3: Branding -->
-                                <div id="tab-branding" class="tab-pane">
-                                    <h3>Custom Branding</h3>
-                                    <label><input type="checkbox" id="showItineraryLogo" checked> Enable Main Itinerary
-                                        Logo</label>
-
-                                    <div id="customBrandingSection">
-                                        <div class="custom-branding-input">
-                                            <label for="customLogoInput">Upload Agency Logo:</label>
-                                            <input type="file" id="customLogoInput"
-                                                accept="image/png, image/jpeg, image/gif">
-                                            <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
-                                        </div>
-                                        <div class="custom-branding-input">
-                                            <label>Select Company Logo:</label>
-
-                                            <div id="logoSelectGrid" class="logo-grid"></div>
-
-                                            <img id="selectedLogoPreview" class="custom-logo-preview" />
-                                        </div>
-                                        <div class="custom-branding-input">
-                                            <label for="customTextInput">Agency Contact Info:</label>
-                                            <textarea id="customTextInput" rows="4"
-                                                placeholder="Your Company Name&#10;Address&#10;Phone Number"></textarea>
-                                        </div>
-                                        <button id="clearCustomBrandingBtn" class="clear-btn">Reset Branding</button>
-                                    </div>
-                                </div>
-                                <hr>
-
-
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <hr>
-                <div class="options-group">
-                    <h3>Additional Information to Display</h3>
-                    <div class="checkbox-grid">
-                        <div class="checkbox-container">
-                            <label for="showCovidNotice"><input type="checkbox" id="showCovidNotice"
-                                    name="itineraryNotes" value="covid"> Date Change Allowed With Applicable
-                                <br>Penalties.</label>
-                        </div>
-                        <div class="checkbox-container">
-                            <label for="showTravelInsurance"><input type="checkbox" id="showTravelInsurance"
-                                    name="itineraryNotes" value="insurance"> Before Departure Changes Are Allowed
-                                <br>With
-                                Applicable Penalty.</label>
-                        </div>
-                        <div class="checkbox-container">
-                            <label for="showVisaInfo"><input type="checkbox" id="showVisaInfo" name="itineraryNotes"
-                                    value="visa"> Before Departure Refundable With <br>Applicable Penalties.</label>
-                        </div>
-                        <div class="checkbox-container">
-                            <label for="dontShowTravelInsurance"><input type="checkbox" id="dontShowTravelInsurance"
-                                    name="itineraryNotes" value="insurance"> After Departure, Non Refundable.</label>
-                        </div>
-                        <div class="checkbox-container">
-                            <label for="noShowRefundPolicy"><input type="checkbox" id="noShowRefundPolicy"
-                                    name="itineraryNotes" value="visa"> Refundable With Applicable Penalties.</label>
-                        </div>
-                        <div class="checkbox-container">
-                            <label for="showHealthDocs"><input type="checkbox" id="showHealthDocs" name="itineraryNotes"
-                                    value="health"> Non Refundable.</label>
-                        </div>
-                        <div class="checkbox-container">
-                            <label for="noShow"><input type="checkbox" id="noShow" name="itineraryNotes" value="health">
-                                No Show Fee Where Applicable</label>
+                            <!-- Tab 2: Time & Formats -->
+                            <div id="tab-formats" class="tab-pane">
+                                <h3>Time Format</h3>
+                                <div class="setting-group">
+                                    <h4>Flight Segments</h4>
+                                    <div class="time-format-group">
+                                        <label><input type="radio" id="segmentTime12" name="segmentTimeFormat"
+                                                value="12h"> 12-Hour
+                                            (02:00 PM)</label>
+                                        <label><input type="radio" id="segmentTime24" name="segmentTimeFormat"
+                                                value="24h" checked>
+                                            24-Hour (14:00)</label>
+                                    </div>
+                                </div>
+                                <div class="setting-group">
+                                    <h4>Transit/Layover</h4>
+                                    <div class="time-format-group">
+                                        <label><input type="radio" id="transitTime12" name="transitTimeFormat"
+                                                value="12h">
+                                            12-Hour</label>
+                                        <label><input type="radio" id="transitTime24" name="transitTimeFormat"
+                                                value="24h" checked>
+                                            24-Hour</label>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                <h3>Transit Visuals</h3>
+                                <label id="showTransitLabel"><input type="checkbox" id="showTransit" checked> Show
+                                    Transit Rows in
+                                    Itinerary</label>
+                                <div id="transitSymbolContainer" class="custom-transit-input" style="margin-top: 10px;">
+                                    <label for="transitSymbolInput">Separator Symbol:</label>
+                                    <input type="text" id="transitSymbolInput" placeholder=":::::::">
+                                </div>
+                            </div>
+
+                            <!-- Tab 3: Branding -->
+                            <div id="tab-branding" class="tab-pane">
+                                <h3>Custom Branding</h3>
+                                <label><input type="checkbox" id="showItineraryLogo" checked> Enable Main Itinerary
+                                    Logo</label>
+
+                                <div id="customBrandingSection">
+                                    <div class="custom-branding-input">
+                                        <label for="customLogoInput">Upload Agency Logo:</label>
+                                        <input type="file" id="customLogoInput"
+                                            accept="image/png, image/jpeg, image/gif">
+                                        <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
+                                    </div>
+                                    <div class="custom-branding-input">
+                                        <label>Select Company Logo:</label>
+
+                                        <div id="logoSelectGrid" class="logo-grid"></div>
+
+                                        <img id="selectedLogoPreview" class="custom-logo-preview" />
+                                    </div>
+                                    <div class="custom-branding-input">
+                                        <label for="customTextInput">Agency Contact Info:</label>
+                                        <textarea id="customTextInput" rows="4"
+                                            placeholder="Your Company Name&#10;Address&#10;Phone Number"></textarea>
+                                    </div>
+                                    <button id="clearCustomBrandingBtn" class="clear-btn">Reset Branding</button>
+                                </div>
+                            </div>
+                            <hr>
+
+
                         </div>
                     </div>
                 </div>
-                <!-- <h4>Branding</h4>
+            </div>
+
+            <hr>
+            <div class="options-group">
+                <h3>Additional Information to Display</h3>
+                <div class="checkbox-grid">
+                    <div class="checkbox-container">
+                        <label for="showCovidNotice"><input type="checkbox" id="showCovidNotice" name="itineraryNotes"
+                                value="covid"> Date Change Allowed With Applicable
+                            <br>Penalties.</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <label for="showTravelInsurance"><input type="checkbox" id="showTravelInsurance"
+                                name="itineraryNotes" value="insurance"> Before Departure Changes Are Allowed
+                            <br>With
+                            Applicable Penalty.</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <label for="showVisaInfo"><input type="checkbox" id="showVisaInfo" name="itineraryNotes"
+                                value="visa"> Before Departure Refundable With <br>Applicable Penalties.</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <label for="dontShowTravelInsurance"><input type="checkbox" id="dontShowTravelInsurance"
+                                name="itineraryNotes" value="insurance"> After Departure, Non Refundable.</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <label for="noShowRefundPolicy"><input type="checkbox" id="noShowRefundPolicy"
+                                name="itineraryNotes" value="visa"> Refundable With Applicable Penalties.</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <label for="showHealthDocs"><input type="checkbox" id="showHealthDocs" name="itineraryNotes"
+                                value="health"> Non Refundable.</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <label for="noShow"><input type="checkbox" id="noShow" name="itineraryNotes" value="health">
+                            No Show Fee Where Applicable</label>
+                    </div>
+                </div>
+            </div>
+            <!-- <h4>Branding</h4>
                 <label><input type="checkbox" id="showItineraryLogo" checked>Show Main Itinerary Logo</label>
                 <div id="customBrandingSection">
                     <div class="custom-branding-input">
@@ -2507,17 +2525,17 @@
                     </div>
                     <button id="clearCustomBrandingBtn" class="clear-btn">Clear Branding</button>
                 </div> -->
-                <div id="formatTransitTime">
-                    <h4>Transit Time Format</h4>
-                    <div class="time-format-group">
-                        <label><input type="radio" id="transitTime12" name="transitTimeFormat" value="12h">
-                            12-Hour</label>
-                        <label><input type="radio" id="transitTime24" name="transitTimeFormat" value="24h" checked>
-                            24-Hour</label>
-                    </div>
+            <div id="formatTransitTime">
+                <h4>Transit Time Format</h4>
+                <div class="time-format-group">
+                    <label><input type="radio" id="transitTime12" name="transitTimeFormat" value="12h">
+                        12-Hour</label>
+                    <label><input type="radio" id="transitTime24" name="transitTimeFormat" value="24h" checked>
+                        24-Hour</label>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <div id="historyModal" class="modal-overlay hidden">

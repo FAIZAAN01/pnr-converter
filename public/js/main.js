@@ -27,6 +27,39 @@ function debounce(func, wait) {
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
 }
+function renderPerSegmentInputs(flights) {
+    const container = document.getElementById('segmentBaggageContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!flights || flights.length === 0) {
+        container.innerHTML = '<div class="info" style="color:gray">No flights found.</div>';
+        return;
+    }
+
+    flights.forEach((flight, index) => {
+        const row = document.createElement('div');
+        row.className = 'segment-bag-row';
+        row.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 5px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 4px;";
+        
+        // Label
+        const label = document.createElement('div');
+        label.style.cssText = "flex: 1; font-size: 12px; font-weight: 600;";
+        label.textContent = `#${index + 1} ${flight.departure.city} ➝ ${flight.arrival.city}`;
+        
+        // Input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'segment-bag-input';
+        input.dataset.index = index;
+        input.placeholder = 'e.g. 2 PC';
+        input.style.cssText = "width: 100px; padding: 4px; border: 1px solid var(--border-main); border-radius: 4px;";
+        
+        row.appendChild(label);
+        row.appendChild(input);
+        container.appendChild(row);
+    });
+}
 
 function resetFareAndBaggageInputs() {
     document.getElementById('adultFareInput').value = '';
@@ -262,6 +295,8 @@ async function handleConvertClick() {
         if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
 
         lastPnrResult = { ...data.result, pnrText: currentPnr };
+        renderPerSegmentInputs(lastPnrResult.flights); 
+
         resetFareAndBaggageInputs();
         if (pnrText.trim()) document.getElementById('pnrInput').value = '';
         liveUpdateDisplay(true);
@@ -315,6 +350,26 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showTaxes: document.getElementById('showTaxes').checked,
         showFees: document.getElementById('showFees').checked,
     };
+    
+    // --- UPDATED BAGGAGE LOGIC ---
+    let baggageDetails = null;
+    const baggageMode = document.querySelector('input[name="baggageMode"]:checked')?.value || 'global';
+
+    if (baggageMode === 'segment') {
+        // Collect array of baggage strings
+        const segmentInputs = document.querySelectorAll('.segment-bag-input');
+        const bagArray = [];
+        segmentInputs.forEach(input => {
+            bagArray[parseInt(input.dataset.index)] = input.value || ''; 
+        });
+        baggageDetails = { mode: 'segment', data: bagArray };
+    } else {
+        // Existing Global Logic
+        const baggageOption = document.querySelector('input[name="baggageOption"]:checked') ? document.querySelector('input[name="baggageOption"]:checked').value : 'particular';
+        const amount = (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '';
+        const unit = (baggageOption === 'particular') ? getSelectedUnit() : '';
+        baggageDetails = { mode: 'global', amount: amount, unit: unit };
+    }
 
     const baggageOption = document.querySelector('input[name="baggageOption"]:checked').value;
     const baggageDetails = {
@@ -438,8 +493,16 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         flightCard.className = 'flight-item';
 
         let baggageText = '';
-        if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
-            baggageText = `${baggageDetails.amount} ${baggageDetails.unit}`;
+        if (baggageDetails) {
+            if (baggageDetails.mode === 'segment') {
+                // Per Segment Mode
+                baggageText = baggageDetails.data[i] || '';
+            } else {
+                // Global Mode
+                if (baggageDetails.amount) {
+                    baggageText = `${baggageDetails.amount} ${baggageDetails.unit}`;
+                }
+            }
         }
 
         const airlineName = displayPnrOptions.showAirline ? (flight.airline.name || '') : '';
@@ -648,8 +711,16 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         let detailsHtml = '';
         let baggageText = '';
-        if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
-            baggageText = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
+        if (baggageDetails) {
+            if (baggageDetails.mode === 'segment') {
+                // Per Segment Mode
+                baggageText = baggageDetails.data[i] || '';
+            } else {
+                // Global Mode
+                if (baggageDetails.amount) {
+                    baggageText = `${baggageDetails.amount} ${baggageDetails.unit}`;
+                }
+            }
         }
 
         const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
@@ -879,6 +950,33 @@ document.addEventListener('DOMContentLoaded', () => {
     loadOptions();
     loadPresetLogoGrid();
     historyManager.init();
+
+    // --- BAGGAGE MODE TOGGLE LOGIC ---
+    document.querySelectorAll('input[name="baggageMode"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const mode = e.target.value;
+            const globalCont = document.getElementById('globalBaggageContainer');
+            const segmentCont = document.getElementById('segmentBaggageContainer');
+            
+            if (mode === 'global') {
+                globalCont.style.display = 'block';
+                segmentCont.style.display = 'none';
+            } else {
+                globalCont.style.display = 'none';
+                segmentCont.style.display = 'block';
+                // Trigger regeneration of inputs if flights exist
+                if (lastPnrResult && lastPnrResult.flights) {
+                    renderPerSegmentInputs(lastPnrResult.flights);
+                }
+            }
+            liveUpdateDisplay();
+        });
+    });
+
+    // Delegate events for dynamically created per-segment inputs
+    document.getElementById('segmentBaggageContainer').addEventListener('input', debounce(() => {
+        liveUpdateDisplay();
+    }, 300));
 
     document.getElementById('convertBtn').addEventListener('click', handleConvertClick);
 
