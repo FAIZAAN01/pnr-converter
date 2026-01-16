@@ -190,7 +190,8 @@ function getTravelClassName(classCode, airlineCode = null) {
     // Airline-specific overrides
     const airlineOverrides = {
         'EK': { 'O': 'Business' }, // example: XYZ airline
-        'AT': { 'P': 'Economy' }          // example: ABC airline
+        'AT': { 'P': 'Economy' },
+        'UX': { 'O': 'Business'}// example: ABC airline
         // Add more airlines and their custom codes here
     };
 
@@ -292,43 +293,35 @@ function parseGalileoEnhanced(pnrText, options) {
 
         const operatedByMatch = line.match(operatedByRegex);
         const isPassengerLine = passengerLineIdentifierRegex.test(line);
-
         if (isPassengerLine) {
             const cleanedLine = line.replace(/^\s*\d+\.\s*/, '');
             const nameBlocks = cleanedLine.split(/\s+\d+\.\s*/);
+
             for (const nameBlock of nameBlocks) {
                 if (!nameBlock.trim()) continue;
-                if (isPassengerLine) {
-                    const cleanedLine = line.replace(/^\s*\d+\.\s*/, '');
-                    const nameBlocks = cleanedLine.split(/\s+\d+\.\s*/);
 
-                    for (const nameBlock of nameBlocks) {
-                        if (!nameBlock.trim()) continue;
+                // Match patterns like "BUCHANA/TALEAH JANE(CHD/11JUN23)" or "GASATURA KAMIKAZI/DEBORAH MRS"
+                const match = nameBlock.trim().match(/^([A-Z' -]+)\/([A-Z' .-]+)(\([^)]*\))?/i);
+                if (!match) continue;
 
-                        // Match patterns like "BUCHANA/TALEAH JANE(CHD/11JUN23)" or "GASATURA KAMIKAZI/DEBORAH MRS"
-                        const match = nameBlock.trim().match(/^([A-Z' -]+)\/([A-Z' .-]+)(\([^)]*\))?/i);
-                        if (!match) continue;
+                const lastName = match[1].trim();
+                let givenNamesRaw = match[2].trim();
+                let extraInfo = match[3] ? match[3].trim() : ''; // e.g. (CHD/11JUN23)
 
-                        const lastName = match[1].trim();
-                        let givenNamesRaw = match[2].trim();
-                        let extraInfo = match[3] ? match[3].trim() : ''; // e.g. (CHD/11JUN23)
+                    // Handle title at the end (MR, MRS, MISS, etc.)
+                const titles = ['MR', 'MRS', 'MS', 'MSTR', 'MISS', 'CHD', 'INF'];
+                const words = givenNamesRaw.split(/\s+/);
+                const lastWord = words[words.length - 1].toUpperCase();
+                let title = '';
+                if (titles.includes(lastWord)) title = words.pop();
+                const givenNames = words.join(' ');
 
-                        // Handle title at the end (MR, MRS, MISS, etc.)
-                        const titles = ['MR', 'MRS', 'MS', 'MSTR', 'MISS', 'CHD', 'INF'];
-                        const words = givenNamesRaw.split(/\s+/);
-                        const lastWord = words[words.length - 1].toUpperCase();
-                        let title = '';
-                        if (titles.includes(lastWord)) title = words.pop();
-                        const givenNames = words.join(' ');
+                // Construct formatted passenger name
+                let formattedName = `${lastName.toUpperCase()}/${givenNames.toUpperCase()}`;
+                if (title) formattedName += ` ${title}`;
+                if (extraInfo) formattedName += ` ${extraInfo}`; // add DOB part like (CHD/11JUN23)
 
-                        // Construct formatted passenger name
-                        let formattedName = `${lastName.toUpperCase()}/${givenNames.toUpperCase()}`;
-                        if (title) formattedName += ` ${title}`;
-                        if (extraInfo) formattedName += ` ${extraInfo}`; // add DOB part like (CHD/11JUN23)
-
-                        if (!passengers.includes(formattedName)) passengers.push(formattedName);
-                    }
-                }
+                if (!passengers.includes(formattedName)) passengers.push(formattedName);
             }
         }
         else if (flightMatch) {
