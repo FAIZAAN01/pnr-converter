@@ -28,7 +28,7 @@ function debounce(func, wait) {
     };
 }
 
-// --- NEW HELPER: Render Per-Segment Inputs ---
+// --- NEW HELPER: Render Per-Segment Inputs with Buttons ---
 function renderPerSegmentInputs(flights) {
     const container = document.getElementById('segmentBaggageContainer');
     if (!container) return;
@@ -42,27 +42,61 @@ function renderPerSegmentInputs(flights) {
     flights.forEach((flight, index) => {
         const row = document.createElement('div');
         row.className = 'segment-bag-row';
-        row.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 5px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 4px;";
+        // Flex container: Left (Info) | Right (Controls)
+        row.style.cssText = "display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 6px;";
         
-        // Label
+        // 1. Left Side: Flight Info
         const label = document.createElement('div');
-        label.style.cssText = "flex: 1; font-size: 12px; font-weight: 600;";
-        label.textContent = `#${index + 1} ${flight.departure.city} ➝ ${flight.arrival.city}`;
+        label.style.cssText = "font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap;";
+        label.innerHTML = `<span style="color: var(--primary-blue);">#${index + 1}</span> ${flight.departure.city} <span style='color:#999'>➝</span> ${flight.arrival.city}`;
         
-        // Input
+        // 2. Right Side: Controls Container
+        const controlsDiv = document.createElement('div');
+        controlsDiv.style.cssText = "display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;";
+
+        // Input Field
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'segment-bag-input';
         input.dataset.index = index;
         input.placeholder = 'e.g. 2 PC';
-        input.style.cssText = "width: 100px; padding: 4px; border: 1px solid var(--border-main); border-radius: 4px;";
+        // Initial value default
+        input.value = '23 KG'; 
+        input.style.cssText = "width: 80px; padding: 6px; border: 1px solid var(--border-main); border-radius: 4px; text-align: center; font-weight:bold;";
         
+        // Quick Buttons Generator
+        const createBtn = (text, val) => {
+            const btn = document.createElement('button');
+            btn.textContent = text;
+            btn.className = 'bag-btn-mini'; // New class for styling
+            btn.style.cssText = "padding: 4px 8px; font-size: 11px; cursor: pointer; border: 1px solid var(--border-main); background: var(--bg-input); border-radius: 4px; color: var(--text-secondary);";
+            
+            btn.addEventListener('click', (e) => {
+                e.preventDefault(); // Stop page reload
+                input.value = val;
+                input.dispatchEvent(new Event('input')); // Trigger live update
+            });
+            return btn;
+        };
+
+        // Add Buttons to Controls
+        controlsDiv.appendChild(createBtn('0K', '0 KG'));
+        controlsDiv.appendChild(createBtn('23K', '23 KG'));
+        controlsDiv.appendChild(createBtn('30K', '30 KG'));
+        controlsDiv.appendChild(createBtn('40K', '40 KG'));
+        controlsDiv.appendChild(createBtn('46K', '46 KG'));
+        controlsDiv.appendChild(createBtn('1PC', '1 PC'));
+        controlsDiv.appendChild(createBtn('2PC', '2 PC'));
+        controlsDiv.appendChild(createBtn('3PC', '3 PC'));
+        
+        // Add Input last
+        controlsDiv.appendChild(input);
+
         row.appendChild(label);
-        row.appendChild(input);
+        row.appendChild(controlsDiv);
         container.appendChild(row);
     });
 }
-
 // --- UPDATED RESET FUNCTION ---
 function resetFareAndBaggageInputs() {
     document.getElementById('adultFareInput').value = '';
@@ -74,6 +108,10 @@ function resetFareAndBaggageInputs() {
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
     document.getElementById('currencySelect').value = 'USD';
+
+    // Note: Baggage inputs are now dynamic and reset when PNR is converted
+    if (lastPnrResult) liveUpdateDisplay();
+}
 
     // Reset to "Global" mode by default
     const globalRadio = document.querySelector('input[name="baggageMode"][value="global"]');
@@ -373,7 +411,14 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
     
     // --- UPDATED BAGGAGE GATHERING LOGIC ---
     let baggageDetails = null;
-    const baggageMode = document.querySelector('input[name="baggageMode"]:checked')?.value || 'global';
+    const segmentInputs = document.querySelectorAll('.segment-bag-input');
+    if (segmentInputs.length > 0) {
+        const bagArray = [];
+        segmentInputs.forEach(input => {
+            bagArray[parseInt(input.dataset.index)] = input.value || ''; 
+        });
+        baggageDetails = { mode: 'segment', data: bagArray };
+    }
 
     if (baggageMode === 'segment') {
         // Collect array of baggage strings from segment inputs
@@ -966,29 +1011,12 @@ document.addEventListener('DOMContentLoaded', () => {
     historyManager.init();
 
     // --- BAGGAGE MODE TOGGLE LOGIC ---
-    document.querySelectorAll('input[name="baggageMode"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const mode = e.target.value;
-            const globalCont = document.getElementById('globalBaggageContainer');
-            const segmentCont = document.getElementById('segmentBaggageContainer');
-            
-            if (globalCont && segmentCont) {
-                if (mode === 'global') {
-                    globalCont.style.display = 'block';
-                    segmentCont.style.display = 'none';
-                } else {
-                    globalCont.style.display = 'none';
-                    segmentCont.style.display = 'block';
-                    // Trigger regeneration of inputs if flights exist
-                    if (lastPnrResult && lastPnrResult.flights) {
-                        renderPerSegmentInputs(lastPnrResult.flights);
-                    }
-                }
-            }
+    const segContainer = document.getElementById('segmentBaggageContainer');
+    if (segContainer) {
+        segContainer.addEventListener('input', debounce(() => {
             liveUpdateDisplay();
-        });
-    });
-
+        }, 300));
+    }
     // Delegate events for dynamically created per-segment inputs
     const segContainer = document.getElementById('segmentBaggageContainer');
     if (segContainer) {
