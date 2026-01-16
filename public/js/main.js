@@ -1003,7 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stdResBtn = document.getElementById('copyTextBtn');
     if (stdResBtn) {
         // Renaming the button to reflect new purpose
-        stdResBtn.innerText = "📧 Screenshot "; 
+        stdResBtn.innerText = "📧 Screenshot"; 
         
         stdResBtn.addEventListener('click', async () => {
             const outputEl = document.getElementById('output').querySelector('.output-container');
