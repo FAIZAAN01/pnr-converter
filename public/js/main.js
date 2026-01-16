@@ -28,76 +28,6 @@ function debounce(func, wait) {
     };
 }
 
-// --- NEW HELPER: Render Per-Segment Inputs with Buttons ---
-function renderPerSegmentInputs(flights) {
-    const container = document.getElementById('segmentBaggageContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (!flights || flights.length === 0) {
-        container.innerHTML = '<div class="info" style="color:gray">No flights found.</div>';
-        return;
-    }
-
-    flights.forEach((flight, index) => {
-        const row = document.createElement('div');
-        row.className = 'segment-bag-row';
-        // Flex container: Left (Info) | Right (Controls)
-        row.style.cssText = "display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border-main); border-radius: 6px;";
-        
-        // 1. Left Side: Flight Info
-        const label = document.createElement('div');
-        label.style.cssText = "font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap;";
-        label.innerHTML = `<span style="color: var(--primary-blue);">#${index + 1}</span> ${flight.departure.city} <span style='color:#999'>➝</span> ${flight.arrival.city}`;
-        
-        // 2. Right Side: Controls Container
-        const controlsDiv = document.createElement('div');
-        controlsDiv.style.cssText = "display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;";
-
-        // Input Field
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'segment-bag-input';
-        input.dataset.index = index;
-        input.placeholder = 'e.g. 2 PC';
-        // Initial value default
-        input.value = '23 KG'; 
-        input.style.cssText = "width: 80px; padding: 6px; border: 1px solid var(--border-main); border-radius: 4px; text-align: center; font-weight:bold;";
-        
-        // Quick Buttons Generator
-        const createBtn = (text, val) => {
-            const btn = document.createElement('button');
-            btn.textContent = text;
-            btn.className = 'bag-btn-mini'; // New class for styling
-            btn.style.cssText = "padding: 4px 8px; font-size: 11px; cursor: pointer; border: 1px solid var(--border-main); background: var(--bg-input); border-radius: 4px; color: var(--text-secondary);";
-            
-            btn.addEventListener('click', (e) => {
-                e.preventDefault(); // Stop page reload
-                input.value = val;
-                input.dispatchEvent(new Event('input')); // Trigger live update
-            });
-            return btn;
-        };
-
-        // Add Buttons to Controls
-        controlsDiv.appendChild(createBtn('0K', '0 KG'));
-        controlsDiv.appendChild(createBtn('23K', '23 KG'));
-        controlsDiv.appendChild(createBtn('30K', '30 KG'));
-        controlsDiv.appendChild(createBtn('40K', '40 KG'));
-        controlsDiv.appendChild(createBtn('46K', '46 KG'));
-        controlsDiv.appendChild(createBtn('1PC', '1 PC'));
-        controlsDiv.appendChild(createBtn('2PC', '2 PC'));
-        controlsDiv.appendChild(createBtn('3PC', '3 PC'));
-        
-        // Add Input last
-        controlsDiv.appendChild(input);
-
-        row.appendChild(label);
-        row.appendChild(controlsDiv);
-        container.appendChild(row);
-    });
-}
-// --- UPDATED RESET FUNCTION ---
 function resetFareAndBaggageInputs() {
     document.getElementById('adultFareInput').value = '';
     document.getElementById('childFareInput').value = '';
@@ -108,23 +38,8 @@ function resetFareAndBaggageInputs() {
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
     document.getElementById('currencySelect').value = 'USD';
-
-    // Note: Baggage inputs are now dynamic and reset when PNR is converted
-    if (lastPnrResult) liveUpdateDisplay();
-}
-
-    // Reset to "Global" mode by default
-    const globalRadio = document.querySelector('input[name="baggageMode"][value="global"]');
-    if (globalRadio) {
-        globalRadio.checked = true;
-        globalRadio.dispatchEvent(new Event('change')); // Trigger UI update
-    }
-    
-    // Clear global input
-    if(document.getElementById('baggageAmountInput')) {
-        document.getElementById('baggageAmountInput').value = '';
-    }
-
+    document.getElementById('baggageParticular').checked = true;
+    document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
     if (lastPnrResult) liveUpdateDisplay();
 }
 
@@ -133,14 +48,15 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-// --- SCREENSHOT FUNCTION ---
+// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width + Custom Scale) ---
 async function generateItineraryCanvasDoc(element, customScale = 2) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
+    // 1. Calculate dynamic width based on the content + buffer
     const contentWidth = element.scrollWidth; 
     
     const options = { 
-        scale: customScale,
+        scale: customScale, // Uses the passed argument (1 or 2)
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
@@ -149,12 +65,14 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
 
+            // 2. Set the body to fit the content width
             clonedBody.style.width = 'auto'; 
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0';
             
             if (clonedElement) {
+                // 3. Force the specific element to maintain its full content width
                 clonedElement.style.width = 'fit-content'; 
                 clonedElement.style.minWidth = contentWidth + 'px'; 
                 clonedElement.style.margin = '0'; 
@@ -169,7 +87,7 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
 
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
-    return unitToggle?.checked ? 'PC' : 'KG';
+    return unitToggle?.checked ? 'Pcs' : 'Kgs';
 }
 
 function getMealDescription(mealCode) {
@@ -263,7 +181,7 @@ function loadOptions() {
         }
 
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'PC';
+        if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
         const customLogoData = localStorage.getItem(CUSTOM_LOGO_KEY);
@@ -288,12 +206,6 @@ function loadPresetLogoGrid() {
     if (!grid) return;
     grid.innerHTML = "";
     const savedLogo = localStorage.getItem(CUSTOM_LOGO_KEY);
-
-    const PRESET_LOGOS = [
-        { name: "Default", url: "/simbavoyages.png" },
-        { name: "Christmas", url: "/branding_logos/christmas-logo.jpg" },
-        { name: "Face", url: "/branding_logos/logo-face.jpg" }
-    ];
 
     PRESET_LOGOS.forEach((logo) => {
         const btn = document.createElement("div");
@@ -350,10 +262,6 @@ async function handleConvertClick() {
         if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
 
         lastPnrResult = { ...data.result, pnrText: currentPnr };
-        
-        // Populate the new Segment Baggage Inputs
-        renderPerSegmentInputs(lastPnrResult.flights); 
-
         resetFareAndBaggageInputs();
         if (pnrText.trim()) document.getElementById('pnrInput').value = '';
         liveUpdateDisplay(true);
@@ -372,7 +280,6 @@ async function handleConvertClick() {
     }
 }
 
-// --- UPDATED LIVE DISPLAY FUNCTION ---
 function liveUpdateDisplay(pnrProcessingAttempted = false) {
     if (!lastPnrResult) {
         if (pnrProcessingAttempted) {
@@ -408,33 +315,13 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showTaxes: document.getElementById('showTaxes').checked,
         showFees: document.getElementById('showFees').checked,
     };
-    
-    // --- UPDATED BAGGAGE GATHERING LOGIC ---
-    let baggageDetails = null;
-    const segmentInputs = document.querySelectorAll('.segment-bag-input');
-    if (segmentInputs.length > 0) {
-        const bagArray = [];
-        segmentInputs.forEach(input => {
-            bagArray[parseInt(input.dataset.index)] = input.value || ''; 
-        });
-        baggageDetails = { mode: 'segment', data: bagArray };
-    }
 
-    if (baggageMode === 'segment') {
-        // Collect array of baggage strings from segment inputs
-        const segmentInputs = document.querySelectorAll('.segment-bag-input');
-        const bagArray = [];
-        segmentInputs.forEach(input => {
-            // Store value at the correct index matching the flight index
-            bagArray[parseInt(input.dataset.index)] = input.value || ''; 
-        });
-        baggageDetails = { mode: 'segment', data: bagArray };
-    } else {
-        // Global Mode
-        const amount = document.getElementById('baggageAmountInput').value;
-        const unit = getSelectedUnit();
-        baggageDetails = { mode: 'global', amount: amount, unit: unit };
-    }
+    const baggageOption = document.querySelector('input[name="baggageOption"]:checked').value;
+    const baggageDetails = {
+        option: baggageOption,
+        amount: (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '',
+        unit: (baggageOption === 'particular') ? getSelectedUnit() : ''
+    };
 
     const checkboxOutputs = {
         showVisaInfo: document.getElementById('showVisaInfo').checked,
@@ -497,11 +384,12 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         outputContainer.appendChild(logoContainer);
     }
 
-    // B. Header
+    // B. Header (UPDATED FOR SAME-LINE DISPLAY)
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
         
+        // We use Flexbox to put "Itinerary for: Name" on left and "Ref: CODE" on right
         let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
         
         // Left Side: Label + Names
@@ -510,7 +398,7 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         headerHTML += `<p style="margin:0;">${passengers.join(', ')}</p>`;
         headerHTML += `</div>`;
 
-        // Right Side: Booking Ref
+        // Right Side: Booking Ref (If exists)
         if (recordLocator) {
             headerHTML += `<div style="text-align:right;">`;
             headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref</h4>`;
@@ -549,18 +437,9 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         const flightCard = document.createElement('div');
         flightCard.className = 'flight-item';
 
-        // --- BAGGAGE DISPLAY LOGIC ---
         let baggageText = '';
-        if (baggageDetails) {
-            if (baggageDetails.mode === 'segment') {
-                // Per Segment Mode
-                baggageText = baggageDetails.data[i] || '';
-            } else {
-                // Global Mode
-                if (baggageDetails.amount) {
-                    baggageText = `${baggageDetails.amount} ${baggageDetails.unit}`;
-                }
-            }
+        if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
+            baggageText = `${baggageDetails.amount} ${baggageDetails.unit}`;
         }
 
         const airlineName = displayPnrOptions.showAirline ? (flight.airline.name || '') : '';
@@ -693,20 +572,20 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         outputContainer.appendChild(logoContainer);
     }
 
-    // Header
+    // B. Header (UPDATED FOR SAME-LINE DISPLAY)
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
         
         let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
         
-        // Left
+        // Left: Label + Name
         headerHTML += `<div>`;
         headerHTML += `<h4 style="margin:0 0 5px 0;">Itinerary For:</h4>`;
         headerHTML += `<p style="margin:0;">${passengers.join('<br>')}</p>`;
         headerHTML += `</div>`;
         
-        // Right
+        // Right: Booking Ref
         if (recordLocator) {
             headerHTML += `<div style="text-align:right;">`;
             headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref:</h4>`;
@@ -767,19 +646,10 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const flightItem = document.createElement('div');
         flightItem.className = 'flight-item';
 
-        // --- BAGGAGE DISPLAY LOGIC ---
+        let detailsHtml = '';
         let baggageText = '';
-        if (baggageDetails) {
-            if (baggageDetails.mode === 'segment') {
-                // Per Segment Mode
-                baggageText = baggageDetails.data[i] || '';
-            } else {
-                // Global Mode
-                if (baggageDetails.amount) {
-                    // Note: classic itinerary used specific spacing char \u00A0
-                    baggageText = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
-                }
-            }
+        if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
+            baggageText = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
         }
 
         const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
@@ -798,7 +668,6 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             { label: 'Notes \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showNotes && flight.notes?.length) ? flight.notes.join('; ') : null, isNote: true }
         ];
 
-        let detailsHtml = '';
         detailRows.forEach(({ label, value, isNote }) => {
             if (value) detailsHtml += `<div class="flight-detail ${isNote ? 'notes-detail' : ''}"><strong>${label}:</strong> <span>${value}</span></div>`;
         });
@@ -899,6 +768,7 @@ const historyManager = {
         const outputEl = document.getElementById('output').querySelector('.output-container');
         if (!outputEl) return;
         try {
+            // Save with low scale (1) for history to save storage space
             const canvas = await generateItineraryCanvasDoc(outputEl, 1);
             const screenshot = canvas.toDataURL('image/jpeg');
             let history = this.get();
@@ -1010,73 +880,40 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPresetLogoGrid();
     historyManager.init();
 
-    // --- BAGGAGE MODE TOGGLE LOGIC ---
-    const segContainer = document.getElementById('segmentBaggageContainer');
-    if (segContainer) {
-        segContainer.addEventListener('input', debounce(() => {
-            liveUpdateDisplay();
-        }, 300));
-    }
-    // Delegate events for dynamically created per-segment inputs
-    const segContainer = document.getElementById('segmentBaggageContainer');
-    if (segContainer) {
-        segContainer.addEventListener('input', debounce(() => {
-            liveUpdateDisplay();
-        }, 300));
-    }
+    document.getElementById('convertBtn').addEventListener('click', handleConvertClick);
 
-    const convertBtn = document.getElementById('convertBtn');
-    if (convertBtn) convertBtn.addEventListener('click', handleConvertClick);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        document.getElementById('pnrInput').value = '';
+        document.getElementById('output').innerHTML = '<div class="info">Enter PNR data and click Convert to begin.</div>';
+        lastPnrResult = null;
+        resetFareAndBaggageInputs();
+        liveUpdateDisplay(false);
+    });
 
-    const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            const pnrInput = document.getElementById('pnrInput');
-            const output = document.getElementById('output');
-            if (pnrInput) pnrInput.value = '';
-            if (output) output.innerHTML = '<div class="info">Enter PNR data and click Convert to begin.</div>';
-            lastPnrResult = null;
-            resetFareAndBaggageInputs();
-            liveUpdateDisplay(false);
-        });
-    }
+    document.getElementById('pasteBtn').addEventListener('click', async () => {
+        const input = document.getElementById('pnrInput');
+        try {
+            const pastedText = await navigator.clipboard.readText();
+            if (!pastedText) return;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const before = input.value.slice(0, start);
+            const after  = input.value.slice(end);
+            input.value = before + pastedText + after;
+            const newPos = start + pastedText.length;
+            input.setSelectionRange(newPos, newPos);
+            const data = new DataTransfer();
+            data.setData("text/plain", pastedText);
+            const pasteEvent = new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true });
+            input.dispatchEvent(pasteEvent);
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            input.focus();
+            if (document.getElementById('autoConvertToggle')?.checked) handleConvertClick();
+        } catch (err) { showPopup("Clipboard access blocked!"); }
+    });
 
-    const pasteBtn = document.getElementById('pasteBtn');
-    if (pasteBtn) {
-        pasteBtn.addEventListener('click', async () => {
-            const input = document.getElementById('pnrInput');
-            if (!input) return;
-            try {
-                const pastedText = await navigator.clipboard.readText();
-                if (!pastedText) return;
-                const start = input.selectionStart;
-                const end = input.selectionEnd;
-                const before = input.value.slice(0, start);
-                const after  = input.value.slice(end);
-                input.value = before + pastedText + after;
-                const newPos = start + pastedText.length;
-                input.setSelectionRange(newPos, newPos);
-                const data = new DataTransfer();
-                data.setData("text/plain", pastedText);
-                const pasteEvent = new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true });
-                input.dispatchEvent(pasteEvent);
-                input.dispatchEvent(new Event("input", { bubbles: true }));
-                input.focus();
-                const autoConvert = document.getElementById('autoConvertToggle');
-                if (autoConvert?.checked) handleConvertClick();
-            } catch (err) { showPopup("Clipboard access blocked!"); }
-        });
-    }
-
-    const editableToggle = document.getElementById('editableToggle');
-    if (editableToggle) {
-        editableToggle.addEventListener('change', () => { updateEditableState(); saveOptions(); });
-    }
-
-    const autoConvertToggle = document.getElementById('autoConvertToggle');
-    if (autoConvertToggle) {
-        autoConvertToggle.addEventListener('change', saveOptions);
-    }
+    document.getElementById('editableToggle').addEventListener('change', () => { updateEditableState(); saveOptions(); });
+    document.getElementById('autoConvertToggle').addEventListener('change', saveOptions);
 
     const allTheRest = '.options input, .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
     document.querySelectorAll(allTheRest).forEach(el => {
@@ -1093,101 +930,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const modernLayoutToggle = document.getElementById('modernLayoutToggle');
-    if(modernLayoutToggle){
-        modernLayoutToggle.addEventListener('change', () => {
+    if(document.getElementById('modernLayoutToggle')){
+        document.getElementById('modernLayoutToggle').addEventListener('change', () => {
             saveOptions();
             liveUpdateDisplay();
         });
     }
 
-    // Unit Selector Toggle
-    const unitToggle = document.getElementById('unit-selector-checkbox');
-    if (unitToggle) {
-        unitToggle.addEventListener('change', () => { 
-            saveOptions(); 
-            liveUpdateDisplay(); 
-        });
-    }
+    document.getElementById('unit-selector-checkbox').addEventListener('change', () => { saveOptions(); liveUpdateDisplay(); });
 
-    // Quick Baggage Buttons
-    const baggageQuickButtons = document.getElementById('baggageQuickButtons');
-    const baggageInput = document.getElementById('baggageAmountInput');
-    
-    if (baggageQuickButtons && baggageInput && unitToggle) {
-        baggageQuickButtons.addEventListener('click', (e) => {
-            const btn = e.target.closest('.bag-btn');
-            if (!btn) return;
-
-            const value = btn.dataset.value;
-            const unit = btn.dataset.unit; 
-
-            baggageInput.value = value;
-            unitToggle.checked = (unit === "PC");
-            
-            document.querySelectorAll('.bag-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            baggageInput.dispatchEvent(new Event('input', { bubbles: true }));
-            saveOptions();
-        });
-    }
-
-    // --- SAFE BRANDING EVENT LISTENERS (FIX FOR ERROR 991) ---
-    const customLogoInput = document.getElementById('customLogoInput');
-    if (customLogoInput) {
-        customLogoInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                localStorage.setItem(CUSTOM_LOGO_KEY, e.target.result);
-                const preview = document.getElementById('customLogoPreview');
-                if (preview) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-                showPopup('Custom logo saved!');
-                liveUpdateDisplay();
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    const customTextInput = document.getElementById('customTextInput');
-    if (customTextInput) {
-        customTextInput.addEventListener('input', debounce((event) => {
-            localStorage.setItem(CUSTOM_TEXT_KEY, event.target.value);
+    document.getElementById('customLogoInput').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            localStorage.setItem(CUSTOM_LOGO_KEY, e.target.result);
+            document.getElementById('customLogoPreview').src = e.target.result;
+            document.getElementById('customLogoPreview').style.display = 'block';
+            showPopup('Custom logo saved!');
             liveUpdateDisplay();
-        }, 400));
-    }
-
-    const clearCustomBrandingBtn = document.getElementById('clearCustomBrandingBtn');
-    if (clearCustomBrandingBtn) {
-        clearCustomBrandingBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear your saved logo and text?')) {
-                localStorage.removeItem(CUSTOM_LOGO_KEY);
-                localStorage.removeItem(CUSTOM_TEXT_KEY);
-                if (customLogoInput) customLogoInput.value = '';
-                if (customTextInput) customTextInput.value = '';
-                const preview = document.getElementById('customLogoPreview');
-                if (preview) preview.style.display = 'none';
-                showPopup('Custom branding cleared.');
-                liveUpdateDisplay();
-            }
-        });
-    }
-
-    const showItineraryLogo = document.getElementById('showItineraryLogo');
-    if (showItineraryLogo) {
-        showItineraryLogo.addEventListener('change', () => {
-            toggleCustomBrandingSection();
-            saveOptions();
+        };
+        reader.readAsDataURL(file);
+    });
+    document.getElementById('customTextInput').addEventListener('input', debounce((event) => {
+        localStorage.setItem(CUSTOM_TEXT_KEY, event.target.value);
+        liveUpdateDisplay();
+    }, 400));
+    document.getElementById('clearCustomBrandingBtn').addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear your saved logo and text?')) {
+            localStorage.removeItem(CUSTOM_LOGO_KEY);
+            localStorage.removeItem(CUSTOM_TEXT_KEY);
+            document.getElementById('customLogoInput').value = '';
+            document.getElementById('customTextInput').value = '';
+            document.getElementById('customLogoPreview').style.display = 'none';
+            showPopup('Custom branding cleared.');
             liveUpdateDisplay();
-        });
-    }
+        }
+    });
+    document.getElementById('showItineraryLogo').addEventListener('change', () => {
+        toggleCustomBrandingSection();
+        saveOptions();
+        liveUpdateDisplay();
+    });
 
-    // --- BUTTON 1: High Quality Screenshot ---
+    // --- BUTTON 1: High Quality Screenshot (Scale 2) ---
     const screenshotBtn = document.getElementById('screenshotBtn');
     if (screenshotBtn) {
         screenshotBtn.addEventListener('click', async () => {
@@ -1198,6 +984,7 @@ document.addEventListener('DOMContentLoaded', () => {
             screenshotBtn.innerText = "HQ Capturing...";
             
             try {
+                // PASS 2 FOR HIGH QUALITY
                 const canvas = await generateItineraryCanvasDoc(outputEl, 2);
                 canvas.toBlob(blob => {
                     navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -1212,10 +999,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- BUTTON 2: Standard Quality Screenshot ---
+    // --- BUTTON 2: Standard Quality Screenshot (Scale 1) ---
     const stdResBtn = document.getElementById('copyTextBtn');
     if (stdResBtn) {
-        stdResBtn.innerText = "📧 Screenshot"; 
+        // Renaming the button to reflect new purpose
+        stdResBtn.innerText = "📧 Screenshot "; 
         
         stdResBtn.addEventListener('click', async () => {
             const outputEl = document.getElementById('output').querySelector('.output-container');
@@ -1225,6 +1013,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stdResBtn.innerText = "Capturing...";
 
             try {
+                // PASS 1 FOR STANDARD QUALITY
                 const canvas = await generateItineraryCanvasDoc(outputEl, 1);
                 canvas.toBlob(blob => {
                     navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
