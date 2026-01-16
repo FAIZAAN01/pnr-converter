@@ -11,7 +11,7 @@
     "economy": ["Y", "B", "M", "U", "H", "Q", "V", "W", "S", "T", "L", "K"]
   },
   "AI": {
-    "first": ["F"],
+    "first": [],
     "business": ["J", "C", "D", "Z"],
     "premium_economy": ["A", "R", "N"],
     "economy": ["Y", "B", "M", "H", "K", "Q", "V", "W", "G", "S", "T", "U", "L"]
@@ -23,15 +23,16 @@
   "EK":{
       "business": ["O"]
   },
-
+  "SG": {
+      "economy": ["P"]
+  },
+  "UX":{
+      "business": ["O"]
+  },}
   "default": {
     "first": ["F", "A"],
     "business": ["J", "C", "D", "I", "Z", "P"],
     "premium_economy": ["W", "E"],
     "economy": ["Y", "B", "H", "K", "L", "M", "N", "O", "Q", "S", "U", "V", "X", "G", "T", "R"]
-  }
-
-  "SG": {
-      "economy": ["P"]
   }
 }
