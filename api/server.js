@@ -44,14 +44,12 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const AIRLINES_FILE = path.join(DATA_DIR, 'airlines.json');
 const AIRCRAFT_TYPES_FILE = path.join(DATA_DIR, 'aircraftTypes.json');
 const AIRPORT_DATABASE_FILE = path.join(DATA_DIR, 'airportDatabase.json');
-const SEAT_CLASS_FILE = path.join(DATA_DIR, 'seatClasses.json');
 
 app.use(express.json());
 
 let airlineDatabase = {};
 let aircraftTypes = {};
 let airportDatabase = {};
-let seatClassDatabase = {};
 
 function loadDbFromFile(filePath, defaultDb) {
     try {
@@ -188,41 +186,31 @@ function calculateAndFormatDuration(depMoment, arrMoment) {
 function getTravelClassName(classCode, airlineCode = null) {
     if (!classCode) return 'Unknown';
     const code = classCode.toUpperCase();
-    const airline = airlineCode ? airlineCode.toUpperCase() : null;
 
-    // Helper to capitalize strings (e.g. "premium_economy" -> "Premium Economy")
-    const formatName = (key) => {
-        return key.split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+    // Airline-specific overrides
+    const airlineOverrides = {
+        'EK': { 'O': 'Business' }, // example: XYZ airline
+        'AT': { 'P': 'Economy' },
+        'UX': { 'O': 'Business'}// example: ABC airline
+        // Add more airlines and their custom codes here
     };
 
-    // Helper to check a specific database entry (airline specific or default)
-    const checkDatabaseEntry = (entry) => {
-        // Priority order: check First, then Business, then Premium, then Economy
-        const classTypes = ['first', 'business', 'premium_economy', 'economy'];
-        
-        for (const type of classTypes) {
-            if (entry[type] && Array.isArray(entry[type]) && entry[type].includes(code)) {
-                return formatName(type);
-            }
-        }
-        return null;
-    };
-
-    // 1. Check Airline Specific Rules first
-    if (airline && seatClassDatabase[airline]) {
-        const result = checkDatabaseEntry(seatClassDatabase[airline]);
-        if (result) return result;
+    if (airlineCode && airlineOverrides[airlineCode]) {
+        const airlineMapping = airlineOverrides[airlineCode];
+        if (airlineMapping[code]) return airlineMapping[code];
     }
 
-    // 2. Check Default Rules if not found in airline specific
-    if (seatClassDatabase['default']) {
-        const result = checkDatabaseEntry(seatClassDatabase['default']);
-        if (result) return result;
-    }
+    // Default mapping
+    const firstCodes = ['F', 'A'];
+    const businessCodes = ['J', 'C', 'D', 'I', 'Z', 'P'];
+    const premiumEconomyCodes = [];
+    const economyCodes = ['Y', 'B', 'H', 'K', 'L', 'M', 'N', 'O', 'Q', 'S', 'U', 'V', 'X', 'G', 'W', 'E', 'T', 'R'];
 
-    // 3. Fallback
+    if (firstCodes.includes(code)) return 'First';
+    if (businessCodes.includes(code)) return 'Business';
+    if (premiumEconomyCodes.includes(code)) return 'Premium Economy';
+    if (economyCodes.includes(code)) return 'Economy';
+
     return `Class ${code}`;
 }
 
