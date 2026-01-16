@@ -27,6 +27,8 @@ function debounce(func, wait) {
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
 }
+
+// --- NEW HELPER: Render Per-Segment Inputs ---
 function renderPerSegmentInputs(flights) {
     const container = document.getElementById('segmentBaggageContainer');
     if (!container) return;
@@ -61,6 +63,7 @@ function renderPerSegmentInputs(flights) {
     });
 }
 
+// --- UPDATED RESET FUNCTION ---
 function resetFareAndBaggageInputs() {
     document.getElementById('adultFareInput').value = '';
     document.getElementById('childFareInput').value = '';
@@ -71,8 +74,19 @@ function resetFareAndBaggageInputs() {
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
     document.getElementById('currencySelect').value = 'USD';
-    document.getElementById('baggageParticular').checked = true;
-    document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
+
+    // Reset to "Global" mode by default
+    const globalRadio = document.querySelector('input[name="baggageMode"][value="global"]');
+    if (globalRadio) {
+        globalRadio.checked = true;
+        globalRadio.dispatchEvent(new Event('change')); // Trigger UI update
+    }
+    
+    // Clear global input
+    if(document.getElementById('baggageAmountInput')) {
+        document.getElementById('baggageAmountInput').value = '';
+    }
+
     if (lastPnrResult) liveUpdateDisplay();
 }
 
@@ -81,15 +95,14 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width + Custom Scale) ---
+// --- SCREENSHOT FUNCTION ---
 async function generateItineraryCanvasDoc(element, customScale = 2) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
-    // 1. Calculate dynamic width based on the content + buffer
     const contentWidth = element.scrollWidth; 
     
     const options = { 
-        scale: customScale, // Uses the passed argument (1 or 2)
+        scale: customScale,
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
@@ -98,14 +111,12 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
 
-            // 2. Set the body to fit the content width
             clonedBody.style.width = 'auto'; 
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0';
             
             if (clonedElement) {
-                // 3. Force the specific element to maintain its full content width
                 clonedElement.style.width = 'fit-content'; 
                 clonedElement.style.minWidth = contentWidth + 'px'; 
                 clonedElement.style.margin = '0'; 
@@ -120,7 +131,7 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
 
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
-    return unitToggle?.checked ? 'Pcs' : 'Kgs';
+    return unitToggle?.checked ? 'PC' : 'KG';
 }
 
 function getMealDescription(mealCode) {
@@ -214,7 +225,7 @@ function loadOptions() {
         }
 
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
+        if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'PC';
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
         const customLogoData = localStorage.getItem(CUSTOM_LOGO_KEY);
@@ -239,6 +250,12 @@ function loadPresetLogoGrid() {
     if (!grid) return;
     grid.innerHTML = "";
     const savedLogo = localStorage.getItem(CUSTOM_LOGO_KEY);
+
+    const PRESET_LOGOS = [
+        { name: "Default", url: "/simbavoyages.png" },
+        { name: "Christmas", url: "/branding_logos/christmas-logo.jpg" },
+        { name: "Face", url: "/branding_logos/logo-face.jpg" }
+    ];
 
     PRESET_LOGOS.forEach((logo) => {
         const btn = document.createElement("div");
@@ -295,6 +312,8 @@ async function handleConvertClick() {
         if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
 
         lastPnrResult = { ...data.result, pnrText: currentPnr };
+        
+        // Populate the new Segment Baggage Inputs
         renderPerSegmentInputs(lastPnrResult.flights); 
 
         resetFareAndBaggageInputs();
@@ -315,6 +334,7 @@ async function handleConvertClick() {
     }
 }
 
+// --- UPDATED LIVE DISPLAY FUNCTION ---
 function liveUpdateDisplay(pnrProcessingAttempted = false) {
     if (!lastPnrResult) {
         if (pnrProcessingAttempted) {
@@ -351,32 +371,25 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showFees: document.getElementById('showFees').checked,
     };
     
-    // --- UPDATED BAGGAGE LOGIC ---
+    // --- UPDATED BAGGAGE GATHERING LOGIC ---
     let baggageDetails = null;
     const baggageMode = document.querySelector('input[name="baggageMode"]:checked')?.value || 'global';
 
     if (baggageMode === 'segment') {
-        // Collect array of baggage strings
+        // Collect array of baggage strings from segment inputs
         const segmentInputs = document.querySelectorAll('.segment-bag-input');
         const bagArray = [];
         segmentInputs.forEach(input => {
+            // Store value at the correct index matching the flight index
             bagArray[parseInt(input.dataset.index)] = input.value || ''; 
         });
         baggageDetails = { mode: 'segment', data: bagArray };
     } else {
-        // Existing Global Logic
-        const baggageOption = document.querySelector('input[name="baggageOption"]:checked') ? document.querySelector('input[name="baggageOption"]:checked').value : 'particular';
-        const amount = (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '';
-        const unit = (baggageOption === 'particular') ? getSelectedUnit() : '';
+        // Global Mode
+        const amount = document.getElementById('baggageAmountInput').value;
+        const unit = getSelectedUnit();
         baggageDetails = { mode: 'global', amount: amount, unit: unit };
     }
-
-    const baggageOption = document.querySelector('input[name="baggageOption"]:checked').value;
-    const baggageDetails = {
-        option: baggageOption,
-        amount: (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '',
-        unit: (baggageOption === 'particular') ? getSelectedUnit() : ''
-    };
 
     const checkboxOutputs = {
         showVisaInfo: document.getElementById('showVisaInfo').checked,
@@ -439,12 +452,11 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         outputContainer.appendChild(logoContainer);
     }
 
-    // B. Header (UPDATED FOR SAME-LINE DISPLAY)
+    // B. Header
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
         
-        // We use Flexbox to put "Itinerary for: Name" on left and "Ref: CODE" on right
         let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
         
         // Left Side: Label + Names
@@ -453,7 +465,7 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         headerHTML += `<p style="margin:0;">${passengers.join(', ')}</p>`;
         headerHTML += `</div>`;
 
-        // Right Side: Booking Ref (If exists)
+        // Right Side: Booking Ref
         if (recordLocator) {
             headerHTML += `<div style="text-align:right;">`;
             headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref</h4>`;
@@ -492,6 +504,7 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
         const flightCard = document.createElement('div');
         flightCard.className = 'flight-item';
 
+        // --- BAGGAGE DISPLAY LOGIC ---
         let baggageText = '';
         if (baggageDetails) {
             if (baggageDetails.mode === 'segment') {
@@ -635,20 +648,20 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         outputContainer.appendChild(logoContainer);
     }
 
-    // B. Header (UPDATED FOR SAME-LINE DISPLAY)
+    // Header
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
         
         let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
         
-        // Left: Label + Name
+        // Left
         headerHTML += `<div>`;
         headerHTML += `<h4 style="margin:0 0 5px 0;">Itinerary For:</h4>`;
         headerHTML += `<p style="margin:0;">${passengers.join('<br>')}</p>`;
         headerHTML += `</div>`;
         
-        // Right: Booking Ref
+        // Right
         if (recordLocator) {
             headerHTML += `<div style="text-align:right;">`;
             headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref:</h4>`;
@@ -709,7 +722,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const flightItem = document.createElement('div');
         flightItem.className = 'flight-item';
 
-        let detailsHtml = '';
+        // --- BAGGAGE DISPLAY LOGIC ---
         let baggageText = '';
         if (baggageDetails) {
             if (baggageDetails.mode === 'segment') {
@@ -718,7 +731,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             } else {
                 // Global Mode
                 if (baggageDetails.amount) {
-                    baggageText = `${baggageDetails.amount} ${baggageDetails.unit}`;
+                    // Note: classic itinerary used specific spacing char \u00A0
+                    baggageText = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
                 }
             }
         }
@@ -739,6 +753,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             { label: 'Notes \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showNotes && flight.notes?.length) ? flight.notes.join('; ') : null, isNote: true }
         ];
 
+        let detailsHtml = '';
         detailRows.forEach(({ label, value, isNote }) => {
             if (value) detailsHtml += `<div class="flight-detail ${isNote ? 'notes-detail' : ''}"><strong>${label}:</strong> <span>${value}</span></div>`;
         });
@@ -839,7 +854,6 @@ const historyManager = {
         const outputEl = document.getElementById('output').querySelector('.output-container');
         if (!outputEl) return;
         try {
-            // Save with low scale (1) for history to save storage space
             const canvas = await generateItineraryCanvasDoc(outputEl, 1);
             const screenshot = canvas.toDataURL('image/jpeg');
             let history = this.get();
@@ -1035,7 +1049,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.getElementById('unit-selector-checkbox').addEventListener('change', () => { saveOptions(); liveUpdateDisplay(); });
+    // Unit Selector Toggle
+    const unitToggle = document.getElementById('unit-selector-checkbox');
+    if (unitToggle) {
+        unitToggle.addEventListener('change', () => { 
+            saveOptions(); 
+            // Update quick button active states if necessary, or just re-render
+            liveUpdateDisplay(); 
+        });
+    }
+
+    // Quick Baggage Buttons
+    const baggageQuickButtons = document.getElementById('baggageQuickButtons');
+    const baggageInput = document.getElementById('baggageAmountInput');
+    
+    if (baggageQuickButtons && baggageInput && unitToggle) {
+        baggageQuickButtons.addEventListener('click', (e) => {
+            const btn = e.target.closest('.bag-btn');
+            if (!btn) return;
+
+            const value = btn.dataset.value;
+            const unit = btn.dataset.unit; // "KG" or "PC"
+
+            baggageInput.value = value;
+            
+            // Sync the toggle switch
+            unitToggle.checked = (unit === "PC");
+            
+            // Highlight the active button
+            document.querySelectorAll('.bag-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Trigger updates
+            baggageInput.dispatchEvent(new Event('input', { bubbles: true }));
+            saveOptions();
+        });
+    }
 
     document.getElementById('customLogoInput').addEventListener('change', (event) => {
         const file = event.target.files[0];
