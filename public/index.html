@@ -2144,71 +2144,7 @@
     color: white;
 }
 
-/* --- PASTE THIS AT THE BOTTOM OF YOUR <style> SECTION --- */
 
-/* 1. The Floating Panel Container */
-.floating-baggage-panel {
-    position: absolute;
-    right: -175px;        /* Moves it to the right of the ticket */
-    top: 0;
-    width: 160px;
-    background-color: #f8f9fa;
-    border: 1px solid #e0e6ec;
-    border-radius: 8px;
-    padding: 10px;
-    z-index: 100;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-/* 2. The Input Field inside the panel */
-.floating-baggage-panel input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 13px;
-    color: #2c3e50;
-}
-
-/* 3. The Grid layout for buttons */
-.float-btn-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two columns */
-    gap: 6px;
-}
-
-/* 4. The Buttons (New Style) */
-.float-btn {
-    background-color: #4A69BD; /* Your Primary Blue */
-    color: white;
-    border: none;
-    padding: 6px 0;
-    font-size: 11px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s, transform 0.1s;
-    box-shadow: 0 2px 4px rgba(74, 105, 189, 0.2);
-}
-
-.float-btn:hover {
-    background-color: #324b8f; /* Darker blue on hover */
-    transform: translateY(-1px); /* Slight lift effect */
-}
-
-.float-btn:active {
-    transform: translateY(1px); /* Click effect */
-}
-
-/* 5. VITAL: Ensure the Flight Item allows floating elements */
-.flight-item {
-    position: relative;
-    overflow: visible !important; /* Allows the box to show outside the border */
-}
     </style>
 </head>
 
