@@ -2090,59 +2090,59 @@
             font-size: 14px;
             line-height: 1.6;
         }
-        /* --- SIDE-BY-SIDE LAYOUT STYLES --- */
-.flight-flex-container {
+        /* Wrapper to hold the Flight Leg and the Input Box side-by-side */
+.leg-wrapper {
     display: flex;
-    border-bottom: 1px solid #e0e6ec; /* Border moves to the wrapper */
-    margin-bottom: 0;
-    background: #fff;
+    gap: 10px;
+    align-items: stretch; /* Makes them the same height */
+    margin-bottom: 5px;   /* Spacing between rows */
 }
 
-/* Left Side: Flight Info */
-.flight-info-side {
-    flex: 1; /* Takes up remaining space */
-    padding: 10px 15px;
-    border-right: 1px dashed #e0e6ec; /* Visual separator */
-}
-
-/* Right Side: Input Box */
-.flight-input-side {
-    flex: 0 0 160px; /* Fixed width of 160px */
-    padding: 10px;
+/* The Input Box Styling */
+.side-input-panel {
+    width: 160px; /* Fixed width for the controls */
+    background-color: #f0f2f5;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    padding: 8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background-color: #f8f9fa; /* Slightly different background to distinguish it */
+    gap: 5px;
 }
 
-.custom-leg-input {
+.side-input-panel input {
     width: 100%;
-    padding: 6px;
-    border: 1px solid #bdc3c7;
+    box-sizing: border-box;
+    padding: 5px;
+    font-size: 13px;
+    border: 1px solid #ddd;
     border-radius: 4px;
     text-align: center;
     font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 5px;
-    box-sizing: border-box; /* Ensures padding doesn't break width */
 }
 
-.quick-btn-grid {
+.btn-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4px;
 }
 
-.tiny-btn {
+.mini-btn {
     font-size: 10px;
-    padding: 4px;
+    padding: 4px 0;
+    cursor: pointer;
     background: #fff;
     border: 1px solid #4a69bd;
     color: #4a69bd;
     border-radius: 3px;
-    cursor: pointer;
+    transition: 0.2s;
 }
-.tiny-btn:hover { background: #4a69bd; color: white; }
+
+.mini-btn:hover {
+    background: #4a69bd;
+    color: white;
+}
     </style>
 </head>
 
