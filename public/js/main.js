@@ -601,11 +601,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     const itineraryBlock = document.createElement('div');
     itineraryBlock.className = 'itinerary-block';
 
-// --- INSIDE renderClassicItinerary function ---
-    // Replace the existing flights.forEach block with this:
-
     flights.forEach((flight, i) => {
-        // 1. HEADER LOGIC (Keep existing logic for Outbound/Inbound headers)
         if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
             const iconSrc = '/icons/takeoff.png';
             const headingDiv = document.createElement('div');
@@ -614,40 +610,59 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             itineraryBlock.appendChild(headingDiv);
         }
 
-        // 2. TRANSIT LOGIC (Keep existing logic for Transit rows)
         if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
-             const minutes = flight.transitDurationMinutes;
-             // ... (Keep your existing transit logic regarding short/long/minimum checks) ...
-             // For brevity, assuming standard logic here:
-             if (minutes <= 1440) {
-                 const transitDiv = document.createElement('div');
-                 transitDiv.className = 'transit-item';
-                 transitDiv.innerHTML = `⏱ Layover: ${flight.transitTime} in ${flights[i - 1].arrival?.city}`;
-                 itineraryBlock.appendChild(transitDiv);
-             }
+            const transitDiv = document.createElement('div');
+            const minutes = flight.transitDurationMinutes;
+            const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
+            const startSeparator = rawSymbol.replace(/ /g, ' ');
+            const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
+            const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
+
+            let transitLabel, transitClassName;
+            if (minutes <= 120 && minutes >= 0) {
+                transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                transitClassName = 'transit-short';
+            } else if (minutes > 300 && minutes < 1440) {
+                transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                transitClassName = 'transit-long';
+            } else if (minutes <= 300 && minutes >= 121) {
+                transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                transitClassName = 'transit-minimum'
+            } else {
+                flight.direction = 'INBOUND';
+                const iconSrc = '/icons/landing.png';
+                const headingDiv = document.createElement('div');
+                headingDiv.className = 'itinerary-leg-header';
+                headingDiv.innerHTML = `<span>${flight.direction.toUpperCase()}</span><img src="${iconSrc}" class="leg-header-icon">`;
+                itineraryBlock.appendChild(headingDiv);
+            }
+            if (minutes <= 1440) {
+                transitDiv.className = `transit-item ${transitClassName}`;
+                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                itineraryBlock.appendChild(transitDiv);
+            }
         }
 
-        // 3. MAIN ROW CREATION (The new Flexbox Layout)
-        const rowWrapper = document.createElement('div');
-        rowWrapper.className = 'flight-flex-container'; // The CSS class we added
-
-        // --- LEFT SIDE: Flight Info ---
-        const leftPanel = document.createElement('div');
-        leftPanel.className = 'flight-info-side';
+        const flightItem = document.createElement('div');
+        flightItem.className = 'flight-item';
 
         let detailsHtml = '';
-        
-        // Prep data for left side
+        let baggageText = '';
+        if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
+            baggageText = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
+        }
+
         const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
         const arrTerminalDisplay = flight.arrival.terminal ? ` (T${flight.arrival.terminal})` : '';
         const arrivalDateDisplay = flight.arrival.dateString ? ` on ${flight.arrival.dateString}` : '';
 
-        const departureString = `${flight.departure.airport}${depTerminalDisplay} - ${flight.departure.city}, ${flight.departure.name} @ ${flight.departure.time}`;
-        const arrivalString = `${flight.arrival.airport}${arrTerminalDisplay} - ${flight.arrival.city}, ${flight.arrival.name} @ ${flight.arrival.time}${arrivalDateDisplay}`;
+        const departureString = `${flight.departure.airport}${depTerminalDisplay} - ${flight.departure.city} (${flight.departure.country}), ${flight.departure.name} at ${flight.departure.time}`;
+        const arrivalString = `${flight.arrival.airport}${arrTerminalDisplay} - ${flight.arrival.city} (${flight.arrival.country}), ${flight.arrival.name} at ${flight.arrival.time}${arrivalDateDisplay}`;
 
         const detailRows = [
             { label: 'Departing ', value: departureString },
             { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
+            { label: 'Baggage \u00A0\u00A0', value: baggageText || null },
             { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
             { label: 'Operated by', value: (displayPnrOptions.showOperatedBy && flight.operatedBy) ? flight.operatedBy : null },
             { label: 'Notes \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showNotes && flight.notes?.length) ? flight.notes.join('; ') : null, isNote: true }
@@ -659,48 +674,15 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         const headerText = [
             flight.date,
-            displayPnrOptions.showAirline ? (flight.airline.name || '') : '',
-            flight.flightNumber, 
-            displayPnrOptions.showClass ? flight.travelClass.name : ''
+            displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '',
+            flight.flightNumber, flight.duration,
+            displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '',
+            displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : '',
+            flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
         ].filter(Boolean).join(' - ');
 
-        // Inject HTML into Left Panel
-        leftPanel.innerHTML = `
-            <div class="flight-content">
-                ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" style="width:50px; height:30px; margin-right:10px;">` : ''}
-                <div style="width:100%">
-                    <div class="flight-header" style="border-bottom:1px solid #eee; padding-bottom:5px; margin-bottom:5px;">${headerText}</div>
-                    ${detailsHtml}
-                </div>
-            </div>
-        `;
-
-        // --- RIGHT SIDE: Custom Input Box ---
-        const rightPanel = document.createElement('div');
-        rightPanel.className = 'flight-input-side';
-
-        // Pre-fill if a global baggage amount was set
-        let initialValue = '';
-        if (baggageDetails && baggageDetails.amount) {
-            initialValue = `${baggageDetails.amount} ${baggageDetails.unit}`;
-        }
-
-        // Inline onclick logic for buttons to update the specific input field in this box
-        rightPanel.innerHTML = `
-            <label style="font-size:10px; color:#7f8c8d; margin-bottom:2px;">Baggage / Remarks</label>
-            <input type="text" class="custom-leg-input" value="${initialValue}" placeholder="Enter details...">
-            <div class="quick-btn-grid">
-                <button class="tiny-btn" onclick="this.parentElement.previousElementSibling.value='23 KG'">23KG</button>
-                <button class="tiny-btn" onclick="this.parentElement.previousElementSibling.value='30 KG'">30KG</button>
-                <button class="tiny-btn" onclick="this.parentElement.previousElementSibling.value='46 KG'">46KG</button>
-                <button class="tiny-btn" onclick="this.parentElement.previousElementSibling.value='2 PC'">2PC</button>
-            </div>
-        `;
-
-        // 4. APPEND WRAPPER TO BLOCK
-        rowWrapper.appendChild(leftPanel);
-        rowWrapper.appendChild(rightPanel);
-        itineraryBlock.appendChild(rowWrapper);
+        flightItem.innerHTML = `<div class="flight-content">${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" alt="${flight.airline.name} logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}<div><div class="flight-header">${headerText}</div>${detailsHtml}</div></div>`;
+        itineraryBlock.appendChild(flightItem);
     });
 
     const notesContainer = document.createElement('div');
