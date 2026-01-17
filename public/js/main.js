@@ -670,7 +670,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                 }
             }
 
-        // 3. FLIGHT ITEM
+       // 3. FLIGHT ITEM
         const flightItem = document.createElement('div');
         flightItem.className = 'flight-item';
 
@@ -683,6 +683,14 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         // Use saved value if exists, else global default
         const currentBaggageValue = segmentBaggageMap[i] !== undefined ? segmentBaggageMap[i] : globalDefault;
 
+        // NEW: Determine if the row should be visible initially
+        const isBaggageVisible = currentBaggageValue && currentBaggageValue.trim() !== '';
+        const baggageRowDisplay = isBaggageVisible ? '' : 'display:none;';
+        
+        // IDs for DOM manipulation
+        const baggageRowId = `bag-row-${i}`;
+        const baggageSpanId = `bag-span-${i}`;
+
         // --- FLIGHT DETAILS ---
         let detailsHtml = '';
         const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
@@ -691,23 +699,31 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         const departureString = `${flight.departure.airport}${depTerminalDisplay} - ${flight.departure.city} (${flight.departure.country}), ${flight.departure.name} at ${flight.departure.time}`;
         const arrivalString = `${flight.arrival.airport}${arrTerminalDisplay} - ${flight.arrival.city} (${flight.arrival.country}), ${flight.arrival.name} at ${flight.arrival.time}${arrivalDateDisplay}`;
-        
-        // Unique ID for real-time updates
-        const baggageSpanId = `bag-span-${i}`;
 
         const detailRows = [
             { label: 'Departing ', value: departureString },
             { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
-            { label: 'Baggage \u00A0\u00A0', value: `<span id="${baggageSpanId}">${currentBaggageValue}</span>`, isHtml: true },
+            // ADDED: rowId and customStyle properties
+            { 
+                label: 'Baggage \u00A0\u00A0', 
+                value: `<span id="${baggageSpanId}">${currentBaggageValue}</span>`, 
+                isHtml: true, 
+                rowId: baggageRowId, 
+                customStyle: baggageRowDisplay 
+            },
             { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
             { label: 'Operated by', value: (displayPnrOptions.showOperatedBy && flight.operatedBy) ? flight.operatedBy : null },
             { label: 'Notes \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showNotes && flight.notes?.length) ? flight.notes.join('; ') : null, isNote: true }
         ];
 
-        detailRows.forEach(({ label, value, isNote, isHtml }) => {
+        detailRows.forEach(({ label, value, isNote, isHtml, rowId, customStyle }) => {
             if (value) {
                 const valContent = isHtml ? value : `<span>${value}</span>`;
-                detailsHtml += `<div class="flight-detail ${isNote ? 'notes-detail' : ''}"><strong>${label}:</strong> ${valContent}</div>`;
+                // If rowId exists, add it to the DIV. If customStyle exists, add it.
+                const idAttr = rowId ? `id="${rowId}"` : '';
+                const styleAttr = customStyle ? `style="${customStyle}"` : '';
+                
+                detailsHtml += `<div ${idAttr} ${styleAttr} class="flight-detail ${isNote ? 'notes-detail' : ''}"><strong>${label}:</strong> ${valContent}</div>`;
             }
         });
 
@@ -727,22 +743,35 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             </div>
         `;
 
-        // 4. FLOATING INPUT PANEL (Hidden from Screenshot)
+        // 4. FLOATING INPUT PANEL
         const floatingPanel = document.createElement('div');
         floatingPanel.className = 'floating-baggage-panel';
         floatingPanel.setAttribute('data-html2canvas-ignore', 'true');
 
+        // Helper function (string) to update Baggage Text AND Visibility
+        const updateJs = `
+            var val = this.value || this.innerText;
+            // 1. Update Map
+            segmentBaggageMap[${i}] = val;
+            // 2. Update Span Text
+            document.getElementById('${baggageSpanId}').innerText = val;
+            // 3. Toggle Row Visibility
+            var row = document.getElementById('${baggageRowId}');
+            if(row) row.style.display = (val && val.trim() !== '') ? '' : 'none';
+            // 4. Sync Input box if button clicked
+            if(this.tagName === 'BUTTON') this.parentElement.previousElementSibling.value = val;
+        `;
+
         floatingPanel.innerHTML = `
             <input type="text" placeholder="Baggage..." 
                    value="${currentBaggageValue}" 
-                   oninput="segmentBaggageMap[${i}] = this.value; document.getElementById('${baggageSpanId}').innerText = this.value">
-            <div class="float-btn-grid">
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '15 Kgs'; document.getElementById('${baggageSpanId}').innerText = '15 Kgs'; this.parentElement.previousElementSibling.value='15 Kgs'">15 Kgs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '23 Kgs'; document.getElementById('${baggageSpanId}').innerText = '23 Kgs'; this.parentElement.previousElementSibling.value='23 Kgs'">23 Kgs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '30 Kgs'; document.getElementById('${baggageSpanId}').innerText = '30 Kgs'; this.parentElement.previousElementSibling.value='30 Kgs'">30 Kgs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '40 Kgs'; document.getElementById('${baggageSpanId}').innerText = '40 Kgs'; this.parentElement.previousElementSibling.value='40 Kgs'">40 Kgs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '1 Pcs'; document.getElementById('${baggageSpanId}').innerText = '1 Pcs'; this.parentElement.previousElementSibling.value='1 Pcs'">1 Pcs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '2 Pcs'; document.getElementById('${baggageSpanId}').innerText = '2 Pcs'; this.parentElement.previousElementSibling.value='2 Pcs'">2 Pcs</button>
+                   oninput="${updateJs.replace(/this.innerText/g, 'this.value')}"> <div class="float-btn-grid">
+                <button class="float-btn" onclick="${updateJs}">15 Kgs</button>
+                <button class="float-btn" onclick="${updateJs}">23 Kgs</button>
+                <button class="float-btn" onclick="${updateJs}">30 Kgs</button>
+                <button class="float-btn" onclick="${updateJs}">40 Kgs</button>
+                <button class="float-btn" onclick="${updateJs}">1 Pcs</button>
+                <button class="float-btn" onclick="${updateJs}">2 Pcs</button>
             </div>
         `;
 
