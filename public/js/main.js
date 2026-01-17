@@ -418,69 +418,23 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
     itineraryBlock.className = 'itinerary-block';
 
     flights.forEach((flight, i) => {
-            let currentHeadingDisplayed = null;
+        if (flight.direction && (i === 0 || flight.direction !== flights[i-1].direction)) {
+            const headingDiv = document.createElement('div');
+            headingDiv.className = 'itinerary-leg-header';
+            const iconType = flight.direction.toUpperCase() === 'INBOUND' ? 'landing.png' : 'takeoff.png';
+            headingDiv.innerHTML = `<img src="/icons/${iconType}" class="leg-header-icon"> <span>${flight.direction}</span>`;
+            itineraryBlock.appendChild(headingDiv);
+        }
 
-            if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
-
-                const iconSrc = '/icons/takeoff.png';
-
-                const headingDiv = document.createElement('div');
-                headingDiv.className = 'itinerary-leg-header';
-
-                headingDiv.innerHTML = `
-                    <span>${flight.direction.toUpperCase()}</span>
-                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                `;
-
-                itineraryBlock.appendChild(headingDiv);
-
-                currentHeadingDisplayed = flight.direction.toUpperCase();
-            }
-
-            if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
-                const transitDiv = document.createElement('div');
-                const minutes = flight.transitDurationMinutes;
-                const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
-
-                const startSeparator = rawSymbol.replace(/ /g, ' ');
-                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
-
-                const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
-
-                let transitLabel, transitClassName;
-                if (minutes <= 120 && minutes >= 0) {
-                    transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-short';
-                } else if (minutes > 300 && minutes < 1440) {
-                    transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-long';
-                } else if (minutes <= 300 && minutes >= 121){
-                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-minimum'
-                } else {
-                        flight.direction = 'INBOUND';
-
-                        const iconSrc = '/icons/landing.png';
-
-                        const headingDiv = document.createElement('div');
-                        headingDiv.className = 'itinerary-leg-header';
-
-                        headingDiv.innerHTML = `
-                            <span>${flight.direction.toUpperCase()}</span>
-                            <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                        `;
-
-                        itineraryBlock.appendChild(headingDiv);
-
-                        currentHeadingDisplayed = flight.direction.toUpperCase();
-                    
-                }
-                if (minutes <= 1440){
-                    transitDiv.className = `transit-item ${transitClassName}`;
-                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                    itineraryBlock.appendChild(transitDiv);
-                }
-            }
+        if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
+            const minutes = flight.transitDurationMinutes;
+            let transitClass = '';
+            if (minutes > 300) transitClass = 'long';
+            const transitDiv = document.createElement('div');
+            transitDiv.className = 'transit-container';
+            transitDiv.innerHTML = `<div class="transit-pill ${transitClass}">⏱ ${flight.transitTime} Layover in ${flights[i - 1].arrival?.city || 'Transit'}</div>`;
+            itineraryBlock.appendChild(transitDiv);
+        }
 
         const flightCard = document.createElement('div');
         flightCard.className = 'flight-item';
@@ -652,32 +606,69 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 // --- REPLACE THE ENTIRE flights.forEach LOOP IN renderClassicItinerary WITH THIS ---
 
     flights.forEach((flight, i) => {
-        // 1. HEADERS (FIXED: Now detects INBOUND or any direction change)
-        if (flight.direction && (i === 0 || flight.direction !== flights[i-1].direction)) {
-            const dirName = flight.direction.toUpperCase();
-            // Choose icon based on direction
-            const iconSrc = dirName === 'INBOUND' ? '/icons/landing.png' : '/icons/takeoff.png';
-            
-            const headingDiv = document.createElement('div');
-            headingDiv.className = 'itinerary-leg-header';
-            headingDiv.innerHTML = `<span>${dirName}</span><img src="${iconSrc}" class="leg-header-icon">`;
-            itineraryBlock.appendChild(headingDiv);
-        }
+            let currentHeadingDisplayed = null;
 
-        // 2. TRANSIT (Existing Logic)
-        if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
-            const minutes = flight.transitDurationMinutes;
-            if (minutes <= 1440) {
-                 const transitDiv = document.createElement('div');
-                 let transitClassName = 'transit-minimum';
-                 if (minutes > 300) transitClassName = 'transit-long';
-                 else if (minutes <= 120) transitClassName = 'transit-short';
-                 
-                 transitDiv.className = `transit-item ${transitClassName}`;
-                 transitDiv.innerHTML = `::::::: Transit Time ${flight.transitTime} in ${flights[i - 1].arrival?.city} :::::::`;
-                 itineraryBlock.appendChild(transitDiv);
+            if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
+
+                const iconSrc = '/icons/takeoff.png';
+
+                const headingDiv = document.createElement('div');
+                headingDiv.className = 'itinerary-leg-header';
+
+                headingDiv.innerHTML = `
+                    <span>${flight.direction.toUpperCase()}</span>
+                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                `;
+
+                itineraryBlock.appendChild(headingDiv);
+
+                currentHeadingDisplayed = flight.direction.toUpperCase();
             }
-        }
+
+            if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
+                const transitDiv = document.createElement('div');
+                const minutes = flight.transitDurationMinutes;
+                const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
+
+                const startSeparator = rawSymbol.replace(/ /g, ' ');
+                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
+
+                const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
+
+                let transitLabel, transitClassName;
+                if (minutes <= 120 && minutes >= 0) {
+                    transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-short';
+                } else if (minutes > 300 && minutes < 1440) {
+                    transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-long';
+                } else if (minutes <= 300 && minutes >= 121){
+                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-minimum'
+                } else {
+                        flight.direction = 'INBOUND';
+
+                        const iconSrc = '/icons/landing.png';
+
+                        const headingDiv = document.createElement('div');
+                        headingDiv.className = 'itinerary-leg-header';
+
+                        headingDiv.innerHTML = `
+                            <span>${flight.direction.toUpperCase()}</span>
+                            <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                        `;
+
+                        itineraryBlock.appendChild(headingDiv);
+
+                        currentHeadingDisplayed = flight.direction.toUpperCase();
+                    
+                }
+                if (minutes <= 1440){
+                    transitDiv.className = `transit-item ${transitClassName}`;
+                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                    itineraryBlock.appendChild(transitDiv);
+                }
+            }
 
         // 3. FLIGHT ITEM
         const flightItem = document.createElement('div');
