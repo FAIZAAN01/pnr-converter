@@ -41,6 +41,7 @@ function resetFareAndBaggageInputs() {
     document.getElementById('currencySelect').value = 'USD';
     document.getElementById('baggageParticular').checked = true;
     document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
+    segmentBaggageMap = {};
     if (lastPnrResult) liveUpdateDisplay();
 }
 
@@ -601,10 +602,6 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
     const itineraryBlock = document.createElement('div');
     itineraryBlock.className = 'itinerary-block';
-
-// --- REPLACE THE EXISTING flights.forEach LOOP WITH THIS ---
-
-// --- REPLACE THE EXISTING flights.forEach LOOP IN renderClassicItinerary WITH THIS ---
 
     flights.forEach((flight, i) => {
         // 1. HEADERS (Keep exactly as is)
