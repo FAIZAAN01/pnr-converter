@@ -603,17 +603,22 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     const itineraryBlock = document.createElement('div');
     itineraryBlock.className = 'itinerary-block';
 
+// --- REPLACE THE ENTIRE flights.forEach LOOP IN renderClassicItinerary WITH THIS ---
+
     flights.forEach((flight, i) => {
-        // 1. HEADERS (Keep exactly as is)
-        if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
-            const iconSrc = '/icons/takeoff.png';
+        // 1. HEADERS (FIXED: Now detects INBOUND or any direction change)
+        if (flight.direction && (i === 0 || flight.direction !== flights[i-1].direction)) {
+            const dirName = flight.direction.toUpperCase();
+            // Choose icon based on direction
+            const iconSrc = dirName === 'INBOUND' ? '/icons/landing.png' : '/icons/takeoff.png';
+            
             const headingDiv = document.createElement('div');
             headingDiv.className = 'itinerary-leg-header';
-            headingDiv.innerHTML = `<span>${flight.direction.toUpperCase()}</span><img src="${iconSrc}" class="leg-header-icon">`;
+            headingDiv.innerHTML = `<span>${dirName}</span><img src="${iconSrc}" class="leg-header-icon">`;
             itineraryBlock.appendChild(headingDiv);
         }
 
-        // 2. TRANSIT (Keep exactly as is)
+        // 2. TRANSIT (Existing Logic)
         if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
             const minutes = flight.transitDurationMinutes;
             if (minutes <= 1440) {
@@ -623,30 +628,25 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                  else if (minutes <= 120) transitClassName = 'transit-short';
                  
                  transitDiv.className = `transit-item ${transitClassName}`;
-                 // Using the text-based separator for classic view
                  transitDiv.innerHTML = `::::::: Transit Time ${flight.transitTime} in ${flights[i - 1].arrival?.city} :::::::`;
                  itineraryBlock.appendChild(transitDiv);
             }
         }
 
-        // 3. FLIGHT ITEM (The Ticket Output)
+        // 3. FLIGHT ITEM
         const flightItem = document.createElement('div');
         flightItem.className = 'flight-item';
 
         // --- BAGGAGE MEMORY LOGIC ---
-        // 1. Check if we have a saved value for THIS specific leg (index i)
-        // 2. If not, use the Global Default (from the top input)
-        // 3. If neither, empty string.
         let globalDefault = '';
         if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
             globalDefault = `${baggageDetails.amount} ${baggageDetails.unit}`;
         }
         
-        // This is the value we will display. 
-        // Logic: If user typed specific leg info, use it. Otherwise use global.
+        // Use saved value if exists, else global default
         const currentBaggageValue = segmentBaggageMap[i] !== undefined ? segmentBaggageMap[i] : globalDefault;
 
-        // --- FLIGHT DETAILS GENERATION ---
+        // --- FLIGHT DETAILS ---
         let detailsHtml = '';
         const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
         const arrTerminalDisplay = flight.arrival.terminal ? ` (T${flight.arrival.terminal})` : '';
@@ -655,13 +655,12 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const departureString = `${flight.departure.airport}${depTerminalDisplay} - ${flight.departure.city} (${flight.departure.country}), ${flight.departure.name} at ${flight.departure.time}`;
         const arrivalString = `${flight.arrival.airport}${arrTerminalDisplay} - ${flight.arrival.city} (${flight.arrival.country}), ${flight.arrival.name} at ${flight.arrival.time}${arrivalDateDisplay}`;
         
-        // Unique ID to update the text in real-time
+        // Unique ID for real-time updates
         const baggageSpanId = `bag-span-${i}`;
 
         const detailRows = [
             { label: 'Departing ', value: departureString },
             { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
-            // Inject the Baggage Span with the current value
             { label: 'Baggage \u00A0\u00A0', value: `<span id="${baggageSpanId}">${currentBaggageValue}</span>`, isHtml: true },
             { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
             { label: 'Operated by', value: (displayPnrOptions.showOperatedBy && flight.operatedBy) ? flight.operatedBy : null },
@@ -691,35 +690,20 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             </div>
         `;
 
-        // 4. FLOATING INPUT PANEL (The "Outside" Control)
+        // 4. FLOATING INPUT PANEL (Hidden from Screenshot)
         const floatingPanel = document.createElement('div');
         floatingPanel.className = 'floating-baggage-panel';
-        
-        // ** IMPORTANT: Hide from Screenshot **
         floatingPanel.setAttribute('data-html2canvas-ignore', 'true');
-
-        // ** Helper to update both state and UI **
-        // We attach this little script to the buttons/input
-        const updateScript = `
-            const val = this.value || this.innerText; 
-            // Update the span in the ticket
-            document.getElementById('${baggageSpanId}').innerText = val; 
-            // Update the global state variable so it persists on refresh
-            segmentBaggageMap[${i}] = val;
-            // Update the input box itself if a button was clicked
-            if(this.tagName === 'BUTTON') this.parentElement.previousElementSibling.value = val;
-        `;
 
         floatingPanel.innerHTML = `
             <input type="text" placeholder="Baggage..." 
                    value="${currentBaggageValue}" 
                    oninput="segmentBaggageMap[${i}] = this.value; document.getElementById('${baggageSpanId}').innerText = this.value">
             <div class="float-btn-grid">
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '23 Kgs'; document.getElementById('${baggageSpanId}').innerText = '23 Kgs'; this.parentElement.previousElementSibling.value='23 Kgs'">23 Kgs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '30 Kgs'; document.getElementById('${baggageSpanId}').innerText = '30 Kgs'; this.parentElement.previousElementSibling.value='30 Kgs'">30 Kgs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '40 Kgs'; document.getElementById('${baggageSpanId}').innerText = '40 Kgs'; this.parentElement.previousElementSibling.value='40 Kgs'">40 Kgs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '1 Pcs'; document.getElementById('${baggageSpanId}').innerText = '1 Pcs'; this.parentElement.previousElementSibling.value='1 Pcs'">1 Pcs</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '2 Pcs'; document.getElementById('${baggageSpanId}').innerText = '2 Pcs'; this.parentElement.previousElementSibling.value='2 Pcs'">2 Pcs</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '23 KG'; document.getElementById('${baggageSpanId}').innerText = '23 KG'; this.parentElement.previousElementSibling.value='23 KG'">23KG</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '30 KG'; document.getElementById('${baggageSpanId}').innerText = '30 KG'; this.parentElement.previousElementSibling.value='30 KG'">30KG</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '46 KG'; document.getElementById('${baggageSpanId}').innerText = '46 KG'; this.parentElement.previousElementSibling.value='46 KG'">46KG</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '2 PC'; document.getElementById('${baggageSpanId}').innerText = '2 PC'; this.parentElement.previousElementSibling.value='2 PC'">2 PC</button>
             </div>
         `;
 
