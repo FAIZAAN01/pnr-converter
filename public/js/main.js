@@ -2,6 +2,7 @@ const OPTIONS_STORAGE_KEY = 'pnrConverterOptions';
 const CUSTOM_LOGO_KEY = 'pnrConverterCustomLogo';
 const CUSTOM_TEXT_KEY = 'pnrConverterCustomText';
 const HISTORY_STORAGE_KEY = 'pnrConversionHistory';
+let segmentBaggageMap = {};
 
 let lastPnrResult = null;
 
@@ -603,6 +604,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
 // --- REPLACE THE EXISTING flights.forEach LOOP WITH THIS ---
 
+// --- REPLACE THE EXISTING flights.forEach LOOP IN renderClassicItinerary WITH THIS ---
+
     flights.forEach((flight, i) => {
         // 1. HEADERS (Keep exactly as is)
         if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
@@ -613,39 +616,41 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             itineraryBlock.appendChild(headingDiv);
         }
 
-        // 2. TRANSIT ROW (Keep exactly as is)
+        // 2. TRANSIT (Keep exactly as is)
         if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
             const minutes = flight.transitDurationMinutes;
-            // ... (Your existing transit logic regarding short/long/minimum checks) ...
-            // Assuming the standard logic you had:
             if (minutes <= 1440) {
                  const transitDiv = document.createElement('div');
-                 // Re-using your exact class logic or default
-                 transitDiv.className = 'transit-item'; 
+                 let transitClassName = 'transit-minimum';
+                 if (minutes > 300) transitClassName = 'transit-long';
+                 else if (minutes <= 120) transitClassName = 'transit-short';
+                 
+                 transitDiv.className = `transit-item ${transitClassName}`;
+                 // Using the text-based separator for classic view
                  transitDiv.innerHTML = `::::::: Transit Time ${flight.transitTime} in ${flights[i - 1].arrival?.city} :::::::`;
                  itineraryBlock.appendChild(transitDiv);
             }
         }
 
-        // 3. CREATE WRAPPER (This holds Flight + Inputs)
-        const legWrapper = document.createElement('div');
-        legWrapper.className = 'leg-wrapper';
-
-        // --- A. THE FLIGHT ITEM (Your PERFECT Output) ---
-        // We create the flightItem exactly as before, but append it to 'legWrapper' instead of 'itineraryBlock'
+        // 3. FLIGHT ITEM (The Ticket Output)
         const flightItem = document.createElement('div');
         flightItem.className = 'flight-item';
-        
-        // Ensure this takes up all remaining space
-        flightItem.style.flex = "1"; 
 
-        // -- (Start of your original logic for detailsHtml) --
-        let detailsHtml = '';
-        let baggageText = '';
+        // --- BAGGAGE MEMORY LOGIC ---
+        // 1. Check if we have a saved value for THIS specific leg (index i)
+        // 2. If not, use the Global Default (from the top input)
+        // 3. If neither, empty string.
+        let globalDefault = '';
         if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
-            baggageText = `${baggageDetails.amount}\u00A0${baggageDetails.unit}`;
+            globalDefault = `${baggageDetails.amount} ${baggageDetails.unit}`;
         }
+        
+        // This is the value we will display. 
+        // Logic: If user typed specific leg info, use it. Otherwise use global.
+        const currentBaggageValue = segmentBaggageMap[i] !== undefined ? segmentBaggageMap[i] : globalDefault;
 
+        // --- FLIGHT DETAILS GENERATION ---
+        let detailsHtml = '';
         const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
         const arrTerminalDisplay = flight.arrival.terminal ? ` (T${flight.arrival.terminal})` : '';
         const arrivalDateDisplay = flight.arrival.dateString ? ` on ${flight.arrival.dateString}` : '';
@@ -653,14 +658,14 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const departureString = `${flight.departure.airport}${depTerminalDisplay} - ${flight.departure.city} (${flight.departure.country}), ${flight.departure.name} at ${flight.departure.time}`;
         const arrivalString = `${flight.arrival.airport}${arrTerminalDisplay} - ${flight.arrival.city} (${flight.arrival.country}), ${flight.arrival.name} at ${flight.arrival.time}${arrivalDateDisplay}`;
         
-        // UNIQUE ID for Baggage Span so we can update it
+        // Unique ID to update the text in real-time
         const baggageSpanId = `bag-span-${i}`;
 
         const detailRows = [
             { label: 'Departing ', value: departureString },
             { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
-            // Add ID to baggage value
-            { label: 'Baggage \u00A0\u00A0', value: `<span id="${baggageSpanId}">${baggageText || ''}</span>`, isHtml: true },
+            // Inject the Baggage Span with the current value
+            { label: 'Baggage \u00A0\u00A0', value: `<span id="${baggageSpanId}">${currentBaggageValue}</span>`, isHtml: true },
             { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
             { label: 'Operated by', value: (displayPnrOptions.showOperatedBy && flight.operatedBy) ? flight.operatedBy : null },
             { label: 'Notes \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showNotes && flight.notes?.length) ? flight.notes.join('; ') : null, isNote: true }
@@ -668,7 +673,6 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         detailRows.forEach(({ label, value, isNote, isHtml }) => {
             if (value) {
-                // If it's the baggage row with HTML ID, render as innerHTML, otherwise text
                 const valContent = isHtml ? value : `<span>${value}</span>`;
                 detailsHtml += `<div class="flight-detail ${isNote ? 'notes-detail' : ''}"><strong>${label}:</strong> ${valContent}</div>`;
             }
@@ -683,36 +687,46 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
         ].filter(Boolean).join(' - ');
 
-        flightItem.innerHTML = `<div class="flight-content">${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" alt="${flight.airline.name} logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}<div><div class="flight-header">${headerText}</div>${detailsHtml}</div></div>`;
-        
-        // Add the perfect flight item to our wrapper
-        legWrapper.appendChild(flightItem);
-
-
-        // --- B. THE SIDE INPUT PANEL (The "Outside" Part) ---
-        const sidePanel = document.createElement('div');
-        sidePanel.className = 'side-input-panel';
-        
-        // *** VITAL: This attribute hides this box from the Screenshot ***
-        sidePanel.setAttribute('data-html2canvas-ignore', 'true');
-
-        // Logic: When buttons are clicked, update the span inside the Flight Item
-        sidePanel.innerHTML = `
-            <input type="text" placeholder="Baggage..." 
-                   oninput="document.getElementById('${baggageSpanId}').innerText = this.value" 
-                   value="${baggageText}">
-            <div class="btn-grid">
-                <button class="mini-btn" onclick="document.getElementById('${baggageSpanId}').innerText = '23 KG'; this.parentElement.previousElementSibling.value='23 KG'">23KG</button>
-                <button class="mini-btn" onclick="document.getElementById('${baggageSpanId}').innerText = '30 KG'; this.parentElement.previousElementSibling.value='30 KG'">30KG</button>
-                <button class="mini-btn" onclick="document.getElementById('${baggageSpanId}').innerText = '46 KG'; this.parentElement.previousElementSibling.value='46 KG'">46KG</button>
-                <button class="mini-btn" onclick="document.getElementById('${baggageSpanId}').innerText = '2 PC'; this.parentElement.previousElementSibling.value='2 PC'">2 PC</button>
+        flightItem.innerHTML = `
+            <div class="flight-content">
+                ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
+                <div><div class="flight-header">${headerText}</div>${detailsHtml}</div>
             </div>
         `;
 
-        legWrapper.appendChild(sidePanel);
+        // 4. FLOATING INPUT PANEL (The "Outside" Control)
+        const floatingPanel = document.createElement('div');
+        floatingPanel.className = 'floating-baggage-panel';
+        
+        // ** IMPORTANT: Hide from Screenshot **
+        floatingPanel.setAttribute('data-html2canvas-ignore', 'true');
 
-        // 4. FINALLY, ADD THE WRAPPER TO THE MAIN BLOCK
-        itineraryBlock.appendChild(legWrapper);
+        // ** Helper to update both state and UI **
+        // We attach this little script to the buttons/input
+        const updateScript = `
+            const val = this.value || this.innerText; 
+            // Update the span in the ticket
+            document.getElementById('${baggageSpanId}').innerText = val; 
+            // Update the global state variable so it persists on refresh
+            segmentBaggageMap[${i}] = val;
+            // Update the input box itself if a button was clicked
+            if(this.tagName === 'BUTTON') this.parentElement.previousElementSibling.value = val;
+        `;
+
+        floatingPanel.innerHTML = `
+            <input type="text" placeholder="Baggage..." 
+                   value="${currentBaggageValue}" 
+                   oninput="segmentBaggageMap[${i}] = this.value; document.getElementById('${baggageSpanId}').innerText = this.value">
+            <div class="float-btn-grid">
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '23 KG'; document.getElementById('${baggageSpanId}').innerText = '23 KG'; this.parentElement.previousElementSibling.value='23 KG'">23KG</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '30 KG'; document.getElementById('${baggageSpanId}').innerText = '30 KG'; this.parentElement.previousElementSibling.value='30 KG'">30KG</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '46 KG'; document.getElementById('${baggageSpanId}').innerText = '46 KG'; this.parentElement.previousElementSibling.value='46 KG'">46KG</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '2 PC'; document.getElementById('${baggageSpanId}').innerText = '2 PC'; this.parentElement.previousElementSibling.value='2 PC'">2 PC</button>
+            </div>
+        `;
+
+        flightItem.appendChild(floatingPanel);
+        itineraryBlock.appendChild(flightItem);
     });
 
     const notesContainer = document.createElement('div');
