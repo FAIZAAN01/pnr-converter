@@ -715,10 +715,11 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                    value="${currentBaggageValue}" 
                    oninput="segmentBaggageMap[${i}] = this.value; document.getElementById('${baggageSpanId}').innerText = this.value">
             <div class="float-btn-grid">
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '23 KG'; document.getElementById('${baggageSpanId}').innerText = '23 KG'; this.parentElement.previousElementSibling.value='23 KG'">23KG</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '30 KG'; document.getElementById('${baggageSpanId}').innerText = '30 KG'; this.parentElement.previousElementSibling.value='30 KG'">30KG</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '46 KG'; document.getElementById('${baggageSpanId}').innerText = '46 KG'; this.parentElement.previousElementSibling.value='46 KG'">46KG</button>
-                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '2 PC'; document.getElementById('${baggageSpanId}').innerText = '2 PC'; this.parentElement.previousElementSibling.value='2 PC'">2 PC</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '23 Kgs'; document.getElementById('${baggageSpanId}').innerText = '23 Kgs'; this.parentElement.previousElementSibling.value='23 Kgs'">23 Kgs</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '30 Kgs'; document.getElementById('${baggageSpanId}').innerText = '30 Kgs'; this.parentElement.previousElementSibling.value='30 Kgs'">30 Kgs</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '40 Kgs'; document.getElementById('${baggageSpanId}').innerText = '40 Kgs'; this.parentElement.previousElementSibling.value='40 Kgs'">40 Kgs</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '1 Pcs'; document.getElementById('${baggageSpanId}').innerText = '1 Pcs'; this.parentElement.previousElementSibling.value='1 Pcs'">1 Pcs</button>
+                <button class="float-btn" onclick="segmentBaggageMap[${i}] = '2 Pcs'; document.getElementById('${baggageSpanId}').innerText = '2 Pcs'; this.parentElement.previousElementSibling.value='2 Pcs'">2 Pcs</button>
             </div>
         `;
 
