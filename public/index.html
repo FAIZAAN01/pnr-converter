@@ -2711,7 +2711,6 @@
     <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
     <button id="submitBtn" type="submit">Send Query</button>
 </form>
-<div id="formMessage" style="display:none; margin-top:10px;"></div>
         <div class="footer-content">
             <p>Latest Update: <span id="latestUpdate">Version 1.2.5 deployed on 21 Nov 2025</span></p>
             <p> |- New Advance Settings Option</p>
@@ -3073,13 +3072,11 @@
     </script>
     <script>
 const form = document.getElementById('contactForm');
-const messageDiv = document.getElementById('formMessage');
+const submitBtn = document.getElementById('submitBtn');
 
 form.addEventListener('submit', async (e) => {
-    e.preventDefault(); // stop normal submission
+    e.preventDefault(); // prevent default submission
 
-    // Optionally, disable the button while sending
-    const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.textContent = "Sending...";
 
@@ -3095,24 +3092,27 @@ form.addEventListener('submit', async (e) => {
         console.log(result);
 
         if(result.success){
-            messageDiv.style.display = "block";
-            messageDiv.style.color = "green";
-            messageDiv.textContent = "Form submitted successfully!";
+            submitBtn.textContent = "Query Sent";
             form.reset();
+            setTimeout(() => {
+                submitBtn.textContent = "Send Query";
+                submitBtn.disabled = false;
+            }, 3000); // 3 seconds
         } else {
-            messageDiv.style.display = "block";
-            messageDiv.style.color = "red";
-            messageDiv.textContent = "Form submission failed. Please try again.";
+            submitBtn.textContent = "Failed. Try Again";
+            setTimeout(() => {
+                submitBtn.textContent = "Send Query";
+                submitBtn.disabled = false;
+            }, 3000);
         }
 
     } catch (error) {
         console.error(error);
-        messageDiv.style.display = "block";
-        messageDiv.style.color = "red";
-        messageDiv.textContent = "Error submitting form.";
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Send Query";
+        submitBtn.textContent = "Error. Try Again";
+        setTimeout(() => {
+            submitBtn.textContent = "Send Query";
+            submitBtn.disabled = false;
+        }, 3000);
     }
 });
 </script>
