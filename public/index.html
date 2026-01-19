@@ -2703,14 +2703,15 @@
             </div>
 
         </div>
-        <form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
-            <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
-            <input id="nameInput" type="text" name="name" placeholder="Name" required>
-            <input id="emailInput" type="email" name="email" placeholder="Email" required>
-            <input type="hidden" name="pnr" id="pnrHidden">
-            <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
-            <button id="submitBtn" type="submit">Send Query</button>
-        </form>
+<form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
+    <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
+    <input id="nameInput" type="text" name="name" placeholder="Name" required>
+    <input id="emailInput" type="email" name="email" placeholder="Email" required>
+    <input type="hidden" name="pnr" id="pnrHidden">
+    <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
+    <button id="submitBtn" type="submit">Send Query</button>
+</form>
+<div id="formMessage" style="display:none; margin-top:10px;"></div>
         <div class="footer-content">
             <p>Latest Update: <span id="latestUpdate">Version 1.2.5 deployed on 21 Nov 2025</span></p>
             <p> |- New Advance Settings Option</p>
@@ -3070,6 +3071,51 @@
             });
         });
     </script>
+    <script>
+const form = document.getElementById('contactForm');
+const messageDiv = document.getElementById('formMessage');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault(); // stop normal submission
+
+    // Optionally, disable the button while sending
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        if(result.success){
+            messageDiv.style.display = "block";
+            messageDiv.style.color = "green";
+            messageDiv.textContent = "Form submitted successfully!";
+            form.reset();
+        } else {
+            messageDiv.style.display = "block";
+            messageDiv.style.color = "red";
+            messageDiv.textContent = "Form submission failed. Please try again.";
+        }
+
+    } catch (error) {
+        console.error(error);
+        messageDiv.style.display = "block";
+        messageDiv.style.color = "red";
+        messageDiv.textContent = "Error submitting form.";
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Query";
+    }
+});
+</script>
     <script>
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
