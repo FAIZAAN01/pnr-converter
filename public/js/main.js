@@ -1125,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- NEW: Class Override & Report Logic ---
+// --- NEW: Class Override & Report Logic ---
     const classBtns = document.querySelectorAll('.class-override-btn');
     
     classBtns.forEach(btn => {
@@ -1133,39 +1133,43 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
             
-            // Save original text if not already saved (to revert back later)
             if (!e.target.getAttribute('data-original-text')) {
                 e.target.setAttribute('data-original-text', originalText);
             }
 
-            // 1. Toggle Logic (Turn on/off)
+            // 1. Toggle Logic
             if (globalClassOverride === val) {
-                // If clicking the same button, turn it off
                 globalClassOverride = null;
                 e.target.classList.remove('active');
-                e.target.textContent = originalText; // Ensure text is reset
+                e.target.textContent = originalText;
             } else {
-                // New Selection
                 globalClassOverride = val;
                 
-                // Update Visuals (Active State)
                 classBtns.forEach(b => {
                     b.classList.remove('active');
-                    // Reset other buttons' text if they were stuck in "Sent" state
                     const otherOriginal = b.getAttribute('data-original-text');
                     if(otherOriginal) b.textContent = otherOriginal; 
                 });
                 e.target.classList.add('active');
 
-                // 2. FORCE "Show Cabin" Checkbox
+                // 2. Force "Show Cabin" Checkbox
                 document.getElementById('showClass').checked = true;
 
-                // 3. REPORTING LOGIC (Send Data to Developer)
-                const currentPnr = document.getElementById('pnrInput').value || "No PNR entered";
+                // 3. REPORTING LOGIC
+                // FIX: Check internal memory first (lastPnrResult), then input box, then paste history
+                let pnrDataToSend = "No PNR data found";
+
+                if (lastPnrResult && lastPnrResult.pnrText) {
+                    pnrDataToSend = lastPnrResult.pnrText;
+                } else if (document.getElementById('pnrInput').value.trim()) {
+                    pnrDataToSend = document.getElementById('pnrInput').value.trim();
+                } else if (typeof lastPastedPNR !== 'undefined' && lastPastedPNR) {
+                    pnrDataToSend = lastPastedPNR;
+                }
                 
-                // Visual Feedback: "Sending..."
+                // Visual Feedback
                 e.target.textContent = "Sending...";
-                e.target.disabled = true; // Prevent double clicks while sending
+                e.target.disabled = true;
 
                 fetch("https://api.web3forms.com/submit", {
                     method: "POST",
@@ -1174,18 +1178,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         "Accept": "application/json" 
                     },
                     body: JSON.stringify({
-                        access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff", // Your Key
+                        access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
                         name: "Class Correction Reporter",
                         email: "system@pnrconverter.com",
                         subject: `Correction: ${val}`,
-                        // SENDING CLASS NAME + PNR DATA
-                        message: `User corrected class to: ${val}\n\n--- PNR DATA ---\n${currentPnr}`
+                        message: `User corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
                     })
                 })
                 .then(response => {
                     if (response.ok) {
                         e.target.textContent = "Sent!";
-                        // Revert text after 2 seconds, but keep it 'active' (selected)
                         setTimeout(() => {
                             e.target.textContent = originalText;
                             e.target.disabled = false;
@@ -1197,12 +1199,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(err => {
                     console.error("Report failed", err);
-                    e.target.textContent = originalText; // Revert on error
+                    e.target.textContent = originalText;
                     e.target.disabled = false;
                 });
             }
 
-            // 4. Update the Itinerary Display immediately
+            // 4. Update Display
             liveUpdateDisplay();
         });
     });
