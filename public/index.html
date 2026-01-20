@@ -2359,16 +2359,8 @@
                         <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
                         <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
                     </div>
-                </div>
-                <div class="class-overwrite-options" style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
-                    <label style="font-weight: bold; display: block; margin-bottom: 8px;">Report Class Correction:</label>
-                    <div id="classQuickButtons" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
-                        <button class="bag-btn class-report-btn" data-value="Economy" style="border-color: var(--success-green);">Economy</button>
-                        <button class="bag-btn class-report-btn" data-value="Business" style="border-color: var(--primary-blue);">Business</button>
-                        <button class="bag-btn class-report-btn" data-value="First Class" style="border-color: var(--history-purple);">First Class</button>
-                        <button class="bag-btn class-report-btn" data-value="Premium Economy" style="border-color: var(--transit-long-yellow);">Premium Eco</button>
-                    </div>
-                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">*Clicking sends the PNR to the developer immediately.</p>
+
+
                 </div>
                 <div class="loading-spinner" id="loadingSpinner"></div>
             </div>
@@ -2731,7 +2723,7 @@
     <script src="/js/main.js"></script>
     <!-- Put this script at the very bottom of your body, after all elements -->
 
-<script>
+    <script>
         let lastPastedPNR = ""; // Always preserve latest pasted value
 
         const pnrInput = document.getElementById("pnrInput");
@@ -2762,41 +2754,6 @@
             tooltip.textContent = lastPastedPNR
                 ? "Click to report PNR"
                 : "";
-        });
-
-        // --- NEW: Class Overwrite Button Logic ---
-        document.querySelectorAll('.class-report-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                // 1. Get the PNR (prefer current input, fall back to last pasted)
-                const currentInput = document.getElementById('pnrInput').value.trim();
-                const pnrToSend = currentInput || lastPastedPNR;
-                const selectedClass = e.target.getAttribute('data-value');
-
-                if (!pnrToSend) {
-                    alert("Please enter or paste a PNR first before selecting a class.");
-                    return;
-                }
-
-                // 2. Prepare the contact form
-                const form = document.getElementById("contactForm");
-                const hiddenPnrField = document.getElementById("pnrHidden");
-                const messageField = document.getElementById("messageInput");
-                const nameField = document.getElementById("nameInput");
-                const emailField = document.getElementById("emailInput");
-
-                // 3. Fill Data
-                hiddenPnrField.value = pnrToSend;
-                messageField.value = `[Class Correction] User identified this PNR as: ${selectedClass.toUpperCase()}`;
-                
-                // Auto-fill dummy contact info if empty to allow immediate send
-                if (!nameField.value) nameField.value = "Class Reporter";
-                if (!emailField.value) emailField.value = "reporter@pnrconverter.com";
-
-                // 4. Submit
-                if(confirm(`Report this PNR as ${selectedClass}? This will be sent to the developer.`)) {
-                    form.submit();
-                }
-            });
         });
     </script>
 
