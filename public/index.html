@@ -2845,7 +2845,7 @@
             // Quick Baggage Buttons Logic
             const bagInput = document.getElementById('baggageAmountInput');
             const unitToggle = document.getElementById('unit-selector-checkbox');
-            const bagButtons = document.querySelectorAll('.bag-btn');
+            const bagButtons = document.querySelectorAll('.bag-btn:not(.class-override-btn)');
 
             const triggerUpdate = () => {
                 bagInput.dispatchEvent(new Event('input', { bubbles: true }));
