@@ -1125,29 +1125,84 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- NEW: Class Override Button Logic ---
+    // --- NEW: Class Override & Report Logic ---
     const classBtns = document.querySelectorAll('.class-override-btn');
+    
     classBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             const val = e.target.getAttribute('data-value');
+            const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
             
-            // Toggle logic: if clicking the active one, turn it off. Otherwise switch to it.
+            // Save original text if not already saved (to revert back later)
+            if (!e.target.getAttribute('data-original-text')) {
+                e.target.setAttribute('data-original-text', originalText);
+            }
+
+            // 1. Toggle Logic (Turn on/off)
             if (globalClassOverride === val) {
+                // If clicking the same button, turn it off
                 globalClassOverride = null;
                 e.target.classList.remove('active');
+                e.target.textContent = originalText; // Ensure text is reset
             } else {
+                // New Selection
                 globalClassOverride = val;
-                // Update visuals
-                classBtns.forEach(b => b.classList.remove('active'));
+                
+                // Update Visuals (Active State)
+                classBtns.forEach(b => {
+                    b.classList.remove('active');
+                    // Reset other buttons' text if they were stuck in "Sent" state
+                    const otherOriginal = b.getAttribute('data-original-text');
+                    if(otherOriginal) b.textContent = otherOriginal; 
+                });
                 e.target.classList.add('active');
-            }
 
-            // Force the "Show Cabin" checkbox to be checked if a user selects a class
-            if (globalClassOverride) {
+                // 2. FORCE "Show Cabin" Checkbox
                 document.getElementById('showClass').checked = true;
+
+                // 3. REPORTING LOGIC (Send Data to Developer)
+                const currentPnr = document.getElementById('pnrInput').value || "No PNR entered";
+                
+                // Visual Feedback: "Sending..."
+                e.target.textContent = "Sending...";
+                e.target.disabled = true; // Prevent double clicks while sending
+
+                fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        "Accept": "application/json" 
+                    },
+                    body: JSON.stringify({
+                        access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff", // Your Key
+                        name: "Class Correction Reporter",
+                        email: "system@pnrconverter.com",
+                        subject: `Correction: ${val}`,
+                        // SENDING CLASS NAME + PNR DATA
+                        message: `User corrected class to: ${val}\n\n--- PNR DATA ---\n${currentPnr}`
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        e.target.textContent = "Sent!";
+                        // Revert text after 2 seconds, but keep it 'active' (selected)
+                        setTimeout(() => {
+                            e.target.textContent = originalText;
+                            e.target.disabled = false;
+                        }, 2000);
+                    } else {
+                        e.target.textContent = "Retry";
+                        e.target.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error("Report failed", err);
+                    e.target.textContent = originalText; // Revert on error
+                    e.target.disabled = false;
+                });
             }
 
-            // Re-render the output immediately
+            // 4. Update the Itinerary Display immediately
             liveUpdateDisplay();
         });
     });
