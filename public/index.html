@@ -2182,6 +2182,23 @@
 .float-btn:active {
     background-color: #324b8f; /* Click effect */
 }
+/* Disabled state for report buttons */
+.bag-btn.btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none; /* Prevents clicking */
+    filter: grayscale(100%);
+}
+
+/* Optional: Small user badge styling */
+.user-email-badge {
+    font-size: 11px; 
+    color: var(--text-secondary); 
+    margin-top: 5px; 
+    font-style: italic;
+    cursor: pointer;
+    text-decoration: underline;
+}
     </style>
 </head>
 
@@ -2359,15 +2376,22 @@
                         <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
                         <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
                     </div>
-                    <div class="class-overwrite-options" style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
-                        <label style="font-weight: bold; display: block; margin-bottom: 8px;">Force Cabin Class (All Segments):</label>
-                        <div id="classQuickButtons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-                            <button class="bag-btn class-override-btn" data-value="Economy">Economy</button>
-                            <button class="bag-btn class-override-btn" data-value="Business">Business</button>
-                            <button class="bag-btn class-override-btn" data-value="First">First</button>
-                            <button class="bag-btn class-override-btn" data-value="Premium Economy">Prem Eco</button>
-                        </div>
-                    </div>
+<div class="class-overwrite-options" style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+        <label style="font-weight: bold; display: block; margin:0;">Force Cabin Class:</label>
+        <span style="font-size: 10px; color: var(--text-secondary); font-style: italic;">
+            System Report Active
+        </span>
+    </div>
+
+    <div id="classQuickButtons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+        <button class="bag-btn class-override-btn btn-disabled" data-value="Economy">Economy</button>
+        <button class="bag-btn class-override-btn btn-disabled" data-value="Business">Business</button>
+        <button class="bag-btn class-override-btn btn-disabled" data-value="First">First</button>
+        <button class="bag-btn class-override-btn btn-disabled" data-value="Premium Economy">Prem Eco</button>
+    </div>
+    <p id="pnrStatusMsg" style="font-size: 10px; color: red; margin-top: 5px; display:none;">* Enter PNR data to enable options</p>
+</div>
                 </div>
                 <div class="loading-spinner" id="loadingSpinner"></div>
             </div>
@@ -2381,7 +2405,7 @@
 </svg> Copy Screenshot</button>
                         <button id="copyTextBtn">📋 Copy Text</button>
                     </div>
-                    <button id="reportErrorBtn">
+                    <button id="reportErrorBtn" class="btn-disabled">
                         Report Error
                         <span class="tooltip">Click to report last PNR</span>
                     </button>

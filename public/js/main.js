@@ -1125,11 +1125,74 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-// --- NEW: Class Override & Report Logic ---
+// --- HELPER: Manage User Email (Local Storage) ---
+    function getStoredUserEmail() {
+        return localStorage.getItem('pnrConverterUserEmail');
+    }
+
+    function setStoredUserEmail(email) {
+        if(email && email.includes('@')) {
+            localStorage.setItem('pnrConverterUserEmail', email.trim());
+            updateEmailDisplay();
+            return true;
+        }
+        return false;
+    }
+
+    function updateEmailDisplay() {
+        const email = getStoredUserEmail();
+        const display = document.getElementById('userEmailDisplay');
+        if(display) {
+            display.textContent = email ? `Reporting as: ${email}` : "No email set";
+        }
+    }
+
+    // Allow user to change email by clicking the text
+    document.getElementById('userEmailDisplay')?.addEventListener('click', () => {
+        const current = getStoredUserEmail() || "";
+        const newEmail = prompt("Enter email for reporting:", current);
+        if(newEmail !== null) setStoredUserEmail(newEmail);
+    });
+
+    function updateReportButtonState() {
+        // Check if PNR exists in memory, input, or paste history
+        const hasPnrMemory = lastPnrResult && lastPnrResult.flights && lastPnrResult.flights.length > 0;
+        const hasPnrInput = document.getElementById('pnrInput').value.trim().length > 0;
+        const hasPasted = typeof lastPastedPNR !== 'undefined' && lastPastedPNR.length > 0;
+
+        const isEnabled = hasPnrMemory || hasPnrInput || hasPasted;
+
+        const btns = document.querySelectorAll('.class-override-btn');
+        const msg = document.getElementById('pnrStatusMsg');
+
+        btns.forEach(btn => {
+            if (isEnabled) {
+                btn.classList.remove('btn-disabled');
+            } else {
+                btn.classList.add('btn-disabled');
+                btn.classList.remove('active');
+                if(globalClassOverride) {
+                    globalClassOverride = null; // Reset if cleared
+                    const original = btn.getAttribute('data-original-text');
+                    if(original) btn.textContent = original;
+                }
+            }
+        });
+
+        if(msg) msg.style.display = isEnabled ? 'none' : 'block';
+    }
+
+// Bind state checker
+    document.getElementById('pnrInput').addEventListener('input', updateReportButtonState);
+    document.getElementById('convertBtn').addEventListener('click', () => setTimeout(updateReportButtonState, 500));
+    updateReportButtonState(); // Initial check
+
+
+    // --- MAIN LOGIC: Class Override & Seamless IP Report ---
     const classBtns = document.querySelectorAll('.class-override-btn');
     
     classBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', async (e) => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
             
@@ -1145,20 +1208,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 globalClassOverride = val;
                 
+                // UI Updates
                 classBtns.forEach(b => {
                     b.classList.remove('active');
                     const otherOriginal = b.getAttribute('data-original-text');
                     if(otherOriginal) b.textContent = otherOriginal; 
                 });
                 e.target.classList.add('active');
-
-                // 2. Force "Show Cabin" Checkbox
                 document.getElementById('showClass').checked = true;
 
-                // 3. REPORTING LOGIC
-                // FIX: Check internal memory first (lastPnrResult), then input box, then paste history
+                // 2. REPORTING LOGIC
+                // Get PNR Data
                 let pnrDataToSend = "No PNR data found";
-
                 if (lastPnrResult && lastPnrResult.pnrText) {
                     pnrDataToSend = lastPnrResult.pnrText;
                 } else if (document.getElementById('pnrInput').value.trim()) {
@@ -1171,41 +1232,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.textContent = "Sending...";
                 e.target.disabled = true;
 
-                fetch("https://api.web3forms.com/submit", {
-                    method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json", 
-                        "Accept": "application/json" 
-                    },
-                    body: JSON.stringify({
-                        access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
-                        name: "Class Correction Reporter",
-                        email: "system@pnrconverter.com",
-                        subject: `Correction: ${val}`,
-                        message: `User corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
-                    })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        e.target.textContent = "Sent!";
-                        setTimeout(() => {
-                            e.target.textContent = originalText;
-                            e.target.disabled = false;
-                        }, 2000);
-                    } else {
-                        e.target.textContent = "Retry";
-                        e.target.disabled = false;
+                try {
+                    // A. Fetch User IP Silently
+                    let userIP = "Unknown IP";
+                    try {
+                        const ipRes = await fetch('https://api.ipify.org?format=json');
+                        const ipJson = await ipRes.json();
+                        userIP = ipJson.ip;
+                    } catch (ipErr) {
+                        console.warn("Could not fetch IP", ipErr);
                     }
-                })
-                .catch(err => {
+
+                    // B. Send Report
+                    await fetch("https://api.web3forms.com/submit", {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json", 
+                            "Accept": "application/json" 
+                        },
+                        body: JSON.stringify({
+                            access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
+                            name: "System Reporter", 
+                            email: "system@pnrconverter.com", // System email
+                            subject: `Override: ${val} (IP: ${userIP})`,
+                            message: `User (IP: ${userIP}) corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
+                        })
+                    });
+
+                    // Success UI
+                    e.target.textContent = "Sent!";
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                        e.target.disabled = false;
+                    }, 2000);
+
+                } catch (err) {
                     console.error("Report failed", err);
-                    e.target.textContent = originalText;
+                    e.target.textContent = originalText; // Revert silently
                     e.target.disabled = false;
-                });
+                }
             }
 
-            // 4. Update Display
+            // 3. Update Display
             liveUpdateDisplay();
         });
+    });
+
+    // Hook into existing convert button to update button state
+    document.getElementById('convertBtn').addEventListener('click', () => {
+        // Small delay to allow lastPnrResult to populate
+        setTimeout(updateReportButtonState, 500); 
     });
 });
