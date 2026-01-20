@@ -5,6 +5,7 @@ const HISTORY_STORAGE_KEY = 'pnrConversionHistory';
 let segmentBaggageMap = {};
 
 let lastPnrResult = null;
+let globalClassOverride = null;
 
 // --- UTILITY FUNCTIONS ---
 function showPopup(message, duration = 3000) {
@@ -41,6 +42,8 @@ function resetFareAndBaggageInputs() {
     document.getElementById('currencySelect').value = 'USD';
     document.getElementById('baggageParticular').checked = true;
     document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
+    globalClassOverride = null; 
+    document.querySelectorAll('.class-override-btn').forEach(btn => btn.classList.remove('active'));
     segmentBaggageMap = {};
     if (lastPnrResult) liveUpdateDisplay();
 }
@@ -473,7 +476,7 @@ function renderModernItinerary(pnrResult, displayPnrOptions, fareDetails, baggag
                 </div>
             </div>
             <div class="flight-card-footer">
-                ${displayPnrOptions.showClass ? `<span class="detail-pill">💺 ${flight.travelClass.name}</span>` : ''}
+                ${displayPnrOptions.showClass ? `<span class="detail-pill">💺 ${globalClassOverride || flight.travelClass.name}</span>` : ''}
                 ${baggageText ? `<span class="detail-pill">🧳 ${baggageText}</span>` : ''}
                 ${displayPnrOptions.showAircraft && flight.aircraft ? `<span class="detail-pill">✈️ ${flight.aircraft}</span>` : ''}
                 ${displayPnrOptions.showMeal && flight.meal ? `<span class="detail-pill">🍽 ${getMealDescription(flight.meal)}</span>` : ''}
@@ -732,7 +735,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '',
             flight.flightNumber, flight.duration,
             displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '',
-            displayPnrOptions.showClass && flight.travelClass.name ? flight.travelClass.name : '',
+            displayPnrOptions.showClass ? (globalClassOverride || flight.travelClass.name || '') : '',
             flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
         ].filter(Boolean).join(' - ');
 
@@ -1121,4 +1124,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- NEW: Class Override Button Logic ---
+    const classBtns = document.querySelectorAll('.class-override-btn');
+    classBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const val = e.target.getAttribute('data-value');
+            
+            // Toggle logic: if clicking the active one, turn it off. Otherwise switch to it.
+            if (globalClassOverride === val) {
+                globalClassOverride = null;
+                e.target.classList.remove('active');
+            } else {
+                globalClassOverride = val;
+                // Update visuals
+                classBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+
+            // Force the "Show Cabin" checkbox to be checked if a user selects a class
+            if (globalClassOverride) {
+                document.getElementById('showClass').checked = true;
+            }
+
+            // Re-render the output immediately
+            liveUpdateDisplay();
+        });
+    });
 });
