@@ -1343,6 +1343,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Create the highlight element
             const span = document.createElement('span');
+
+            span.setAttribute('translate', 'no'); // Standard HTML5 attribute
+            span.classList.add('notranslate');    // Google/Microsoft specific class
+
             span.className = 'user-highlight'; // Applies our "Tall" CSS
 
             try {
