@@ -1283,9 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
-
-
-    // --- SMART HIGHLIGHTER & ERASER LOGIC ---
+    // --- FREEHAND HIGHLIGHTER & ERASER LOGIC ---
     const highlighterBtn = document.getElementById('highlighterBtn');
     const eraserBtn = document.getElementById('eraserBtn');
     
@@ -1294,8 +1292,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastX = 0;
         let lastY = 0;
         let canvas, ctx;
-        let activeTool = 'none'; 
+        let activeTool = 'none'; // 'marker', 'eraser', or 'none'
 
+        // Shared function to initialize or resize canvas
         function initCanvas() {
             const container = document.querySelector('.output-container');
             if (!container) return null;
@@ -1304,51 +1303,48 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!cvs) {
                 cvs = document.createElement('canvas');
                 cvs.className = 'highlight-canvas';
-                // Canvas sits ON TOP, matching container size
+                // Set canvas size to match scrollable content
                 cvs.width = container.scrollWidth;
                 cvs.height = container.scrollHeight;
                 container.appendChild(cvs);
                 addDrawingEvents(cvs);
             } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
-                 // Resize if needed (clears drawing)
+                 // Resize if dimensions changed (Note: this clears the canvas)
                  cvs.width = container.scrollWidth;
                  cvs.height = container.scrollHeight;
             }
             return cvs;
         }
 
-// ... inside the setToolStyle function in main.js ...
-
+        // Helper to set the drawing style based on tool
         function setToolStyle(tool) {
             if (!ctx) return;
+            
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             
             if (tool === 'marker') {
-                ctx.globalCompositeOperation = 'source-over'; 
+                ctx.globalCompositeOperation = 'source-over'; // Default: Draw on top
                 ctx.lineWidth = 15;
-                
-                // PURE SOLID YELLOW
-                // We use solid color because 'mix-blend-mode: multiply' 
-                // will automatically make the white parts transparent 
-                // and merge this yellow into the grey/black text.
-                ctx.strokeStyle = '#ffff00'; 
-                
+                ctx.strokeStyle = 'rgba(255, 240, 0, 0.5)'; // Yellow
             } else if (tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out'; 
-                ctx.lineWidth = 30; 
-                ctx.strokeStyle = 'rgba(255,255,255,1)'; 
+                ctx.globalCompositeOperation = 'destination-out'; // Erase mode: Makes pixels transparent
+                ctx.lineWidth = 30; // Eraser is usually bigger than the pen
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; // Color doesn't matter in destination-out, only alpha
             }
         }
 
         function toggleCanvasState(enable) {
             if (canvas) {
                 canvas.classList.toggle('active', enable);
-                canvas.style.pointerEvents = enable ? 'auto' : 'none';
+                // If disabling, stop pointer events so user can select text again
+                if(!enable) canvas.style.pointerEvents = 'none'; 
+                else canvas.style.pointerEvents = 'auto';
             }
         }
 
-        // --- BUTTONS ---
+        // --- BUTTON HANDLERS ---
+        
         highlighterBtn.addEventListener('click', () => {
             const container = document.querySelector('.output-container');
             if (!container) { showPopup("Generate an itinerary first!"); return; }
@@ -1357,10 +1353,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx = canvas.getContext('2d');
 
             if (activeTool === 'marker') {
+                // Toggle OFF
                 activeTool = 'none';
                 toggleCanvasState(false);
                 highlighterBtn.classList.remove('active');
             } else {
+                // Switch TO Marker
                 activeTool = 'marker';
                 toggleCanvasState(true);
                 highlighterBtn.classList.add('active');
@@ -1378,10 +1376,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx = canvas.getContext('2d');
 
             if (activeTool === 'eraser') {
+                // Toggle OFF
                 activeTool = 'none';
                 toggleCanvasState(false);
                 eraserBtn.classList.remove('active');
             } else {
+                // Switch TO Eraser
                 activeTool = 'eraser';
                 toggleCanvasState(true);
                 eraserBtn.classList.add('active');
@@ -1393,34 +1393,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- DRAWING EVENTS ---
         function addDrawingEvents(canvasEl) {
-            const start = (x, y) => { isDrawing = true; [lastX, lastY] = [x, y]; };
-            const move = (x, y) => {
-                if (!isDrawing) return;
-                ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y); ctx.stroke();
+            // MOUSE
+            canvasEl.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            });
+            canvasEl.addEventListener('mousemove', draw);
+            canvasEl.addEventListener('mouseup', () => isDrawing = false);
+            canvasEl.addEventListener('mouseout', () => isDrawing = false);
+
+            // TOUCH
+            canvasEl.addEventListener('touchstart', (e) => {
+                isDrawing = true;
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                lastX = touch.clientX - rect.left;
+                lastY = touch.clientY - rect.top;
+                e.preventDefault(); 
+            });
+            canvasEl.addEventListener('touchmove', (e) => {
+                if(!isDrawing) return;
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                // Draw manual path for touch
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
                 [lastX, lastY] = [x, y];
-            };
-            const end = () => { isDrawing = false; };
-
-            // Mouse
-            canvasEl.addEventListener('mousedown', e => start(e.offsetX, e.offsetY));
-            canvasEl.addEventListener('mousemove', e => move(e.offsetX, e.offsetY));
-            canvasEl.addEventListener('mouseup', end);
-            canvasEl.addEventListener('mouseout', end);
-
-            // Touch
-            canvasEl.addEventListener('touchstart', e => {
-                const rect = canvasEl.getBoundingClientRect();
-                const touch = e.touches[0];
-                start(touch.clientX - rect.left, touch.clientY - rect.top);
                 e.preventDefault();
             });
-            canvasEl.addEventListener('touchmove', e => {
-                const rect = canvasEl.getBoundingClientRect();
-                const touch = e.touches[0];
-                move(touch.clientX - rect.left, touch.clientY - rect.top);
-                e.preventDefault();
-            });
-            canvasEl.addEventListener('touchend', end);
+            canvasEl.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
         }
     }
 });
