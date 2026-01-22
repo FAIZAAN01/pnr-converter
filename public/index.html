@@ -2228,16 +2228,12 @@
     pointer-events: none; 
     touch-action: none; 
     
-    /* --- CHANGE THIS --- */
-    /* 'darken' is perfect for highlighters on light backgrounds */
-    mix-blend-mode: darken; 
-    
-    /* --- REMOVE THIS --- */
-    /* We will control transparency in the JS color definition instead */
-    /* opacity: 0.8; */ 
+    /* THIS IS THE FIX: 'multiply' blends the yellow into the text so text stays black */
+    mix-blend-mode: multiply; 
+    opacity: 0.8; /* slightly transparent overall */
 }
 
-/* Keep the dark mode adjustment, it's still useful */
+/* Dark Mode Adjustment: Multiply doesn't look good on dark backgrounds, so we switch to 'screen' or normal */
 [data-theme='dark'] .highlight-canvas {
     mix-blend-mode: normal;
     opacity: 0.5;
