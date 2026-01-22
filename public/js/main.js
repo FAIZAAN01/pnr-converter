@@ -1317,20 +1317,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Helper to set the drawing style based on tool
-        function setToolStyle(tool) {
+function setToolStyle(tool) {
             if (!ctx) return;
             
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             
             if (tool === 'marker') {
-                ctx.globalCompositeOperation = 'source-over'; // Default: Draw on top
+                ctx.globalCompositeOperation = 'source-over'; 
                 ctx.lineWidth = 15;
-                ctx.strokeStyle = 'rgba(255, 240, 0, 0.5)'; // Yellow
+                
+                // --- CHANGE THIS LINE ---
+                // Use a brighter, more saturated neon yellow with higher opacity (e.g., 0.8)
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)'; 
+                
             } else if (tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out'; // Erase mode: Makes pixels transparent
-                ctx.lineWidth = 30; // Eraser is usually bigger than the pen
-                ctx.strokeStyle = 'rgba(0,0,0,1)'; // Color doesn't matter in destination-out, only alpha
+                // ... eraser code remains the same ...
+                ctx.globalCompositeOperation = 'destination-out'; 
+                ctx.lineWidth = 30; 
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
             }
         }
 
