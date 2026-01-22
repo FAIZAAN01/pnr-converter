@@ -1283,4 +1283,159 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
+    // --- MS STYLE HIGHLIGHTER LOGIC ---
+    const highlighterBtn = document.getElementById('highlighterBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    
+    if (highlighterBtn && eraserBtn) {
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let canvas, ctx;
+        let activeTool = 'none'; 
+
+        // 1. Initialize Canvas
+        function initCanvas() {
+            const container = document.querySelector('.output-container');
+            if (!container) return null;
+
+            let cvs = container.querySelector('.highlight-canvas');
+            if (!cvs) {
+                cvs = document.createElement('canvas');
+                cvs.className = 'highlight-canvas';
+                cvs.width = container.scrollWidth;
+                cvs.height = container.scrollHeight;
+                container.appendChild(cvs);
+                addDrawingEvents(cvs);
+            } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
+                 cvs.width = container.scrollWidth;
+                 cvs.height = container.scrollHeight;
+            }
+            return cvs;
+        }
+
+        // 2. Set Style (Mimicking the sample code)
+        function setToolStyle(tool) {
+            if (!ctx) return;
+            
+            // Round caps for smooth, organic strokes (like the sample)
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            if (tool === 'marker') {
+                // Standard drawing mode on the canvas
+                // (The 'Multiply' effect happens via CSS against the HTML background)
+                ctx.globalCompositeOperation = 'source-over'; 
+                
+                // Thick line like the MS Snip tool
+                ctx.lineWidth = 30; 
+                
+                // SOLID NEON YELLOW (No Transparency)
+                // We rely on CSS mix-blend-mode to handle the see-through effect
+                ctx.strokeStyle = '#ffff00'; 
+                
+            } else if (tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out'; // Clears pixels
+                ctx.lineWidth = 40; 
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
+            }
+        }
+
+        // 3. Toggle UI
+        function toggleCanvasState(enable) {
+            if (canvas) {
+                canvas.classList.toggle('active', enable);
+                canvas.style.pointerEvents = enable ? 'auto' : 'none';
+            }
+        }
+
+        // 4. Button Logic
+        highlighterBtn.addEventListener('click', () => {
+            const container = document.querySelector('.output-container');
+            if (!container) { showPopup("Generate an itinerary first!"); return; }
+
+            canvas = initCanvas();
+            ctx = canvas.getContext('2d');
+
+            if (activeTool === 'marker') {
+                activeTool = 'none';
+                toggleCanvasState(false);
+                highlighterBtn.classList.remove('active');
+            } else {
+                activeTool = 'marker';
+                toggleCanvasState(true);
+                highlighterBtn.classList.add('active');
+                eraserBtn.classList.remove('active');
+                setToolStyle('marker');
+                showPopup('Highlighter Active');
+            }
+        });
+
+        eraserBtn.addEventListener('click', () => {
+            const container = document.querySelector('.output-container');
+            if (!container) { showPopup("Generate an itinerary first!"); return; }
+
+            canvas = initCanvas();
+            ctx = canvas.getContext('2d');
+
+            if (activeTool === 'eraser') {
+                activeTool = 'none';
+                toggleCanvasState(false);
+                eraserBtn.classList.remove('active');
+            } else {
+                activeTool = 'eraser';
+                toggleCanvasState(true);
+                eraserBtn.classList.add('active');
+                highlighterBtn.classList.remove('active');
+                setToolStyle('eraser');
+                showPopup('Eraser Active');
+            }
+        });
+
+        // 5. Drawing Events
+        function addDrawingEvents(canvasEl) {
+            const start = (x, y) => { 
+                isDrawing = true; 
+                [lastX, lastY] = [x, y]; 
+                
+                // Optional: Draw a dot immediately on click
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            };
+            
+            const move = (x, y) => {
+                if (!isDrawing) return;
+                ctx.beginPath(); 
+                ctx.moveTo(lastX, lastY); 
+                ctx.lineTo(x, y); 
+                ctx.stroke();
+                [lastX, lastY] = [x, y];
+            };
+            
+            const end = () => { isDrawing = false; };
+
+            // Mouse
+            canvasEl.addEventListener('mousedown', e => start(e.offsetX, e.offsetY));
+            canvasEl.addEventListener('mousemove', e => move(e.offsetX, e.offsetY));
+            canvasEl.addEventListener('mouseup', end);
+            canvasEl.addEventListener('mouseout', end);
+
+            // Touch
+            canvasEl.addEventListener('touchstart', e => {
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                start(touch.clientX - rect.left, touch.clientY - rect.top);
+                e.preventDefault(); 
+            });
+            canvasEl.addEventListener('touchmove', e => {
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                move(touch.clientX - rect.left, touch.clientY - rect.top);
+                e.preventDefault();
+            });
+            canvasEl.addEventListener('touchend', end);
+        }
+    }
 });
