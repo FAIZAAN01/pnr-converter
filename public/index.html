@@ -2215,56 +2215,36 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* --- SANDWICH LAYER SYSTEM --- */
-
-/* 1. THE CONTAINER (The "Desk") */
 .output-container {
-    position: relative !important;
-    background-color: #ffffff; /* Base Paper Color */
-    isolation: isolate; /* Creates a new stacking context */
+    position: relative !important; 
 }
-/* 2. THE HIGHLIGHTER (Layer 1: The Middle) */
+
+/* THE DRAWING LAYER */
 .highlight-canvas {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Sits above the white base */
-    cursor: crosshair;
-}
-
-/* 3. THE TEXT CONTENT (Layer 2: The Top) */
-/* We target all direct children of the output container (headers, cards, etc.) */
-.output-container > * {
-    position: relative;
-    z-index: 2; /* Sits ON TOP of the canvas */
-    
-    /* THE KEY TRICK: */
-    /* 'Multiply' makes the white background of your cards distinct transparent */
-    /* so the highlighter below shows through, but text stays sharp on top. */
-    mix-blend-mode: multiply; 
-    
-    /* Ensure clicks pass through to the canvas when in drawing mode */
+    z-index: 999; 
     pointer-events: none; 
+    touch-action: none; 
+    
+    /* --- CHANGE THIS --- */
+    /* 'darken' is perfect for highlighters on light backgrounds */
+    mix-blend-mode: darken; 
+    
+    /* --- REMOVE THIS --- */
+    /* We will control transparency in the JS color definition instead */
+    /* opacity: 0.8; */ 
 }
 
-/* We need to re-enable clicks on text when NOT drawing (so you can select/copy text) */
-.output-container.not-drawing > * {
-    pointer-events: auto;
-    /* Optional: Remove blend mode when not drawing if you prefer standard look */
-    /* mix-blend-mode: normal; */ 
-}
-
-/* Dark Mode Support */
+/* Keep the dark mode adjustment, it's still useful */
 [data-theme='dark'] .highlight-canvas {
-    /* Multiply doesn't work on dark backgrounds, so we switch to normal */
-    mix-blend-mode: screen; 
-    opacity: 0.6;
+    mix-blend-mode: normal;
+    opacity: 0.5;
 }
 
 .highlight-canvas.active {
-    pointer-events: auto; /* Capture clicks when active */
+    pointer-events: auto;
     cursor: crosshair;
 }
 /* Update this in your style block */
