@@ -2215,6 +2215,7 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* --- SMART HIGHLIGHTER --- */
 .output-container {
     position: relative !important; 
 }
@@ -2224,18 +2225,20 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 999; 
-    pointer-events: none; 
-    touch-action: none; 
+    z-index: 999; /* Sits ON TOP of everything */
+    pointer-events: none; /* Let clicks pass through when not active */
+    touch-action: none;
     
-    /* THIS IS THE FIX: 'multiply' blends the yellow into the text so text stays black */
-    mix-blend-mode: multiply; 
-    opacity: 0.8; /* slightly transparent overall */
+    /* THE MAGIC LOGIC: */
+    /* "Darken" ensures we only color pixels that are LIGHTER than the ink. */
+    /* Since text is darker than yellow, the text pops right through! */
+    mix-blend-mode: darken; 
 }
 
-/* Dark Mode Adjustment: Multiply doesn't look good on dark backgrounds, so we switch to 'screen' or normal */
+/* Dark Mode Adjustment */
 [data-theme='dark'] .highlight-canvas {
-    mix-blend-mode: normal;
+    /* Darken doesn't work well on dark mode, so we switch to screen/normal */
+    mix-blend-mode: screen; 
     opacity: 0.5;
 }
 
@@ -2243,6 +2246,7 @@
     pointer-events: auto;
     cursor: crosshair;
 }
+
 /* Update this in your style block */
 #highlighterBtn.active, #eraserBtn.active {
     background-color: #f1c40f;
