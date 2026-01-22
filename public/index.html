@@ -2215,23 +2215,45 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.output-container {
-    position: relative !important; 
-}
+/* --- SANDWICH LAYER SYSTEM --- */
 
-/* THE DRAWING LAYER */
+/* 1. THE CONTAINER (The "Desk") */
+.output-container {
+    position: relative !important;
+    background-color: #ffffff; /* Base Paper Color */
+    isolation: isolate; /* Creates a new stacking context */
+}
+/* 2. THE HIGHLIGHTER (Layer 1: The Middle) */
 .highlight-canvas {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 999; 
-    pointer-events: none; /* Let clicks pass through when not active */
-    touch-action: none;   /* Prevent scrolling while drawing */
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Sits above the white base */
+    cursor: crosshair;
+}
+
+/* 3. THE TEXT CONTENT (Layer 2: The Top) */
+/* We target all direct children of the output container (headers, cards, etc.) */
+.output-container > * {
+    position: relative;
+    z-index: 2; /* Sits ON TOP of the canvas */
     
-    /* THE MAGIC TRICK: */
-    /* 'multiply' blends the yellow into the white paper, */
-    /* but leaves the black text untouched. */
+    /* THE KEY TRICK: */
+    /* 'Multiply' makes the white background of your cards distinct transparent */
+    /* so the highlighter below shows through, but text stays sharp on top. */
     mix-blend-mode: multiply; 
+    
+    /* Ensure clicks pass through to the canvas when in drawing mode */
+    pointer-events: none; 
+}
+
+/* We need to re-enable clicks on text when NOT drawing (so you can select/copy text) */
+.output-container.not-drawing > * {
+    pointer-events: auto;
+    /* Optional: Remove blend mode when not drawing if you prefer standard look */
+    /* mix-blend-mode: normal; */ 
 }
 
 /* Dark Mode Support */

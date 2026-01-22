@@ -1283,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
-    // --- FREEHAND HIGHLIGHTER & ERASER LOGIC ---
+// --- SANDWICH HIGHLIGHTER LOGIC ---
     const highlighterBtn = document.getElementById('highlighterBtn');
     const eraserBtn = document.getElementById('eraserBtn');
     
@@ -1292,48 +1292,44 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastX = 0;
         let lastY = 0;
         let canvas, ctx;
-        let activeTool = 'none'; // 'marker', 'eraser', or 'none'
+        let activeTool = 'none'; 
 
-        // Shared function to initialize or resize canvas
         function initCanvas() {
             const container = document.querySelector('.output-container');
             if (!container) return null;
+
+            // Ensure container has the class for interaction
+            container.classList.add('not-drawing');
 
             let cvs = container.querySelector('.highlight-canvas');
             if (!cvs) {
                 cvs = document.createElement('canvas');
                 cvs.className = 'highlight-canvas';
-                // Set canvas size to match scrollable content
                 cvs.width = container.scrollWidth;
                 cvs.height = container.scrollHeight;
-                container.appendChild(cvs);
+                
+                // INSERT CANVAS AS THE FIRST CHILD (Layer 1)
+                // This puts it visually behind the text elements
+                container.insertBefore(cvs, container.firstChild);
+                
                 addDrawingEvents(cvs);
             } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
-                 // Resize if dimensions changed (Note: this clears the canvas)
                  cvs.width = container.scrollWidth;
                  cvs.height = container.scrollHeight;
             }
             return cvs;
         }
 
-// Helper to set the drawing style based on tool
         function setToolStyle(tool) {
             if (!ctx) return;
-            
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             
             if (tool === 'marker') {
-                ctx.globalCompositeOperation = 'source-over';
-                
-                // 1. Thicker line for a "marker" feel
-                ctx.lineWidth = 18; 
-                
-                // 2. BRIGHT NEON YELLOW (No Transparency)
-                // The 'multiply' CSS handles the blending, so we use solid color here
-                // for maximum brightness.
+                ctx.globalCompositeOperation = 'source-over'; 
+                ctx.lineWidth = 18;
+                // PURE NEON YELLOW (Since it's behind text, we want it bright!)
                 ctx.strokeStyle = '#ffff00'; 
-                
             } else if (tool === 'eraser') {
                 ctx.globalCompositeOperation = 'destination-out'; 
                 ctx.lineWidth = 30; 
@@ -1341,17 +1337,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function toggleCanvasState(enable) {
-            if (canvas) {
-                canvas.classList.toggle('active', enable);
-                // If disabling, stop pointer events so user can select text again
-                if(!enable) canvas.style.pointerEvents = 'none'; 
-                else canvas.style.pointerEvents = 'auto';
+        function toggleDrawingMode(isActive) {
+            const container = document.querySelector('.output-container');
+            if (!container) return;
+
+            // Toggle a class on the container to manage text interaction
+            if (isActive) {
+                container.classList.remove('not-drawing'); // Text becomes "ghostly" (clicks pass through to canvas)
+            } else {
+                container.classList.add('not-drawing'); // Text becomes clickable again
             }
         }
 
         // --- BUTTON HANDLERS ---
-        
         highlighterBtn.addEventListener('click', () => {
             const container = document.querySelector('.output-container');
             if (!container) { showPopup("Generate an itinerary first!"); return; }
@@ -1360,14 +1358,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx = canvas.getContext('2d');
 
             if (activeTool === 'marker') {
-                // Toggle OFF
                 activeTool = 'none';
-                toggleCanvasState(false);
+                toggleDrawingMode(false);
                 highlighterBtn.classList.remove('active');
             } else {
-                // Switch TO Marker
                 activeTool = 'marker';
-                toggleCanvasState(true);
+                toggleDrawingMode(true);
                 highlighterBtn.classList.add('active');
                 eraserBtn.classList.remove('active');
                 setToolStyle('marker');
@@ -1383,14 +1379,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx = canvas.getContext('2d');
 
             if (activeTool === 'eraser') {
-                // Toggle OFF
                 activeTool = 'none';
-                toggleCanvasState(false);
+                toggleDrawingMode(false);
                 eraserBtn.classList.remove('active');
             } else {
-                // Switch TO Eraser
                 activeTool = 'eraser';
-                toggleCanvasState(true);
+                toggleDrawingMode(true);
                 eraserBtn.classList.add('active');
                 highlighterBtn.classList.remove('active');
                 setToolStyle('eraser');
@@ -1398,52 +1392,36 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- DRAWING EVENTS ---
+        // --- DRAWING EVENTS (Standard) ---
         function addDrawingEvents(canvasEl) {
-            // MOUSE
-            canvasEl.addEventListener('mousedown', (e) => {
-                isDrawing = true;
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-            });
-            canvasEl.addEventListener('mousemove', draw);
-            canvasEl.addEventListener('mouseup', () => isDrawing = false);
-            canvasEl.addEventListener('mouseout', () => isDrawing = false);
-
-            // TOUCH
-            canvasEl.addEventListener('touchstart', (e) => {
-                isDrawing = true;
-                const rect = canvasEl.getBoundingClientRect();
-                const touch = e.touches[0];
-                lastX = touch.clientX - rect.left;
-                lastY = touch.clientY - rect.top;
-                e.preventDefault(); 
-            });
-            canvasEl.addEventListener('touchmove', (e) => {
-                if(!isDrawing) return;
-                const rect = canvasEl.getBoundingClientRect();
-                const touch = e.touches[0];
-                const x = touch.clientX - rect.left;
-                const y = touch.clientY - rect.top;
-                
-                // Draw manual path for touch
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                
+            const startDraw = (x, y) => { isDrawing = true; [lastX, lastY] = [x, y]; };
+            const moveDraw = (x, y) => {
+                if (!isDrawing) return;
+                ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y); ctx.stroke();
                 [lastX, lastY] = [x, y];
+            };
+            const endDraw = () => { isDrawing = false; };
+
+            // Mouse
+            canvasEl.addEventListener('mousedown', e => startDraw(e.offsetX, e.offsetY));
+            canvasEl.addEventListener('mousemove', e => moveDraw(e.offsetX, e.offsetY));
+            canvasEl.addEventListener('mouseup', endDraw);
+            canvasEl.addEventListener('mouseout', endDraw);
+
+            // Touch
+            canvasEl.addEventListener('touchstart', e => {
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                startDraw(touch.clientX - rect.left, touch.clientY - rect.top);
                 e.preventDefault();
             });
-            canvasEl.addEventListener('touchend', () => isDrawing = false);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-            [lastX, lastY] = [e.offsetX, e.offsetY];
+            canvasEl.addEventListener('touchmove', e => {
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                moveDraw(touch.clientX - rect.left, touch.clientY - rect.top);
+                e.preventDefault();
+            });
+            canvasEl.addEventListener('touchend', endDraw);
         }
     }
 });
