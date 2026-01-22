@@ -1283,85 +1283,134 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
-    // --- FREEHAND HIGHLIGHTER LOGIC ---
+    // --- FREEHAND HIGHLIGHTER & ERASER LOGIC ---
     const highlighterBtn = document.getElementById('highlighterBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
     
-    if (highlighterBtn) {
+    if (highlighterBtn && eraserBtn) {
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
         let canvas, ctx;
+        let activeTool = 'none'; // 'marker', 'eraser', or 'none'
 
+        // Shared function to initialize or resize canvas
+        function initCanvas() {
+            const container = document.querySelector('.output-container');
+            if (!container) return null;
+
+            let cvs = container.querySelector('.highlight-canvas');
+            if (!cvs) {
+                cvs = document.createElement('canvas');
+                cvs.className = 'highlight-canvas';
+                // Set canvas size to match scrollable content
+                cvs.width = container.scrollWidth;
+                cvs.height = container.scrollHeight;
+                container.appendChild(cvs);
+                addDrawingEvents(cvs);
+            } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
+                 // Resize if dimensions changed (Note: this clears the canvas)
+                 cvs.width = container.scrollWidth;
+                 cvs.height = container.scrollHeight;
+            }
+            return cvs;
+        }
+
+        // Helper to set the drawing style based on tool
+        function setToolStyle(tool) {
+            if (!ctx) return;
+            
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            if (tool === 'marker') {
+                ctx.globalCompositeOperation = 'source-over'; // Default: Draw on top
+                ctx.lineWidth = 15;
+                ctx.strokeStyle = 'rgba(255, 240, 0, 0.5)'; // Yellow
+            } else if (tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out'; // Erase mode: Makes pixels transparent
+                ctx.lineWidth = 30; // Eraser is usually bigger than the pen
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; // Color doesn't matter in destination-out, only alpha
+            }
+        }
+
+        function toggleCanvasState(enable) {
+            if (canvas) {
+                canvas.classList.toggle('active', enable);
+                // If disabling, stop pointer events so user can select text again
+                if(!enable) canvas.style.pointerEvents = 'none'; 
+                else canvas.style.pointerEvents = 'auto';
+            }
+        }
+
+        // --- BUTTON HANDLERS ---
+        
         highlighterBtn.addEventListener('click', () => {
             const container = document.querySelector('.output-container');
-            if (!container) {
-                showPopup("Generate an itinerary first!");
-                return;
-            }
+            if (!container) { showPopup("Generate an itinerary first!"); return; }
 
-            // 1. Create Canvas if it doesn't exist
-            if (!container.querySelector('.highlight-canvas')) {
-                canvas = document.createElement('canvas');
-                canvas.className = 'highlight-canvas';
-                // Set canvas size to match the scrollable content size
-                canvas.width = container.scrollWidth;
-                canvas.height = container.scrollHeight;
-                container.appendChild(canvas);
-                
-                ctx = canvas.getContext('2d');
-                ctx.lineJoin = 'round';
-                ctx.lineCap = 'round';
-                ctx.lineWidth = 15; // Thickness of the highlighter
-                ctx.strokeStyle = 'rgba(255, 240, 0, 0.5)'; // Transparent Yellow
-                
-                // Add Drawing Events to the new canvas
-                addDrawingEvents(canvas);
+            canvas = initCanvas();
+            ctx = canvas.getContext('2d');
+
+            if (activeTool === 'marker') {
+                // Toggle OFF
+                activeTool = 'none';
+                toggleCanvasState(false);
+                highlighterBtn.classList.remove('active');
             } else {
-                canvas = container.querySelector('.highlight-canvas');
-                // Ensure size is updated in case content changed
-                if(canvas.width !== container.scrollWidth || canvas.height !== container.scrollHeight) {
-                    // Note: Resizing clears canvas, so we only do it if dimensions changed significantly
-                    // For a pro tool, you'd want to save/restore the image here.
-                    canvas.width = container.scrollWidth;
-                    canvas.height = container.scrollHeight;
-                    ctx = canvas.getContext('2d');
-                    ctx.lineJoin = 'round'; 
-                    ctx.lineCap = 'round';
-                    ctx.lineWidth = 15; 
-                    ctx.strokeStyle = 'rgba(255, 255, 0, 0.4)';
-                }
-            }
-
-            // 2. Toggle State
-            const isActive = highlighterBtn.classList.toggle('active');
-            canvas.classList.toggle('active', isActive);
-
-            if (isActive) {
-                showPopup('Marker Active: Draw on the itinerary!');
+                // Switch TO Marker
+                activeTool = 'marker';
+                toggleCanvasState(true);
+                highlighterBtn.classList.add('active');
+                eraserBtn.classList.remove('active');
+                setToolStyle('marker');
+                showPopup('Marker Active');
             }
         });
 
+        eraserBtn.addEventListener('click', () => {
+            const container = document.querySelector('.output-container');
+            if (!container) { showPopup("Generate an itinerary first!"); return; }
+
+            canvas = initCanvas();
+            ctx = canvas.getContext('2d');
+
+            if (activeTool === 'eraser') {
+                // Toggle OFF
+                activeTool = 'none';
+                toggleCanvasState(false);
+                eraserBtn.classList.remove('active');
+            } else {
+                // Switch TO Eraser
+                activeTool = 'eraser';
+                toggleCanvasState(true);
+                eraserBtn.classList.add('active');
+                highlighterBtn.classList.remove('active');
+                setToolStyle('eraser');
+                showPopup('Eraser Active');
+            }
+        });
+
+        // --- DRAWING EVENTS ---
         function addDrawingEvents(canvasEl) {
-            // Mouse Events
+            // MOUSE
             canvasEl.addEventListener('mousedown', (e) => {
                 isDrawing = true;
                 [lastX, lastY] = [e.offsetX, e.offsetY];
             });
-
             canvasEl.addEventListener('mousemove', draw);
             canvasEl.addEventListener('mouseup', () => isDrawing = false);
             canvasEl.addEventListener('mouseout', () => isDrawing = false);
 
-            // Touch Events (for mobile support)
+            // TOUCH
             canvasEl.addEventListener('touchstart', (e) => {
                 isDrawing = true;
                 const rect = canvasEl.getBoundingClientRect();
                 const touch = e.touches[0];
                 lastX = touch.clientX - rect.left;
                 lastY = touch.clientY - rect.top;
-                e.preventDefault(); // Prevent scrolling
+                e.preventDefault(); 
             });
-            
             canvasEl.addEventListener('touchmove', (e) => {
                 if(!isDrawing) return;
                 const rect = canvasEl.getBoundingClientRect();
@@ -1369,6 +1418,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const x = touch.clientX - rect.left;
                 const y = touch.clientY - rect.top;
                 
+                // Draw manual path for touch
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
                 ctx.lineTo(x, y);
@@ -1377,18 +1427,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 [lastX, lastY] = [x, y];
                 e.preventDefault();
             });
-            
             canvasEl.addEventListener('touchend', () => isDrawing = false);
         }
 
         function draw(e) {
             if (!isDrawing) return;
-            
             ctx.beginPath();
             ctx.moveTo(lastX, lastY);
             ctx.lineTo(e.offsetX, e.offsetY);
             ctx.stroke();
-            
             [lastX, lastY] = [e.offsetX, e.offsetY];
         }
     }
