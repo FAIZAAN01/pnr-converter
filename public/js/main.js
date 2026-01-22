@@ -1306,7 +1306,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cvs.height = container.scrollHeight;
                 container.appendChild(cvs);
                 
-                // Initialize context settings immediately
+                // Set context defaults immediately
                 const c = cvs.getContext('2d');
                 c.lineCap = 'round';
                 c.lineJoin = 'round';
@@ -1315,7 +1315,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
                  cvs.width = container.scrollWidth;
                  cvs.height = container.scrollHeight;
-                 // Re-apply context settings after resize
+                 // Reset context defaults after resize
                  const c = cvs.getContext('2d');
                  c.lineCap = 'round';
                  c.lineJoin = 'round';
@@ -1329,9 +1329,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tool === 'marker') {
                 ctx.globalCompositeOperation = 'source-over'; 
                 
-                // EXACT SETTINGS FROM YOUR SNIPPET:
-                ctx.lineWidth = 28;  // Thickness from your slider default
-                ctx.strokeStyle = '#ffff00'; // Exact bright yellow
+                // EXACT SETTINGS:
+                // Solid Yellow + Full Thickness
+                ctx.lineWidth = 28; 
+                ctx.strokeStyle = '#ffff00'; 
                 
             } else if (tool === 'eraser') {
                 ctx.globalCompositeOperation = 'destination-out'; 
@@ -1347,7 +1348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- BUTTONS ---
+        // --- BUTTON HANDLERS ---
         highlighterBtn.addEventListener('click', () => {
             const container = document.querySelector('.output-container');
             if (!container) { showPopup("Generate an itinerary first!"); return; }
@@ -1390,7 +1391,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- DRAWING EVENTS (MATCHED TO SNIPPET) ---
+        // --- DRAWING EVENTS ---
         function addDrawingEvents(canvasEl) {
             const getPos = (e) => {
                 const rect = canvasEl.getBoundingClientRect();
@@ -1403,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isDrawing = true;
                 [lastX, lastY] = getPos(e);
                 
-                // Draw single dot on click (optional, but feels responsive)
+                // Instant dot on click
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
                 ctx.lineTo(lastX, lastY);
@@ -1424,13 +1425,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const stopDraw = () => { isDrawing = false; };
 
-            // Mouse
             canvasEl.addEventListener('mousedown', startDraw);
             canvasEl.addEventListener('mousemove', draw);
             canvasEl.addEventListener('mouseup', stopDraw);
             canvasEl.addEventListener('mouseout', stopDraw);
 
-            // Touch
             canvasEl.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
             canvasEl.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
             canvasEl.addEventListener('touchend', stopDraw);
