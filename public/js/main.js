@@ -53,7 +53,6 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width + Custom Scale) ---
 async function generateItineraryCanvasDoc(element, customScale = 2) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
@@ -89,7 +88,6 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
 
     return await html2canvas(element, options); 
 }
-
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
     return unitToggle?.checked ? 'Pcs' : 'Kgs';
@@ -1283,4 +1281,5 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
+
 });
