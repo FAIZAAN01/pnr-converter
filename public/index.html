@@ -2215,7 +2215,6 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* --- INK BLEND HIGHLIGHTER --- */
 .output-container {
     position: relative !important; 
 }
@@ -2226,33 +2225,23 @@
     top: 0;
     left: 0;
     z-index: 999; 
-    pointer-events: none;
-    touch-action: none;
+    pointer-events: none; 
+    touch-action: none; 
     
-    /* THE MERGE LOGIC: */
-    /* 'Multiply' simulates ink absorption. */
-    /* It merges the yellow into the background, keeping text sharp and dark. */
+    /* THIS IS THE FIX: 'multiply' blends the yellow into the text so text stays black */
     mix-blend-mode: multiply; 
+    opacity: 0.8; /* slightly transparent overall */
 }
 
-/* DARK MODE HANDLING */
+/* Dark Mode Adjustment: Multiply doesn't look good on dark backgrounds, so we switch to 'screen' or normal */
 [data-theme='dark'] .highlight-canvas {
-    /* Multiply creates black on dark backgrounds, so we switch to screen */
-    mix-blend-mode: screen; 
-    opacity: 1;
+    mix-blend-mode: normal;
+    opacity: 0.5;
 }
 
 .highlight-canvas.active {
     pointer-events: auto;
     cursor: crosshair;
-}
-
-/* Update this in your style block */
-#highlighterBtn.active, #eraserBtn.active {
-    background-color: #f1c40f;
-    color: #000;
-    border-color: #f39c12;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
     </style>
 </head>
