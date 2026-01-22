@@ -1382,28 +1382,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- REPETITIVE HIGHLIGHT FUNCTION ---
+// --- REPETITIVE HIGHLIGHT FUNCTION (FIXED) ---
     function applyHighlightSafe(selection) {
         const range = selection.getRangeAt(0);
-        
-        // Find all text nodes strictly within the selection range
         const textNodes = [];
-        const walker = document.createTreeWalker(
-            range.commonAncestorContainer, 
-            NodeFilter.SHOW_TEXT,
-            {
-                acceptNode: function(node) {
-                    return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                }
-            }
-        );
 
-        while (walker.nextNode()) {
-            textNodes.push(walker.currentNode);
+        // FIX: Check if the selection is inside a single text node
+        if (range.commonAncestorContainer.nodeType === Node.TEXT_NODE) {
+            // It's a single text node, add it directly
+            textNodes.push(range.commonAncestorContainer);
+        } else {
+            // It's a complex selection, use TreeWalker to find all text parts
+            const walker = document.createTreeWalker(
+                range.commonAncestorContainer, 
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: function(node) {
+                        return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                    }
+                }
+            );
+            while (walker.nextNode()) {
+                textNodes.push(walker.currentNode);
+            }
         }
 
-        // Iterate through nodes and highlight ONLY the un-highlighted parts
+        // Iterate and Highlight
         textNodes.forEach(node => {
+            // Skip if already highlighted
             if (node.parentElement && node.parentElement.classList.contains('user-highlight')) {
                 return; 
             }
@@ -1414,6 +1420,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (node === range.startContainer) start = range.startOffset;
             if (node === range.endContainer) end = range.endOffset;
 
+            // Only highlight if we have characters selected
             if (end > start) {
                 const span = document.createElement('span');
                 span.className = 'user-highlight';
@@ -1431,6 +1438,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Clear the blue selection so user sees the yellow
         selection.removeAllRanges();
     }
 
