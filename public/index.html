@@ -2214,17 +2214,14 @@
     pointer-events: none; 
     touch-action: none;
     
-    /* VISUAL LOGIC: */
-    /* This mimics ctx.globalCompositeOperation = 'multiply' */
-    /* It blends the solid yellow stroke with the DOM text below */
+    /* 1. EXACT BLEND MODE FROM SNIPPET */
     mix-blend-mode: multiply; 
     
-    /* VIBRANCY: */
-    /* Like the sample code, we keep opacity at 1.0 (Full) */
+    /* 2. EXACT OPACITY FROM SNIPPET (Full Strength) */
     opacity: 1.0; 
 }
 
-/* Dark Mode fix: Multiply implies white paper. For Dark mode, we invert to Screen */
+/* Dark Mode Adjustment (Multiply turns invisible on dark, so we flip it) */
 [data-theme='dark'] .highlight-canvas {
     mix-blend-mode: screen; 
     opacity: 0.6;
@@ -2235,7 +2232,6 @@
     cursor: crosshair;
 }
 
-/* Button Active State */
 #highlighterBtn.active, #eraserBtn.active {
     background-color: #f1c40f;
     color: #000;

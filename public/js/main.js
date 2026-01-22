@@ -1294,7 +1294,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let canvas, ctx;
         let activeTool = 'none'; 
 
-        // 1. Initialize Canvas
         function initCanvas() {
             const container = document.querySelector('.output-container');
             if (!container) return null;
@@ -1306,42 +1305,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 cvs.width = container.scrollWidth;
                 cvs.height = container.scrollHeight;
                 container.appendChild(cvs);
+                
+                // Initialize context settings immediately
+                const c = cvs.getContext('2d');
+                c.lineCap = 'round';
+                c.lineJoin = 'round';
+                
                 addDrawingEvents(cvs);
             } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
                  cvs.width = container.scrollWidth;
                  cvs.height = container.scrollHeight;
+                 // Re-apply context settings after resize
+                 const c = cvs.getContext('2d');
+                 c.lineCap = 'round';
+                 c.lineJoin = 'round';
             }
             return cvs;
         }
 
-        // 2. Set Style (Mimicking the sample code)
         function setToolStyle(tool) {
             if (!ctx) return;
             
-            // Round caps for smooth, organic strokes (like the sample)
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
             if (tool === 'marker') {
-                // Standard drawing mode on the canvas
-                // (The 'Multiply' effect happens via CSS against the HTML background)
                 ctx.globalCompositeOperation = 'source-over'; 
                 
-                // Thick line like the MS Snip tool
-                ctx.lineWidth = 30; 
-                
-                // SOLID NEON YELLOW (No Transparency)
-                // We rely on CSS mix-blend-mode to handle the see-through effect
-                ctx.strokeStyle = '#ffff00'; 
+                // EXACT SETTINGS FROM YOUR SNIPPET:
+                ctx.lineWidth = 28;  // Thickness from your slider default
+                ctx.strokeStyle = '#ffff00'; // Exact bright yellow
                 
             } else if (tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out'; // Clears pixels
+                ctx.globalCompositeOperation = 'destination-out'; 
                 ctx.lineWidth = 40; 
                 ctx.strokeStyle = 'rgba(0,0,0,1)'; 
             }
         }
 
-        // 3. Toggle UI
         function toggleCanvasState(enable) {
             if (canvas) {
                 canvas.classList.toggle('active', enable);
@@ -1349,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 4. Button Logic
+        // --- BUTTONS ---
         highlighterBtn.addEventListener('click', () => {
             const container = document.querySelector('.output-container');
             if (!container) { showPopup("Generate an itinerary first!"); return; }
@@ -1392,50 +1390,50 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 5. Drawing Events
+        // --- DRAWING EVENTS (MATCHED TO SNIPPET) ---
         function addDrawingEvents(canvasEl) {
-            const start = (x, y) => { 
-                isDrawing = true; 
-                [lastX, lastY] = [x, y]; 
+            const getPos = (e) => {
+                const rect = canvasEl.getBoundingClientRect();
+                const clientX = e.clientX || e.touches?.[0]?.clientX;
+                const clientY = e.clientY || e.touches?.[0]?.clientY;
+                return [clientX - rect.left, clientY - rect.top];
+            };
+
+            const startDraw = (e) => {
+                isDrawing = true;
+                [lastX, lastY] = getPos(e);
                 
-                // Optional: Draw a dot immediately on click
+                // Draw single dot on click (optional, but feels responsive)
                 ctx.beginPath();
-                ctx.moveTo(x, y);
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(lastX, lastY);
+                ctx.stroke();
+            };
+
+            const draw = (e) => {
+                if (!isDrawing) return;
+                const [x, y] = getPos(e);
+
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
                 ctx.lineTo(x, y);
                 ctx.stroke();
-            };
-            
-            const move = (x, y) => {
-                if (!isDrawing) return;
-                ctx.beginPath(); 
-                ctx.moveTo(lastX, lastY); 
-                ctx.lineTo(x, y); 
-                ctx.stroke();
+
                 [lastX, lastY] = [x, y];
             };
-            
-            const end = () => { isDrawing = false; };
+
+            const stopDraw = () => { isDrawing = false; };
 
             // Mouse
-            canvasEl.addEventListener('mousedown', e => start(e.offsetX, e.offsetY));
-            canvasEl.addEventListener('mousemove', e => move(e.offsetX, e.offsetY));
-            canvasEl.addEventListener('mouseup', end);
-            canvasEl.addEventListener('mouseout', end);
+            canvasEl.addEventListener('mousedown', startDraw);
+            canvasEl.addEventListener('mousemove', draw);
+            canvasEl.addEventListener('mouseup', stopDraw);
+            canvasEl.addEventListener('mouseout', stopDraw);
 
             // Touch
-            canvasEl.addEventListener('touchstart', e => {
-                const rect = canvasEl.getBoundingClientRect();
-                const touch = e.touches[0];
-                start(touch.clientX - rect.left, touch.clientY - rect.top);
-                e.preventDefault(); 
-            });
-            canvasEl.addEventListener('touchmove', e => {
-                const rect = canvasEl.getBoundingClientRect();
-                const touch = e.touches[0];
-                move(touch.clientX - rect.left, touch.clientY - rect.top);
-                e.preventDefault();
-            });
-            canvasEl.addEventListener('touchend', end);
+            canvasEl.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
+            canvasEl.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+            canvasEl.addEventListener('touchend', stopDraw);
         }
     }
 });
