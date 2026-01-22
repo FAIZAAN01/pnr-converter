@@ -2200,7 +2200,31 @@
     text-decoration: underline;
 }
 
+/* Add to your <style> block in index.html */
 
+/* Visual cue for active tool buttons */
+.tool-btn.active-tool {
+    background-color: #f1c40f !important; /* Yellow for highlighter */
+    color: #000 !important;
+    border-color: #f39c12 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#eraserBtn.active-tool {
+    background-color: #e74c3c !important; /* Red for eraser */
+    color: white !important;
+    border-color: #c0392b !important;
+}
+
+/* Change cursor when highlighting is active */
+.cursor-highlight {
+    cursor: text !important;
+}
+
+.cursor-erase {
+    cursor: copy !important; /* Visual cue for eraser */
+}
 
     </style>
 </head>

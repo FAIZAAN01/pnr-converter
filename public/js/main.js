@@ -1281,5 +1281,128 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
+    // --- HIGHLIGHTER & ERASER LOGIC ---
 
+let activeTool = null; // 'highlight', 'erase', or null
+
+// 1. Initialize Buttons
+const highlighterBtn = document.getElementById('highlighterBtn');
+const eraserBtn = document.getElementById('eraserBtn');
+const outputArea = document.getElementById('output');
+
+if (highlighterBtn && eraserBtn && outputArea) {
+
+    // Toggle Highlighter
+    highlighterBtn.addEventListener('click', () => {
+        if (activeTool === 'highlight') {
+            deactivateTools();
+        } else {
+            setActiveTool('highlight');
+        }
+    });
+
+    // Toggle Eraser
+    eraserBtn.addEventListener('click', () => {
+        if (activeTool === 'erase') {
+            deactivateTools();
+        } else {
+            setActiveTool('erase');
+        }
+    });
+
+    // Handle Text Selection (MouseUp)
+    outputArea.addEventListener('mouseup', handleSelection);
+}
+
+function setActiveTool(tool) {
+    activeTool = tool;
+    
+    // Reset UI
+    highlighterBtn.classList.remove('active-tool');
+    eraserBtn.classList.remove('active-tool');
+    outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+
+    // Set Active UI
+    if (tool === 'highlight') {
+        highlighterBtn.classList.add('active-tool');
+        outputArea.classList.add('cursor-highlight');
+    } else if (tool === 'erase') {
+        eraserBtn.classList.add('active-tool');
+        outputArea.classList.add('cursor-erase');
+    }
+}
+
+function deactivateTools() {
+    activeTool = null;
+    highlighterBtn.classList.remove('active-tool');
+    eraserBtn.classList.remove('active-tool');
+    outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+}
+
+function handleSelection() {
+    if (!activeTool) return;
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount || selection.isCollapsed) return;
+
+    // Ensure selection is strictly inside the output container
+    const outputContainer = document.querySelector('.output-container');
+    if (!outputContainer) return;
+
+    // Check if the selection start/end is inside the generated itinerary
+    if (!outputContainer.contains(selection.anchorNode) || 
+        !outputContainer.contains(selection.focusNode)) {
+        return;
+    }
+
+    if (activeTool === 'highlight') {
+        applyHighlight(selection);
+    } else if (activeTool === 'erase') {
+        removeHighlight(selection);
+    }
+}
+
+function applyHighlight(selection) {
+    const range = selection.getRangeAt(0);
+    
+    // Create the highlight span
+    const span = document.createElement('span');
+    span.style.backgroundColor = '#ffff00'; // Standard Yellow
+    span.style.color = '#000000'; // Force black text for contrast
+    span.classList.add('user-highlight'); // Class for identification
+
+    try {
+        // surroundContents is the cleanest method for html2canvas
+        // It wraps the selected text in the span physically in the DOM
+        range.surroundContents(span);
+        
+        // Clear selection to give user feedback that it's done
+        selection.removeAllRanges();
+    } catch (e) {
+        // Fallback: surroundContents fails if selection crosses block boundaries (e.g., spans across <div>s)
+        console.warn("Complex selection detected, attempting fallback...");
+        showPopup("Please select text within a single block (e.g., just the Time or just the Airport).");
+    }
+}
+
+function removeHighlight(selection) {
+    // Logic: Identify if the selection is inside a 'user-highlight' span and unwrap it
+    let node = selection.anchorNode;
+    
+    // Traverse up to find the span
+    while (node && node !== outputArea) {
+        if (node.tagName === 'SPAN' && node.style.backgroundColor === 'rgb(255, 255, 0)') {
+            // Found the highlight! Unwrap it.
+            const parent = node.parentNode;
+            while (node.firstChild) {
+                parent.insertBefore(node.firstChild, node);
+            }
+            parent.removeChild(node);
+            selection.removeAllRanges();
+            return;
+        }
+        node = node.parentNode;
+    }
+    showPopup("Click or select directly on highlighted text to erase.");
+}
 });
