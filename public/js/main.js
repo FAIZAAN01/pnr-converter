@@ -1337,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (tool === 'eraser') {
                 ctx.globalCompositeOperation = 'destination-out'; 
                 ctx.lineWidth = 30; 
-                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
+                ctx.strokeStyle = 'rgba(255,255,255,1)'; 
             }
         }
 
