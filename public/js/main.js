@@ -1283,4 +1283,113 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
+    // --- FREEHAND HIGHLIGHTER LOGIC ---
+    const highlighterBtn = document.getElementById('highlighterBtn');
+    
+    if (highlighterBtn) {
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let canvas, ctx;
+
+        highlighterBtn.addEventListener('click', () => {
+            const container = document.querySelector('.output-container');
+            if (!container) {
+                showPopup("Generate an itinerary first!");
+                return;
+            }
+
+            // 1. Create Canvas if it doesn't exist
+            if (!container.querySelector('.highlight-canvas')) {
+                canvas = document.createElement('canvas');
+                canvas.className = 'highlight-canvas';
+                // Set canvas size to match the scrollable content size
+                canvas.width = container.scrollWidth;
+                canvas.height = container.scrollHeight;
+                container.appendChild(canvas);
+                
+                ctx = canvas.getContext('2d');
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.lineWidth = 15; // Thickness of the highlighter
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.4)'; // Transparent Yellow
+                
+                // Add Drawing Events to the new canvas
+                addDrawingEvents(canvas);
+            } else {
+                canvas = container.querySelector('.highlight-canvas');
+                // Ensure size is updated in case content changed
+                if(canvas.width !== container.scrollWidth || canvas.height !== container.scrollHeight) {
+                    // Note: Resizing clears canvas, so we only do it if dimensions changed significantly
+                    // For a pro tool, you'd want to save/restore the image here.
+                    canvas.width = container.scrollWidth;
+                    canvas.height = container.scrollHeight;
+                    ctx = canvas.getContext('2d');
+                    ctx.lineJoin = 'round'; 
+                    ctx.lineCap = 'round';
+                    ctx.lineWidth = 15; 
+                    ctx.strokeStyle = 'rgba(255, 255, 0, 0.4)';
+                }
+            }
+
+            // 2. Toggle State
+            const isActive = highlighterBtn.classList.toggle('active');
+            canvas.classList.toggle('active', isActive);
+
+            if (isActive) {
+                showPopup('Marker Active: Draw on the itinerary!');
+            }
+        });
+
+        function addDrawingEvents(canvasEl) {
+            // Mouse Events
+            canvasEl.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            });
+
+            canvasEl.addEventListener('mousemove', draw);
+            canvasEl.addEventListener('mouseup', () => isDrawing = false);
+            canvasEl.addEventListener('mouseout', () => isDrawing = false);
+
+            // Touch Events (for mobile support)
+            canvasEl.addEventListener('touchstart', (e) => {
+                isDrawing = true;
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                lastX = touch.clientX - rect.left;
+                lastY = touch.clientY - rect.top;
+                e.preventDefault(); // Prevent scrolling
+            });
+            
+            canvasEl.addEventListener('touchmove', (e) => {
+                if(!isDrawing) return;
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                
+                [lastX, lastY] = [x, y];
+                e.preventDefault();
+            });
+            
+            canvasEl.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+    }
 });
