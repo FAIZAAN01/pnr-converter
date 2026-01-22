@@ -53,15 +53,16 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width + Custom Scale) ---
+// --- UPDATED SCREENSHOT FUNCTION (Fixes Highlighter Transparency) ---
 async function generateItineraryCanvasDoc(element, customScale = 2) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
-    // 1. Calculate dynamic width based on the content + buffer
+    // 1. Calculate dynamic dimensions
     const contentWidth = element.scrollWidth; 
+    const contentHeight = element.scrollHeight;
     
     const options = { 
-        scale: customScale, // Uses the passed argument (1 or 2)
+        scale: customScale, 
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
@@ -70,14 +71,13 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
 
-            // 2. Set the body to fit the content width
+            // Force layout to fit content
             clonedBody.style.width = 'auto'; 
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0';
             
             if (clonedElement) {
-                // 3. Force the specific element to maintain its full content width
                 clonedElement.style.width = 'fit-content'; 
                 clonedElement.style.minWidth = contentWidth + 'px'; 
                 clonedElement.style.margin = '0'; 
@@ -87,9 +87,32 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
         }
     }; 
 
-    return await html2canvas(element, options); 
-}
+    // A. Capture the text layer first (Highlighter is ignored via attribute)
+    const baseCanvas = await html2canvas(element, options);
 
+    // B. Find the original highlighter drawing
+    const sourceHighlightCanvas = element.querySelector('.highlight-canvas');
+    
+    // C. Manually composite the highlighter onto the screenshot
+    if (sourceHighlightCanvas) {
+        const ctx = baseCanvas.getContext('2d');
+        
+        // This is the Magic: We force "Multiply" mode in Javascript
+        ctx.globalCompositeOperation = 'multiply';
+        
+        // Draw the highlight layer scaled to match the screenshot resolution
+        ctx.drawImage(
+            sourceHighlightCanvas, 
+            0, 0, sourceHighlightCanvas.width, sourceHighlightCanvas.height, // Source
+            0, 0, baseCanvas.width, baseCanvas.height          // Destination (Scaled)
+        );
+        
+        // Reset blend mode to default
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
+    return baseCanvas; 
+}
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
     return unitToggle?.checked ? 'Pcs' : 'Kgs';
@@ -1294,7 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let canvas, ctx;
         let activeTool = 'none'; 
 
-        function initCanvas() {
+function initCanvas() {
             const container = document.querySelector('.output-container');
             if (!container) return null;
 
@@ -1302,11 +1325,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!cvs) {
                 cvs = document.createElement('canvas');
                 cvs.className = 'highlight-canvas';
+                
+                // --- ADD THIS LINE ---
+                // This prevents html2canvas from rendering it as a solid block.
+                // We will render it manually in the function above.
+                cvs.setAttribute('data-html2canvas-ignore', 'true'); 
+                // ---------------------
+
                 cvs.width = container.scrollWidth;
                 cvs.height = container.scrollHeight;
                 container.appendChild(cvs);
                 
-                // Set context defaults immediately
                 const c = cvs.getContext('2d');
                 c.lineCap = 'round';
                 c.lineJoin = 'round';
@@ -1315,7 +1344,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
                  cvs.width = container.scrollWidth;
                  cvs.height = container.scrollHeight;
-                 // Reset context defaults after resize
                  const c = cvs.getContext('2d');
                  c.lineCap = 'round';
                  c.lineJoin = 'round';
