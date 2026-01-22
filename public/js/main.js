@@ -1317,6 +1317,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return cvs;
         }
 
+// ... inside the setToolStyle function in main.js ...
+
         function setToolStyle(tool) {
             if (!ctx) return;
             ctx.lineJoin = 'round';
@@ -1324,15 +1326,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (tool === 'marker') {
                 ctx.globalCompositeOperation = 'source-over'; 
-                ctx.lineWidth = 18;
+                ctx.lineWidth = 15;
                 
-                // PURE BRIGHT YELLOW 
-                // Because we use "Darken" mode in CSS, this will NOT cover text.
-                // It will only stain the white background.
-                ctx.strokeStyle = '#FFEF00'; 
+                // PURE SOLID YELLOW
+                // We use solid color because 'mix-blend-mode: multiply' 
+                // will automatically make the white parts transparent 
+                // and merge this yellow into the grey/black text.
+                ctx.strokeStyle = '#ffff00'; 
                 
             } else if (tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out'; // Removes ink
+                ctx.globalCompositeOperation = 'destination-out'; 
                 ctx.lineWidth = 30; 
                 ctx.strokeStyle = 'rgba(0,0,0,1)'; 
             }

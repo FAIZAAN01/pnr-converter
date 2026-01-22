@@ -2215,7 +2215,7 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* --- SMART HIGHLIGHTER --- */
+/* --- INK BLEND HIGHLIGHTER --- */
 .output-container {
     position: relative !important; 
 }
@@ -2225,21 +2225,21 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 999; /* Sits ON TOP of everything */
-    pointer-events: none; /* Let clicks pass through when not active */
+    z-index: 999; 
+    pointer-events: none;
     touch-action: none;
     
-    /* THE MAGIC LOGIC: */
-    /* "Darken" ensures we only color pixels that are LIGHTER than the ink. */
-    /* Since text is darker than yellow, the text pops right through! */
-    mix-blend-mode: darken; 
+    /* THE MERGE LOGIC: */
+    /* 'Multiply' simulates ink absorption. */
+    /* It merges the yellow into the background, keeping text sharp and dark. */
+    mix-blend-mode: multiply; 
 }
 
-/* Dark Mode Adjustment */
+/* DARK MODE HANDLING */
 [data-theme='dark'] .highlight-canvas {
-    /* Darken doesn't work well on dark mode, so we switch to screen/normal */
+    /* Multiply creates black on dark backgrounds, so we switch to screen */
     mix-blend-mode: screen; 
-    opacity: 0.5;
+    opacity: 0.6;
 }
 
 .highlight-canvas.active {
