@@ -1162,61 +1162,102 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. Handle Mouse Release (Apply Highlight)
-    outputArea.addEventListener('mouseup', () => {
-        if (!activeTool) return;
+// 3. Handle Mouse Release (Apply Highlight)
+outputArea.addEventListener('mouseup', () => {
+    if (!activeTool) return;
 
-        const selection = window.getSelection();
-        // Only proceed if user actually selected text
-        if (selection.isCollapsed || !selection.rangeCount) return;
+    const selection = window.getSelection();
+    if (selection.isCollapsed || !selection.rangeCount) return;
 
-        // Ensure selection is inside the Output Container
-        const outputContainer = document.querySelector('.output-container');
-        if (!outputContainer) return;
-        
-        // Check strict containment (start and end must be inside)
-        if (!outputContainer.contains(selection.anchorNode) || 
-            !outputContainer.contains(selection.focusNode)) {
-            return;
-        }
+    const outputContainer = document.querySelector('.output-container');
+    if (!outputContainer) return;
 
-        if (activeTool === 'highlight') {
-            const range = selection.getRangeAt(0);
-            
-            // Create the highlight element
-            const span = document.createElement('span');
+    // Check strict containment
+    if (!outputContainer.contains(selection.anchorNode) || 
+        !outputContainer.contains(selection.focusNode)) {
+        return;
+    }
 
-            span.setAttribute('translate', 'no'); // Standard HTML5 attribute
-            span.classList.add('notranslate');    // Google/Microsoft specific class
+    if (activeTool === 'highlight') {
+        const range = selection.getRangeAt(0);
+        const highlightClass = 'user-highlight';
 
-            span.className = 'user-highlight'; // Applies our "Tall" CSS
+        // 1. Identify the root for our search (TreeWalker requires an Element, not Text)
+        const rootNode = range.commonAncestorContainer.nodeType === 3 
+            ? range.commonAncestorContainer.parentNode 
+            : range.commonAncestorContainer;
 
-            try {
-                // Apply the span around the text
-                range.surroundContents(span);
-                
-                // Clear selection so user can see the yellow immediately
-                selection.removeAllRanges(); 
-            } catch (e) {
-                // surroundContents fails if selection crosses multiple block elements (like <div>s)
-                // This is a known limitation of simple highlighting logic
-                showPopup("Please highlight one text block at a time (e.g., Time OR Airport).");
-            }
-        } 
-        else if (activeTool === 'erase') {
-            // Eraser Logic: Find if we clicked inside a highlight span
-            let node = selection.anchorNode;
-            while (node && node !== outputArea) {
-                if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
-                    // Unwrap the span (remove background, keep text)
-                    const parent = node.parentNode;
-                    while (node.firstChild) parent.insertBefore(node.firstChild, node);
-                    parent.removeChild(node);
-                    selection.removeAllRanges();
-                    return;
+        // 2. Walk through all Text Nodes within the selection
+        const walker = document.createTreeWalker(
+            rootNode,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: function(node) {
+                    // Only accept nodes that touch the selection
+                    if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
+                    
+                    // CRITICAL: Prevent darkening by skipping text that is already highlighted
+                    if (node.parentElement && node.parentElement.classList.contains(highlightClass)) {
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                    
+                    return NodeFilter.FILTER_ACCEPT;
                 }
-                node = node.parentNode;
             }
+        );
+
+        const textNodes = [];
+        let currentNode = walker.nextNode();
+        while (currentNode) {
+            textNodes.push(currentNode);
+            currentNode = walker.nextNode();
         }
-    });
+
+        // 3. Wrap each valid text node individually
+        textNodes.forEach(node => {
+            try {
+                const subRange = document.createRange();
+                subRange.selectNodeContents(node);
+
+                // Trim the range if it's the start or end of the user's selection
+                if (node === range.startContainer) {
+                    subRange.setStart(node, range.startOffset);
+                }
+                if (node === range.endContainer) {
+                    subRange.setEnd(node, range.endOffset);
+                }
+
+                // Don't process empty ranges (can happen at boundaries)
+                if (subRange.toString().length === 0) return;
+
+                const span = document.createElement('span');
+                span.className = highlightClass;
+                span.setAttribute('translate', 'no');
+                span.classList.add('notranslate');
+
+                subRange.surroundContents(span);
+            } catch (e) {
+                console.warn("Highlight error on node:", e);
+            }
+        });
+
+        // Clear selection to show the result clearly
+        selection.removeAllRanges();
+    } 
+    else if (activeTool === 'erase') {
+        // Eraser Logic: Find if we clicked inside a highlight span
+        let node = selection.anchorNode;
+        while (node && node !== outputArea) {
+            if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
+                // Unwrap the span (remove background, keep text)
+                const parent = node.parentNode;
+                while (node.firstChild) parent.insertBefore(node.firstChild, node);
+                parent.removeChild(node);
+                selection.removeAllRanges();
+                return;
+            }
+            node = node.parentNode;
+        }
+    }
+});
 });
