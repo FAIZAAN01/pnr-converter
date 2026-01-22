@@ -2215,22 +2215,30 @@
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* The container must be relative so the canvas can sit absolutely inside it */
 .output-container {
     position: relative !important; 
 }
 
-/* The Drawing Layer */
+/* THE DRAWING LAYER */
 .highlight-canvas {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 999; /* Sit on top of text */
-    pointer-events: none; /* Let clicks pass through when not active */
-    touch-action: none; /* Prevent scrolling while drawing on mobile */
+    z-index: 999; 
+    pointer-events: none; 
+    touch-action: none; 
+    
+    /* THIS IS THE FIX: 'multiply' blends the yellow into the text so text stays black */
+    mix-blend-mode: multiply; 
+    opacity: 0.8; /* slightly transparent overall */
 }
 
-/* When active, capture clicks */
+/* Dark Mode Adjustment: Multiply doesn't look good on dark backgrounds, so we switch to 'screen' or normal */
+[data-theme='dark'] .highlight-canvas {
+    mix-blend-mode: normal;
+    opacity: 0.5;
+}
+
 .highlight-canvas.active {
     pointer-events: auto;
     cursor: crosshair;

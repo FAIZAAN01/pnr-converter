@@ -1312,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.lineJoin = 'round';
                 ctx.lineCap = 'round';
                 ctx.lineWidth = 15; // Thickness of the highlighter
-                ctx.strokeStyle = 'rgba(255, 255, 0, 0.4)'; // Transparent Yellow
+                ctx.strokeStyle = 'rgba(255, 240, 0, 0.5)'; // Transparent Yellow
                 
                 // Add Drawing Events to the new canvas
                 addDrawingEvents(canvas);
