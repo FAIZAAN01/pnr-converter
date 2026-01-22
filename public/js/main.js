@@ -7,34 +7,6 @@ let segmentBaggageMap = {};
 let lastPnrResult = null;
 let globalClassOverride = null;
 
-// --- GLOBAL TOOL MANAGEMENT ---
-let activeTool = null; // 'highlight', 'erase', or null
-
-function setTool(tool) {
-    activeTool = tool;
-    
-    // Get Elements
-    const highlighterBtn = document.getElementById('highlighterBtn');
-    const eraserBtn = document.getElementById('eraserBtn');
-    const outputArea = document.getElementById('output');
-
-    // 1. Reset all visual states
-    if (highlighterBtn) highlighterBtn.classList.remove('active-tool');
-    if (eraserBtn) eraserBtn.classList.remove('active-tool');
-    if (outputArea) {
-        outputArea.classList.remove('cursor-highlight', 'cursor-erase');
-    }
-
-    // 2. Apply new state
-    if (tool === 'highlight') {
-        if (highlighterBtn) highlighterBtn.classList.add('active-tool');
-        if (outputArea) outputArea.classList.add('cursor-highlight'); // CSS handles the cursor look
-    } else if (tool === 'erase') {
-        if (eraserBtn) eraserBtn.classList.add('active-tool');
-        if (outputArea) outputArea.classList.add('cursor-erase');
-    }
-}
-
 // --- UTILITY FUNCTIONS ---
 function showPopup(message, duration = 3000) {
     const container = document.getElementById('popupContainer');
@@ -149,17 +121,7 @@ function toggleCustomBrandingSection() {
 
 function updateEditableState() {
     const isEditable = document.getElementById('editableToggle').checked;
-    const output = document.getElementById('output');
-    
-    output.contentEditable = isEditable;
-
-    if (isEditable) {
-        // If editing text, disable highlighter to prevent conflicts
-        setTool(null);
-    } else {
-        // If NOT editing, default to Highlighter for quick markup
-        setTool('highlight');
-    }
+    document.getElementById('output').contentEditable = isEditable;
 }
 
 // --- OPTIONS & BRANDING MANAGEMENT ---
@@ -318,9 +280,6 @@ async function handleConvertClick() {
         liveUpdateDisplay(false);
     } finally {
         loadingSpinner.style.display = 'none';
-        
-        // RE-APPLY TOOL STATE AFTER RENDERING
-        updateEditableState();
     }
 }
 
@@ -386,9 +345,6 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
     } else {
         renderClassicItinerary(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted);
     }
-    
-    // ENSURE TOOL STATE IS APPLIED AFTER RENDERING
-    updateEditableState();
 }
 
 // ==========================================
@@ -675,8 +631,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                 const minutes = flight.transitDurationMinutes;
                 const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
 
-                const startSeparator = rawSymbol.replace(/ /g, ' ');
-                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
+                const startSeparator = rawSymbol.replace(/ /g, ' ');
+                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
 
                 const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
 
@@ -1325,30 +1281,46 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
+    // --- HIGHLIGHTER IMPLEMENTATION ---
 
-    // --- TOOL EVENT LISTENERS (Replace previous button logic with this) ---
+    let activeTool = null; // 'highlight', 'erase', or null
+    const highlighterBtn = document.getElementById('highlighterBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    const outputArea = document.getElementById('output');
+
+    // Helper: Reset tool buttons
+    function clearTools() {
+        activeTool = null;
+        highlighterBtn.classList.remove('active-tool');
+        eraserBtn.classList.remove('active-tool');
+        outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+    }
 
     // 1. Toggle Highlighter
     highlighterBtn.addEventListener('click', () => {
-        // If already highlighting, turn it off. Otherwise, turn it on.
         if (activeTool === 'highlight') {
-            setTool(null);
+            clearTools();
         } else {
-            setTool('highlight');
+            clearTools();
+            activeTool = 'highlight';
+            highlighterBtn.classList.add('active-tool');
+            outputArea.classList.add('cursor-highlight');
         }
     });
 
     // 2. Toggle Eraser
     eraserBtn.addEventListener('click', () => {
         if (activeTool === 'erase') {
-            // If turning off eraser, default back to highlighter (optional, or set to null)
-            setTool('highlight'); 
+            clearTools();
         } else {
-            setTool('erase');
+            clearTools();
+            activeTool = 'erase';
+            eraserBtn.classList.add('active-tool');
+            outputArea.classList.add('cursor-erase');
         }
     });
 
-    // 3. Mouse Up Listener (Your existing ApplyHighlightSafe logic remains here)
+    // 3. Handle Mouse Release (Apply Highlight or Erase)
     outputArea.addEventListener('mouseup', () => {
         if (!activeTool) return;
 
@@ -1365,9 +1337,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (activeTool === 'highlight') {
+            // CALL THE NEW SAFE FUNCTION INSTEAD OF DIRECT LOGIC
             applyHighlightSafe(selection);
         } 
         else if (activeTool === 'erase') {
+            // Eraser Logic
             let node = selection.anchorNode;
             while (node && node !== outputArea) {
                 if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
@@ -1382,34 +1356,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-// --- REPETITIVE HIGHLIGHT FUNCTION (FIXED) ---
+    // --- NEW FUNCTION: ALLOWS REPETITIVE/OVERLAPPING HIGHLIGHTS ---
     function applyHighlightSafe(selection) {
         const range = selection.getRangeAt(0);
+        
+        // Find all text nodes strictly within the selection range
         const textNodes = [];
-
-        // FIX: Check if the selection is inside a single text node
-        if (range.commonAncestorContainer.nodeType === Node.TEXT_NODE) {
-            // It's a single text node, add it directly
-            textNodes.push(range.commonAncestorContainer);
-        } else {
-            // It's a complex selection, use TreeWalker to find all text parts
-            const walker = document.createTreeWalker(
-                range.commonAncestorContainer, 
-                NodeFilter.SHOW_TEXT,
-                {
-                    acceptNode: function(node) {
-                        return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                    }
+        const walker = document.createTreeWalker(
+            range.commonAncestorContainer, 
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: function(node) {
+                    return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
                 }
-            );
-            while (walker.nextNode()) {
-                textNodes.push(walker.currentNode);
             }
+        );
+
+        while (walker.nextNode()) {
+            textNodes.push(walker.currentNode);
         }
 
-        // Iterate and Highlight
+        // Iterate through nodes and highlight ONLY the un-highlighted parts
         textNodes.forEach(node => {
-            // Skip if already highlighted
+            // If parent is already highlighted, SKIP it (allows overlapping selection without error)
             if (node.parentElement && node.parentElement.classList.contains('user-highlight')) {
                 return; 
             }
@@ -1420,10 +1389,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (node === range.startContainer) start = range.startOffset;
             if (node === range.endContainer) end = range.endOffset;
 
-            // Only highlight if we have characters selected
             if (end > start) {
                 const span = document.createElement('span');
                 span.className = 'user-highlight';
+                
+                // PREVENTS TRANSLATION ISSUES
                 span.setAttribute('translate', 'no');
                 span.classList.add('notranslate');
 
@@ -1433,12 +1403,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     subRange.setEnd(node, end);
                     subRange.surroundContents(span);
                 } catch (err) {
+                    // Silently fail on weird edge cases rather than alerting user
                     console.warn("Skipping complex node overlap");
                 }
             }
         });
 
-        // Clear the blue selection so user sees the yellow
         selection.removeAllRanges();
     }
 

@@ -2223,22 +2223,21 @@
 
 /* 3. THE THICK HIGHLIGHTER STYLE */
 .user-highlight {
-    background-color: #ffff00 !important; /* Force Yellow */
-    color: #000 !important;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    box-shadow: 2px 0 0 #ffff00, -2px 0 0 #ffff00; /* Fakes width without moving text */
-    border-radius: 2px;
+    background-color: #ffff00;
+    color: #000 !important;      /* Enforce black text for contrast */
+    
+    /* These properties create the "Tall/Thick" look */
+    padding-top: 0px;           /* Extends yellow above text */
+    padding-bottom: 0px;        /* Extends yellow below text */
+    padding-left: 0px;          /* Small buffer on left */
+    padding-right: 0px;         /* Small buffer on right */
+    
+    /* Adds a slight bleed effect to look like ink */
+    box-shadow: 0 0 0 1px #ffff00; 
+    border-radius: 2px;         /* Softens the corners slightly */
 }
 #highlighterBtn{
     color: black;
-}
-
-#highlighterBtn:active {
-    Background-color: yellow;
-}
-#highlighterBtn.active-tool {
-    Background-color: yellow;
 }
 
     </style>
