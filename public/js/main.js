@@ -1316,7 +1316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return cvs;
         }
 
-        // Helper to set the drawing style based on tool
+// Helper to set the drawing style based on tool
         function setToolStyle(tool) {
             if (!ctx) return;
             
@@ -1324,13 +1324,18 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.lineCap = 'round';
             
             if (tool === 'marker') {
-                ctx.globalCompositeOperation = 'source-over'; // Default: Draw on top
+                ctx.globalCompositeOperation = 'source-over'; 
                 ctx.lineWidth = 15;
-                ctx.strokeStyle = 'rgba(255, 240, 0, 0.5)'; // Yellow
+                
+                // CHANGE THIS: Use SOLID Neon Yellow (No Alpha/Transparency)
+                // Since CSS is set to 'multiply', this solid yellow will 
+                // perfectly tint the white background while keeping text sharp.
+                ctx.strokeStyle = '#FFFF00'; 
+                
             } else if (tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out'; // Erase mode: Makes pixels transparent
-                ctx.lineWidth = 30; // Eraser is usually bigger than the pen
-                ctx.strokeStyle = 'rgba(0,0,0,1)'; // Color doesn't matter in destination-out, only alpha
+                ctx.globalCompositeOperation = 'destination-out'; 
+                ctx.lineWidth = 30; 
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
             }
         }
 

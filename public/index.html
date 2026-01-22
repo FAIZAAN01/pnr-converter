@@ -2214,11 +2214,6 @@
     border-color: #f39c12;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
-
-.output-container {
-    position: relative !important; 
-}
-
 /* THE DRAWING LAYER */
 .highlight-canvas {
     position: absolute;
@@ -2228,15 +2223,25 @@
     pointer-events: none; 
     touch-action: none; 
     
-    /* THIS IS THE FIX: 'multiply' blends the yellow into the text so text stays black */
+    /* MERGE LOGIC: */
+    /* Multiply blends the colors mathematically. */
+    /* Yellow background + Black text = Deep Black Text on Yellow Background */
     mix-blend-mode: multiply; 
-    opacity: 0.8; /* slightly transparent overall */
+    
+    /* IMPORTANT: Set to 1 so the color is vibrant. */
+    /* The blend mode handles the "see-through" effect for us. */
+    opacity: 1; 
 }
 
-/* Dark Mode Adjustment: Multiply doesn't look good on dark backgrounds, so we switch to 'screen' or normal */
+/* Dark Mode: Multiply makes things black on dark backgrounds, so we switch to Screen */
 [data-theme='dark'] .highlight-canvas {
-    mix-blend-mode: normal;
-    opacity: 1;
+    mix-blend-mode: screen;
+    opacity: 0.6;
+}
+
+.highlight-canvas.active {
+    pointer-events: auto;
+    cursor: crosshair;
 }
 
 .highlight-canvas.active {
