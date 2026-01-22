@@ -7,7 +7,8 @@ let segmentBaggageMap = {};
 let lastPnrResult = null;
 let globalClassOverride = null;
 
-let activeTool = null;
+// --- GLOBAL TOOL MANAGEMENT ---
+let activeTool = null; // 'highlight', 'erase', or null
 
 function setTool(tool) {
     activeTool = tool;
@@ -317,6 +318,9 @@ async function handleConvertClick() {
         liveUpdateDisplay(false);
     } finally {
         loadingSpinner.style.display = 'none';
+        
+        // RE-APPLY TOOL STATE AFTER RENDERING
+        updateEditableState();
     }
 }
 
@@ -382,6 +386,9 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
     } else {
         renderClassicItinerary(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted);
     }
+    
+    // ENSURE TOOL STATE IS APPLIED AFTER RENDERING
+    updateEditableState();
 }
 
 // ==========================================
@@ -668,8 +675,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                 const minutes = flight.transitDurationMinutes;
                 const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
 
-                const startSeparator = rawSymbol.replace(/ /g, ' ');
-                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
+                const startSeparator = rawSymbol.replace(/ /g, ' ');
+                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
 
                 const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
 
@@ -1318,23 +1325,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
-    // --- HIGHLIGHTER IMPLEMENTATION ---
 
-    let activeTool = null; // 'highlight', 'erase', or null
-    const highlighterBtn = document.getElementById('highlighterBtn');
-    const eraserBtn = document.getElementById('eraserBtn');
-    const outputArea = document.getElementById('output');
-
-    // Helper: Reset tool buttons
-    function clearTools() {
-        activeTool = null;
-        highlighterBtn.classList.remove('active-tool');
-        eraserBtn.classList.remove('active-tool');
-        outputArea.classList.remove('cursor-highlight', 'cursor-erase');
-    }
+    // --- TOOL EVENT LISTENERS (Replace previous button logic with this) ---
 
     // 1. Toggle Highlighter
-highlighterBtn.addEventListener('click', () => {
+    highlighterBtn.addEventListener('click', () => {
         // If already highlighting, turn it off. Otherwise, turn it on.
         if (activeTool === 'highlight') {
             setTool(null);
@@ -1344,7 +1339,7 @@ highlighterBtn.addEventListener('click', () => {
     });
 
     // 2. Toggle Eraser
-eraserBtn.addEventListener('click', () => {
+    eraserBtn.addEventListener('click', () => {
         if (activeTool === 'erase') {
             // If turning off eraser, default back to highlighter (optional, or set to null)
             setTool('highlight'); 
@@ -1353,7 +1348,7 @@ eraserBtn.addEventListener('click', () => {
         }
     });
 
-    // 3. Handle Mouse Release (Apply Highlight or Erase)
+    // 3. Mouse Up Listener (Your existing ApplyHighlightSafe logic remains here)
     outputArea.addEventListener('mouseup', () => {
         if (!activeTool) return;
 
@@ -1370,11 +1365,9 @@ eraserBtn.addEventListener('click', () => {
         }
 
         if (activeTool === 'highlight') {
-            // CALL THE NEW SAFE FUNCTION INSTEAD OF DIRECT LOGIC
             applyHighlightSafe(selection);
         } 
         else if (activeTool === 'erase') {
-            // Eraser Logic
             let node = selection.anchorNode;
             while (node && node !== outputArea) {
                 if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
@@ -1389,7 +1382,7 @@ eraserBtn.addEventListener('click', () => {
         }
     });
 
-    // --- NEW FUNCTION: ALLOWS REPETITIVE/OVERLAPPING HIGHLIGHTS ---
+    // --- REPETITIVE HIGHLIGHT FUNCTION ---
     function applyHighlightSafe(selection) {
         const range = selection.getRangeAt(0);
         
@@ -1411,7 +1404,6 @@ eraserBtn.addEventListener('click', () => {
 
         // Iterate through nodes and highlight ONLY the un-highlighted parts
         textNodes.forEach(node => {
-            // If parent is already highlighted, SKIP it (allows overlapping selection without error)
             if (node.parentElement && node.parentElement.classList.contains('user-highlight')) {
                 return; 
             }
@@ -1425,8 +1417,6 @@ eraserBtn.addEventListener('click', () => {
             if (end > start) {
                 const span = document.createElement('span');
                 span.className = 'user-highlight';
-                
-                // PREVENTS TRANSLATION ISSUES
                 span.setAttribute('translate', 'no');
                 span.classList.add('notranslate');
 
@@ -1436,7 +1426,6 @@ eraserBtn.addEventListener('click', () => {
                     subRange.setEnd(node, end);
                     subRange.surroundContents(span);
                 } catch (err) {
-                    // Silently fail on weird edge cases rather than alerting user
                     console.warn("Skipping complex node overlap");
                 }
             }
@@ -1444,4 +1433,5 @@ eraserBtn.addEventListener('click', () => {
 
         selection.removeAllRanges();
     }
-});
+
+}); // END OF DOMContentLoaded
