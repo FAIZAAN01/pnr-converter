@@ -1281,128 +1281,96 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
-    // --- HIGHLIGHTER & ERASER LOGIC ---
+    // --- HIGHLIGHTER IMPLEMENTATION ---
 
-let activeTool = null; // 'highlight', 'erase', or null
+    let activeTool = null; // 'highlight', 'erase', or null
+    const highlighterBtn = document.getElementById('highlighterBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    const outputArea = document.getElementById('output');
 
-// 1. Initialize Buttons
-const highlighterBtn = document.getElementById('highlighterBtn');
-const eraserBtn = document.getElementById('eraserBtn');
-const outputArea = document.getElementById('output');
+    // Helper: Reset tool buttons
+    function clearTools() {
+        activeTool = null;
+        highlighterBtn.classList.remove('active-tool');
+        eraserBtn.classList.remove('active-tool');
+        outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+    }
 
-if (highlighterBtn && eraserBtn && outputArea) {
-
-    // Toggle Highlighter
+    // 1. Toggle Highlighter
     highlighterBtn.addEventListener('click', () => {
         if (activeTool === 'highlight') {
-            deactivateTools();
+            clearTools();
         } else {
-            setActiveTool('highlight');
+            clearTools(); // Clear others first
+            activeTool = 'highlight';
+            highlighterBtn.classList.add('active-tool');
+            outputArea.classList.add('cursor-highlight');
         }
     });
 
-    // Toggle Eraser
+    // 2. Toggle Eraser
     eraserBtn.addEventListener('click', () => {
         if (activeTool === 'erase') {
-            deactivateTools();
+            clearTools();
         } else {
-            setActiveTool('erase');
+            clearTools();
+            activeTool = 'erase';
+            eraserBtn.classList.add('active-tool');
+            outputArea.classList.add('cursor-erase');
         }
     });
 
-    // Handle Text Selection (MouseUp)
-    outputArea.addEventListener('mouseup', handleSelection);
-}
+    // 3. Handle Mouse Release (Apply Highlight)
+    outputArea.addEventListener('mouseup', () => {
+        if (!activeTool) return;
 
-function setActiveTool(tool) {
-    activeTool = tool;
-    
-    // Reset UI
-    highlighterBtn.classList.remove('active-tool');
-    eraserBtn.classList.remove('active-tool');
-    outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+        const selection = window.getSelection();
+        // Only proceed if user actually selected text
+        if (selection.isCollapsed || !selection.rangeCount) return;
 
-    // Set Active UI
-    if (tool === 'highlight') {
-        highlighterBtn.classList.add('active-tool');
-        outputArea.classList.add('cursor-highlight');
-    } else if (tool === 'erase') {
-        eraserBtn.classList.add('active-tool');
-        outputArea.classList.add('cursor-erase');
-    }
-}
-
-function deactivateTools() {
-    activeTool = null;
-    highlighterBtn.classList.remove('active-tool');
-    eraserBtn.classList.remove('active-tool');
-    outputArea.classList.remove('cursor-highlight', 'cursor-erase');
-}
-
-function handleSelection() {
-    if (!activeTool) return;
-
-    const selection = window.getSelection();
-    if (!selection.rangeCount || selection.isCollapsed) return;
-
-    // Ensure selection is strictly inside the output container
-    const outputContainer = document.querySelector('.output-container');
-    if (!outputContainer) return;
-
-    // Check if the selection start/end is inside the generated itinerary
-    if (!outputContainer.contains(selection.anchorNode) || 
-        !outputContainer.contains(selection.focusNode)) {
-        return;
-    }
-
-    if (activeTool === 'highlight') {
-        applyHighlight(selection);
-    } else if (activeTool === 'erase') {
-        removeHighlight(selection);
-    }
-}
-
-function applyHighlight(selection) {
-    const range = selection.getRangeAt(0);
-    
-    // Create the highlight span
-    const span = document.createElement('span');
-    span.style.backgroundColor = '#ffff00'; // Standard Yellow
-    span.style.color = '#000000'; // Force black text for contrast
-    span.classList.add('user-highlight'); // Class for identification
-
-    try {
-        // surroundContents is the cleanest method for html2canvas
-        // It wraps the selected text in the span physically in the DOM
-        range.surroundContents(span);
+        // Ensure selection is inside the Output Container
+        const outputContainer = document.querySelector('.output-container');
+        if (!outputContainer) return;
         
-        // Clear selection to give user feedback that it's done
-        selection.removeAllRanges();
-    } catch (e) {
-        // Fallback: surroundContents fails if selection crosses block boundaries (e.g., spans across <div>s)
-        console.warn("Complex selection detected, attempting fallback...");
-        showPopup("Please select text within a single block (e.g., just the Time or just the Airport).");
-    }
-}
-
-function removeHighlight(selection) {
-    // Logic: Identify if the selection is inside a 'user-highlight' span and unwrap it
-    let node = selection.anchorNode;
-    
-    // Traverse up to find the span
-    while (node && node !== outputArea) {
-        if (node.tagName === 'SPAN' && node.style.backgroundColor === 'rgb(255, 255, 0)') {
-            // Found the highlight! Unwrap it.
-            const parent = node.parentNode;
-            while (node.firstChild) {
-                parent.insertBefore(node.firstChild, node);
-            }
-            parent.removeChild(node);
-            selection.removeAllRanges();
+        // Check strict containment (start and end must be inside)
+        if (!outputContainer.contains(selection.anchorNode) || 
+            !outputContainer.contains(selection.focusNode)) {
             return;
         }
-        node = node.parentNode;
-    }
-    showPopup("Click or select directly on highlighted text to erase.");
-}
+
+        if (activeTool === 'highlight') {
+            const range = selection.getRangeAt(0);
+            
+            // Create the highlight element
+            const span = document.createElement('span');
+            span.className = 'user-highlight'; // Applies our "Tall" CSS
+
+            try {
+                // Apply the span around the text
+                range.surroundContents(span);
+                
+                // Clear selection so user can see the yellow immediately
+                selection.removeAllRanges(); 
+            } catch (e) {
+                // surroundContents fails if selection crosses multiple block elements (like <div>s)
+                // This is a known limitation of simple highlighting logic
+                showPopup("Please highlight one text block at a time (e.g., Time OR Airport).");
+            }
+        } 
+        else if (activeTool === 'erase') {
+            // Eraser Logic: Find if we clicked inside a highlight span
+            let node = selection.anchorNode;
+            while (node && node !== outputArea) {
+                if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
+                    // Unwrap the span (remove background, keep text)
+                    const parent = node.parentNode;
+                    while (node.firstChild) parent.insertBefore(node.firstChild, node);
+                    parent.removeChild(node);
+                    selection.removeAllRanges();
+                    return;
+                }
+                node = node.parentNode;
+            }
+        }
+    });
 });
