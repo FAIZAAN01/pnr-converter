@@ -53,16 +53,15 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-// --- UPDATED SCREENSHOT FUNCTION (Fixes Highlighter Transparency) ---
+// --- SCREENSHOT FUNCTION (Dynamic Content-Fit Width + Custom Scale) ---
 async function generateItineraryCanvasDoc(element, customScale = 2) { 
     if (!element) throw new Error("Element for canvas generation not found."); 
     
-    // 1. Calculate dynamic dimensions
+    // 1. Calculate dynamic width based on the content + buffer
     const contentWidth = element.scrollWidth; 
-    const contentHeight = element.scrollHeight;
     
     const options = { 
-        scale: customScale, 
+        scale: customScale, // Uses the passed argument (1 or 2)
         backgroundColor: '#ffffff', 
         useCORS: true, 
         allowTaint: true,
@@ -71,13 +70,14 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
 
-            // Force layout to fit content
+            // 2. Set the body to fit the content width
             clonedBody.style.width = 'auto'; 
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0';
             
             if (clonedElement) {
+                // 3. Force the specific element to maintain its full content width
                 clonedElement.style.width = 'fit-content'; 
                 clonedElement.style.minWidth = contentWidth + 'px'; 
                 clonedElement.style.margin = '0'; 
@@ -87,32 +87,9 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
         }
     }; 
 
-    // A. Capture the text layer first (Highlighter is ignored via attribute)
-    const baseCanvas = await html2canvas(element, options);
-
-    // B. Find the original highlighter drawing
-    const sourceHighlightCanvas = element.querySelector('.highlight-canvas');
-    
-    // C. Manually composite the highlighter onto the screenshot
-    if (sourceHighlightCanvas) {
-        const ctx = baseCanvas.getContext('2d');
-        
-        // This is the Magic: We force "Multiply" mode in Javascript
-        ctx.globalCompositeOperation = 'multiply';
-        
-        // Draw the highlight layer scaled to match the screenshot resolution
-        ctx.drawImage(
-            sourceHighlightCanvas, 
-            0, 0, sourceHighlightCanvas.width, sourceHighlightCanvas.height, // Source
-            0, 0, baseCanvas.width, baseCanvas.height          // Destination (Scaled)
-        );
-        
-        // Reset blend mode to default
-        ctx.globalCompositeOperation = 'source-over';
-    }
-
-    return baseCanvas; 
+    return await html2canvas(element, options); 
 }
+
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
     return unitToggle?.checked ? 'Pcs' : 'Kgs';
@@ -1306,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Small delay to allow lastPnrResult to populate
         setTimeout(updateReportButtonState, 500); 
     });
-    // --- MS STYLE HIGHLIGHTER LOGIC ---
+// --- FREEHAND HIGHLIGHTER & ERASER LOGIC ---
     const highlighterBtn = document.getElementById('highlighterBtn');
     const eraserBtn = document.getElementById('eraserBtn');
     
@@ -1315,9 +1292,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let lastX = 0;
         let lastY = 0;
         let canvas, ctx;
-        let activeTool = 'none'; 
+        let activeTool = 'none'; // 'marker', 'eraser', or 'none'
 
-function initCanvas() {
+        // Shared function to initialize or resize canvas
+        function initCanvas() {
             const container = document.querySelector('.output-container');
             if (!container) return null;
 
@@ -1325,58 +1303,48 @@ function initCanvas() {
             if (!cvs) {
                 cvs = document.createElement('canvas');
                 cvs.className = 'highlight-canvas';
-                
-                // --- ADD THIS LINE ---
-                // This prevents html2canvas from rendering it as a solid block.
-                // We will render it manually in the function above.
-                cvs.setAttribute('data-html2canvas-ignore', 'true'); 
-                // ---------------------
-
+                // Set canvas size to match scrollable content
                 cvs.width = container.scrollWidth;
                 cvs.height = container.scrollHeight;
                 container.appendChild(cvs);
-                
-                const c = cvs.getContext('2d');
-                c.lineCap = 'round';
-                c.lineJoin = 'round';
-                
                 addDrawingEvents(cvs);
             } else if (cvs.width !== container.scrollWidth || cvs.height !== container.scrollHeight) {
+                 // Resize if dimensions changed (Note: this clears the canvas)
                  cvs.width = container.scrollWidth;
                  cvs.height = container.scrollHeight;
-                 const c = cvs.getContext('2d');
-                 c.lineCap = 'round';
-                 c.lineJoin = 'round';
             }
             return cvs;
         }
 
+        // Helper to set the drawing style based on tool
         function setToolStyle(tool) {
             if (!ctx) return;
             
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
             if (tool === 'marker') {
-                ctx.globalCompositeOperation = 'source-over'; 
-                
-                // EXACT SETTINGS:
-                // Solid Yellow + Full Thickness
-                ctx.lineWidth = 28; 
-                ctx.strokeStyle = '#ffff00'; 
-                
+                ctx.globalCompositeOperation = 'source-over'; // Default: Draw on top
+                ctx.lineWidth = 15;
+                ctx.strokeStyle = 'rgba(255, 240, 0, 0.5)'; // Yellow
             } else if (tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out'; 
-                ctx.lineWidth = 40; 
-                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
+                ctx.globalCompositeOperation = 'destination-out'; // Erase mode: Makes pixels transparent
+                ctx.lineWidth = 30; // Eraser is usually bigger than the pen
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; // Color doesn't matter in destination-out, only alpha
             }
         }
 
         function toggleCanvasState(enable) {
             if (canvas) {
                 canvas.classList.toggle('active', enable);
-                canvas.style.pointerEvents = enable ? 'auto' : 'none';
+                // If disabling, stop pointer events so user can select text again
+                if(!enable) canvas.style.pointerEvents = 'none'; 
+                else canvas.style.pointerEvents = 'auto';
             }
         }
 
         // --- BUTTON HANDLERS ---
+        
         highlighterBtn.addEventListener('click', () => {
             const container = document.querySelector('.output-container');
             if (!container) { showPopup("Generate an itinerary first!"); return; }
@@ -1385,16 +1353,18 @@ function initCanvas() {
             ctx = canvas.getContext('2d');
 
             if (activeTool === 'marker') {
+                // Toggle OFF
                 activeTool = 'none';
                 toggleCanvasState(false);
                 highlighterBtn.classList.remove('active');
             } else {
+                // Switch TO Marker
                 activeTool = 'marker';
                 toggleCanvasState(true);
                 highlighterBtn.classList.add('active');
                 eraserBtn.classList.remove('active');
                 setToolStyle('marker');
-                showPopup('Highlighter Active');
+                showPopup('Marker Active');
             }
         });
 
@@ -1406,10 +1376,12 @@ function initCanvas() {
             ctx = canvas.getContext('2d');
 
             if (activeTool === 'eraser') {
+                // Toggle OFF
                 activeTool = 'none';
                 toggleCanvasState(false);
                 eraserBtn.classList.remove('active');
             } else {
+                // Switch TO Eraser
                 activeTool = 'eraser';
                 toggleCanvasState(true);
                 eraserBtn.classList.add('active');
@@ -1421,46 +1393,50 @@ function initCanvas() {
 
         // --- DRAWING EVENTS ---
         function addDrawingEvents(canvasEl) {
-            const getPos = (e) => {
-                const rect = canvasEl.getBoundingClientRect();
-                const clientX = e.clientX || e.touches?.[0]?.clientX;
-                const clientY = e.clientY || e.touches?.[0]?.clientY;
-                return [clientX - rect.left, clientY - rect.top];
-            };
-
-            const startDraw = (e) => {
+            // MOUSE
+            canvasEl.addEventListener('mousedown', (e) => {
                 isDrawing = true;
-                [lastX, lastY] = getPos(e);
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            });
+            canvasEl.addEventListener('mousemove', draw);
+            canvasEl.addEventListener('mouseup', () => isDrawing = false);
+            canvasEl.addEventListener('mouseout', () => isDrawing = false);
+
+            // TOUCH
+            canvasEl.addEventListener('touchstart', (e) => {
+                isDrawing = true;
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                lastX = touch.clientX - rect.left;
+                lastY = touch.clientY - rect.top;
+                e.preventDefault(); 
+            });
+            canvasEl.addEventListener('touchmove', (e) => {
+                if(!isDrawing) return;
+                const rect = canvasEl.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
                 
-                // Instant dot on click
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(lastX, lastY);
-                ctx.stroke();
-            };
-
-            const draw = (e) => {
-                if (!isDrawing) return;
-                const [x, y] = getPos(e);
-
+                // Draw manual path for touch
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
                 ctx.lineTo(x, y);
                 ctx.stroke();
-
+                
                 [lastX, lastY] = [x, y];
-            };
+                e.preventDefault();
+            });
+            canvasEl.addEventListener('touchend', () => isDrawing = false);
+        }
 
-            const stopDraw = () => { isDrawing = false; };
-
-            canvasEl.addEventListener('mousedown', startDraw);
-            canvasEl.addEventListener('mousemove', draw);
-            canvasEl.addEventListener('mouseup', stopDraw);
-            canvasEl.addEventListener('mouseout', stopDraw);
-
-            canvasEl.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-            canvasEl.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
-            canvasEl.addEventListener('touchend', stopDraw);
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
         }
     }
 });

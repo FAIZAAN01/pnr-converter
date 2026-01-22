@@ -2199,36 +2199,40 @@
     cursor: pointer;
     text-decoration: underline;
 }
-/* --- MS STYLE HIGHLIGHTER (NO DARK MODE ADJUSTMENT) --- */
+/* --- HIGHLIGHTER DRAWING TOOLS --- */
+#highlighterBtn {
+    background-color: var(--secondary-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#highlighterBtn.active {
+    background-color: #f1c40f;
+    color: #000;
+    border-color: #f39c12;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* The container must be relative so the canvas can sit absolutely inside it */
 .output-container {
     position: relative !important; 
 }
 
+/* The Drawing Layer */
 .highlight-canvas {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 999; 
-    pointer-events: none; 
-    touch-action: none;
-    
-    /* EXACT LOGIC FROM SNIPPET: */
-    /* Multiply ensures the ink blends into the text */
-    mix-blend-mode: multiply; 
-    
-    /* FULL OPACITY: */
-    opacity: 1.0; 
+    z-index: 999; /* Sit on top of text */
+    pointer-events: none; /* Let clicks pass through when not active */
+    touch-action: none; /* Prevent scrolling while drawing on mobile */
 }
 
+/* When active, capture clicks */
 .highlight-canvas.active {
     pointer-events: auto;
     cursor: crosshair;
-}
-
-#highlighterBtn.active, #eraserBtn.active {
-    background-color: #f1c40f;
-    color: #000;
-    border-color: #f39c12;
 }
 
     </style>
@@ -2438,19 +2442,21 @@
                         <button id="copyTextBtn">📋 Copy Text</button>
 
 
-<button id="highlighterBtn" title="Highlighter">
+<button id="highlighterBtn" title="Draw Highlights">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
         <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
         <path d="M2 2l7.586 7.586"></path>
+        <circle cx="11" cy="11" r="2"></circle>
     </svg>
-    Highlighter
+    Marker
 </button>
 
 <button id="eraserBtn" title="Eraser">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 20.784L8.156 9 20 9v11.784z" opacity="0.5"></path>
         <path d="M4 11.216L15.844 23 4 23V11.216z"></path>
+        <path d="M19.07 4.93L17.66 3.51C17.27 3.12 16.63 3.12 16.24 3.51L5.51 14.24C5.12 14.63 5.12 15.27 5.51 15.66L6.93 17.07L19.07 4.93Z"></path>
     </svg>
     Eraser
 </button>
