@@ -7,6 +7,33 @@ let segmentBaggageMap = {};
 let lastPnrResult = null;
 let globalClassOverride = null;
 
+let activeTool = null;
+
+function setTool(tool) {
+    activeTool = tool;
+    
+    // Get Elements
+    const highlighterBtn = document.getElementById('highlighterBtn');
+    const eraserBtn = document.getElementById('eraserBtn');
+    const outputArea = document.getElementById('output');
+
+    // 1. Reset all visual states
+    if (highlighterBtn) highlighterBtn.classList.remove('active-tool');
+    if (eraserBtn) eraserBtn.classList.remove('active-tool');
+    if (outputArea) {
+        outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+    }
+
+    // 2. Apply new state
+    if (tool === 'highlight') {
+        if (highlighterBtn) highlighterBtn.classList.add('active-tool');
+        if (outputArea) outputArea.classList.add('cursor-highlight'); // CSS handles the cursor look
+    } else if (tool === 'erase') {
+        if (eraserBtn) eraserBtn.classList.add('active-tool');
+        if (outputArea) outputArea.classList.add('cursor-erase');
+    }
+}
+
 // --- UTILITY FUNCTIONS ---
 function showPopup(message, duration = 3000) {
     const container = document.getElementById('popupContainer');
@@ -121,7 +148,17 @@ function toggleCustomBrandingSection() {
 
 function updateEditableState() {
     const isEditable = document.getElementById('editableToggle').checked;
-    document.getElementById('output').contentEditable = isEditable;
+    const output = document.getElementById('output');
+    
+    output.contentEditable = isEditable;
+
+    if (isEditable) {
+        // If editing text, disable highlighter to prevent conflicts
+        setTool(null);
+    } else {
+        // If NOT editing, default to Highlighter for quick markup
+        setTool('highlight');
+    }
 }
 
 // --- OPTIONS & BRANDING MANAGEMENT ---
@@ -1297,26 +1334,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 1. Toggle Highlighter
-    highlighterBtn.addEventListener('click', () => {
+highlighterBtn.addEventListener('click', () => {
+        // If already highlighting, turn it off. Otherwise, turn it on.
         if (activeTool === 'highlight') {
-            clearTools();
+            setTool(null);
         } else {
-            clearTools();
-            activeTool = 'highlight';
-            highlighterBtn.classList.add('active-tool');
-            outputArea.classList.add('cursor-highlight');
+            setTool('highlight');
         }
     });
 
     // 2. Toggle Eraser
-    eraserBtn.addEventListener('click', () => {
+eraserBtn.addEventListener('click', () => {
         if (activeTool === 'erase') {
-            clearTools();
+            // If turning off eraser, default back to highlighter (optional, or set to null)
+            setTool('highlight'); 
         } else {
-            clearTools();
-            activeTool = 'erase';
-            eraserBtn.classList.add('active-tool');
-            outputArea.classList.add('cursor-erase');
+            setTool('erase');
         }
     });
 
@@ -1411,5 +1444,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
         selection.removeAllRanges();
     }
-
-}); // END OF DOMContentLoaded
+});
