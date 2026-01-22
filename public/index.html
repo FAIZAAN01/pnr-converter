@@ -2225,26 +2225,24 @@
     top: 0;
     left: 0;
     z-index: 999; 
-    pointer-events: none; 
-    touch-action: none; 
+    pointer-events: none; /* Let clicks pass through when not active */
+    touch-action: none;   /* Prevent scrolling while drawing */
     
-    /* --- CHANGE THIS --- */
-    /* 'darken' is perfect for highlighters on light backgrounds */
-    mix-blend-mode: darken; 
-    
-    /* --- REMOVE THIS --- */
-    /* We will control transparency in the JS color definition instead */
-    /* opacity: 0.8; */ 
+    /* THE MAGIC TRICK: */
+    /* 'multiply' blends the yellow into the white paper, */
+    /* but leaves the black text untouched. */
+    mix-blend-mode: multiply; 
 }
 
-/* Keep the dark mode adjustment, it's still useful */
+/* Dark Mode Support */
 [data-theme='dark'] .highlight-canvas {
-    mix-blend-mode: normal;
-    opacity: 0.5;
+    /* Multiply doesn't work on dark backgrounds, so we switch to normal */
+    mix-blend-mode: screen; 
+    opacity: 0.6;
 }
 
 .highlight-canvas.active {
-    pointer-events: auto;
+    pointer-events: auto; /* Capture clicks when active */
     cursor: crosshair;
 }
 /* Update this in your style block */

@@ -1316,23 +1316,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return cvs;
         }
 
-        // Helper to set the drawing style based on tool
-function setToolStyle(tool) {
+// Helper to set the drawing style based on tool
+        function setToolStyle(tool) {
             if (!ctx) return;
             
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             
             if (tool === 'marker') {
-                ctx.globalCompositeOperation = 'source-over'; 
-                ctx.lineWidth = 15;
+                ctx.globalCompositeOperation = 'source-over';
                 
-                // --- CHANGE THIS LINE ---
-                // Use a brighter, more saturated neon yellow with higher opacity (e.g., 0.8)
-                ctx.strokeStyle = 'rgba(255, 255, 0, 0.8)'; 
+                // 1. Thicker line for a "marker" feel
+                ctx.lineWidth = 18; 
+                
+                // 2. BRIGHT NEON YELLOW (No Transparency)
+                // The 'multiply' CSS handles the blending, so we use solid color here
+                // for maximum brightness.
+                ctx.strokeStyle = '#ffff00'; 
                 
             } else if (tool === 'eraser') {
-                // ... eraser code remains the same ...
                 ctx.globalCompositeOperation = 'destination-out'; 
                 ctx.lineWidth = 30; 
                 ctx.strokeStyle = 'rgba(0,0,0,1)'; 
