@@ -1301,7 +1301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeTool === 'highlight') {
             clearTools();
         } else {
-            clearTools();
+            clearTools(); // Clear others first
             activeTool = 'highlight';
             highlighterBtn.classList.add('active-tool');
             outputArea.classList.add('cursor-highlight');
@@ -1320,31 +1320,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. Handle Mouse Release (Apply Highlight or Erase)
+    // 3. Handle Mouse Release (Apply Highlight)
     outputArea.addEventListener('mouseup', () => {
         if (!activeTool) return;
 
         const selection = window.getSelection();
+        // Only proceed if user actually selected text
         if (selection.isCollapsed || !selection.rangeCount) return;
 
+        // Ensure selection is inside the Output Container
         const outputContainer = document.querySelector('.output-container');
         if (!outputContainer) return;
-
-        // Strict containment check
+        
+        // Check strict containment (start and end must be inside)
         if (!outputContainer.contains(selection.anchorNode) || 
             !outputContainer.contains(selection.focusNode)) {
             return;
         }
 
         if (activeTool === 'highlight') {
-            // CALL THE NEW SAFE FUNCTION INSTEAD OF DIRECT LOGIC
-            applyHighlightSafe(selection);
+            const range = selection.getRangeAt(0);
+            
+            // Create the highlight element
+            const span = document.createElement('span');
+            span.className = 'user-highlight'; // Applies our "Tall" CSS
+
+            try {
+                // Apply the span around the text
+                range.surroundContents(span);
+                
+                // Clear selection so user can see the yellow immediately
+                selection.removeAllRanges(); 
+            } catch (e) {
+                // surroundContents fails if selection crosses multiple block elements (like <div>s)
+                // This is a known limitation of simple highlighting logic
+                showPopup("Please highlight one text block at a time (e.g., Time OR Airport).");
+            }
         } 
         else if (activeTool === 'erase') {
-            // Eraser Logic
+            // Eraser Logic: Find if we clicked inside a highlight span
             let node = selection.anchorNode;
             while (node && node !== outputArea) {
                 if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
+                    // Unwrap the span (remove background, keep text)
                     const parent = node.parentNode;
                     while (node.firstChild) parent.insertBefore(node.firstChild, node);
                     parent.removeChild(node);
@@ -1355,61 +1373,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
-    // --- NEW FUNCTION: ALLOWS REPETITIVE/OVERLAPPING HIGHLIGHTS ---
-    function applyHighlightSafe(selection) {
-        const range = selection.getRangeAt(0);
-        
-        // Find all text nodes strictly within the selection range
-        const textNodes = [];
-        const walker = document.createTreeWalker(
-            range.commonAncestorContainer, 
-            NodeFilter.SHOW_TEXT,
-            {
-                acceptNode: function(node) {
-                    return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-                }
-            }
-        );
-
-        while (walker.nextNode()) {
-            textNodes.push(walker.currentNode);
-        }
-
-        // Iterate through nodes and highlight ONLY the un-highlighted parts
-        textNodes.forEach(node => {
-            // If parent is already highlighted, SKIP it (allows overlapping selection without error)
-            if (node.parentElement && node.parentElement.classList.contains('user-highlight')) {
-                return; 
-            }
-
-            let start = 0;
-            let end = node.nodeValue.length;
-
-            if (node === range.startContainer) start = range.startOffset;
-            if (node === range.endContainer) end = range.endOffset;
-
-            if (end > start) {
-                const span = document.createElement('span');
-                span.className = 'user-highlight';
-                
-                // PREVENTS TRANSLATION ISSUES
-                span.setAttribute('translate', 'no');
-                span.classList.add('notranslate');
-
-                try {
-                    const subRange = document.createRange();
-                    subRange.setStart(node, start);
-                    subRange.setEnd(node, end);
-                    subRange.surroundContents(span);
-                } catch (err) {
-                    // Silently fail on weird edge cases rather than alerting user
-                    console.warn("Skipping complex node overlap");
-                }
-            }
-        });
-
-        selection.removeAllRanges();
-    }
-
-}); // END OF DOMContentLoaded
+});
