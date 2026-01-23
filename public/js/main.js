@@ -73,7 +73,7 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
             clonedBody.style.width = 'auto'; 
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
-            clonedBody.style.padding = '0 0 5px 0';
+            clonedBody.style.padding = '0 0 10px 0';
             
             if (clonedElement) {
                 // 3. Force the specific element to maintain its full content width
@@ -1132,34 +1132,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper: Reset tool buttons
     function clearTools() {
         activeTool = null;
-        highlighterBtn.classList.remove('active-tool');
-        eraserBtn.classList.remove('active-tool');
-        outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+        if (highlighterBtn) highlighterBtn.classList.remove('active-tool');
+        if (eraserBtn) eraserBtn.classList.remove('active-tool');
+        if (outputArea) outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+    }
+
+    // Make highlighter the default active tool
+    if (highlighterBtn && outputArea) {
+        activeTool = 'highlight';
+        highlighterBtn.classList.add('active-tool');
+        outputArea.classList.add('cursor-highlight');
+        if (eraserBtn) eraserBtn.classList.remove('active-tool');
     }
 
     // 1. Toggle Highlighter
-    highlighterBtn.addEventListener('click', () => {
-        if (activeTool === 'highlight') {
-            clearTools();
-        } else {
-            clearTools(); // Clear others first
-            activeTool = 'highlight';
-            highlighterBtn.classList.add('active-tool');
-            outputArea.classList.add('cursor-highlight');
-        }
-    });
+    if (highlighterBtn) {
+        highlighterBtn.addEventListener('click', () => {
+            if (activeTool === 'highlight') {
+                clearTools();
+            } else {
+                clearTools(); // Clear others first
+                activeTool = 'highlight';
+                highlighterBtn.classList.add('active-tool');
+                if (outputArea) outputArea.classList.add('cursor-highlight');
+            }
+        });
+    }
 
     // 2. Toggle Eraser
-    eraserBtn.addEventListener('click', () => {
-        if (activeTool === 'erase') {
-            clearTools();
-        } else {
-            clearTools();
-            activeTool = 'erase';
-            eraserBtn.classList.add('active-tool');
-            outputArea.classList.add('cursor-erase');
-        }
-    });
+    if (eraserBtn) {
+        eraserBtn.addEventListener('click', () => {
+            if (activeTool === 'erase') {
+                clearTools();
+            } else {
+                clearTools();
+                activeTool = 'erase';
+                eraserBtn.classList.add('active-tool');
+                if (outputArea) outputArea.classList.add('cursor-erase');
+            }
+        });
+    }
 
 // 3. Handle Mouse Release (Apply Highlight)
 outputArea.addEventListener('mouseup', () => {
