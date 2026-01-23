@@ -143,9 +143,7 @@ function saveOptions() {
             currency: document.getElementById('currencySelect').value,
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
-            highlighterBtn: document.getElementById('highlighterBtn').checked,
             baggageUnit: getSelectedUnit()
-            // Removed: useModernLayout
         };
         localStorage.setItem(OPTIONS_STORAGE_KEY, JSON.stringify(optionsToSave));
     } catch (e) { console.error("Failed to save options:", e); }
@@ -168,11 +166,11 @@ function loadOptions() {
 
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
-            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees', 'highlighterBtn'
+            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
         ];
         const defaultValues = {
             showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
-            showTransit: true, showTaxes: true, showFees: true, highlighterBtn: true
+            showTransit: true, showTaxes: true, showFees: true
         };
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
