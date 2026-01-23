@@ -144,6 +144,7 @@ function saveOptions() {
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
             showAirline: document.getElementById('showAirline').checked,
+            highlighterBtn: document.getElementById('highlighterBtn').checked,
             baggageUnit: getSelectedUnit()
             // Removed: useModernLayout
         };
