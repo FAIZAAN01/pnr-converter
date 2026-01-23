@@ -73,7 +73,7 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
             clonedBody.style.width = 'auto'; 
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
-            clonedBody.style.padding-bottom = '5px';
+            clonedBody.style.padding = '0 0 5px 0';
             
             if (clonedElement) {
                 // 3. Force the specific element to maintain its full content width
