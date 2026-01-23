@@ -143,6 +143,7 @@ function saveOptions() {
             currency: document.getElementById('currencySelect').value,
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
+            showAirline: document.getElementById('showAirline').checked,
             baggageUnit: getSelectedUnit()
             // Removed: useModernLayout
         };
