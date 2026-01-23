@@ -2014,7 +2014,7 @@
 }
 
 /* 2. Cursor changes */
-.cursor-highlight { cursor: text; } /* Standard text cursor makes selecting easier */
+.cursor-highlight { cursor: pointer; } /* Standard text cursor makes selecting easier */
 .cursor-erase { cursor: cell; }     /* Distinct cursor for erasing */
 
 /* 3. THE THICK HIGHLIGHTER STYLE */
@@ -2023,8 +2023,8 @@
     color: #000 !important;      /* Enforce black text for contrast */
     
     /* These properties create the "Tall/Thick" look */
-    padding-top: 0px;           /* Extends yellow above text */
-    padding-bottom: 0px;        /* Extends yellow below text */
+    padding-top: 3px;           /* Extends yellow above text */
+    padding-bottom: 3px;        /* Extends yellow below text */
     padding-left: 0px;          /* Small buffer on left */
     padding-right: 0px;         /* Small buffer on right */
     
@@ -2242,11 +2242,7 @@
                             </svg> Copy Screenshot</button>
                         <button id="copyTextBtn">📋 Copy Text</button>
                         <button id="highlighterBtn" title="Highlighter">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-        <path d="M2 2l7.586 7.586"></path>
-    </svg>
+    <svg width="800px" height="800px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.688 3.525l-2.213-2.212a1.253 1.253 0 0 0-1.704-.06L5.053 13.226 4.05 17.244 1.274 20.02l4.061 1.353 1.42-1.42 4.018-1.005L22.75 5.227a1.254 1.254 0 0 0-.061-1.702zM5.77 14.478l3.751 3.751-2.869.717-1.6-1.6zm-.706 5.75l-1.94-.647L4.5 18.207 5.793 19.5zM21.995 4.57l-11.52 13.197-4.243-4.243L19.427 2.007a.251.251 0 0 1 .34.013l2.214 2.213a.25.25 0 0 1 .014.338z"/><path fill="none" d="M0 0h24v24H0z"/></svg>
 </button>
 
 <button id="eraserBtn" title="Eraser">
