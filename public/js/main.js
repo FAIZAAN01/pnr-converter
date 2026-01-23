@@ -143,7 +143,6 @@ function saveOptions() {
             currency: document.getElementById('currencySelect').value,
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
-            showAirline: document.getElementById('showAirline').checked,
             highlighterBtn: document.getElementById('highlighterBtn').checked,
             baggageUnit: getSelectedUnit()
             // Removed: useModernLayout
@@ -169,11 +168,11 @@ function loadOptions() {
 
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
-            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
+            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees', 'highlighterBtn'
         ];
         const defaultValues = {
             showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
-            showTransit: true, showTaxes: true, showFees: true
+            showTransit: true, showTaxes: true, showFees: true, highlighterBtn: true
         };
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
