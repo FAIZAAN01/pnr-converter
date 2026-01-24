@@ -130,7 +130,7 @@ function saveOptions() {
             autoConvertOnPaste: document.getElementById('autoConvertToggle').checked,
             isEditable: document.getElementById('editableToggle').checked,
             segmentTimeFormat: document.querySelector('input[name="segmentTimeFormat"]:checked').value,
-            transitTimeFormat: document.querySelector('input[name="transitTimeFormat"]:checked').value,
+            transitTimeFormat: document.querySelector('input[name="transitTimeFormat_sidebar"]:checked').value,
             showItineraryLogo: document.getElementById('showItineraryLogo').checked,
             showAirline: document.getElementById('showAirline').checked,
             showAircraft: document.getElementById('showAircraft').checked,
@@ -162,7 +162,11 @@ function loadOptions() {
             if (el) el.checked = true;
         };
         setRadio('segmentTimeFormat', savedOptions.segmentTimeFormat || '24h');
-        setRadio('transitTimeFormat', savedOptions.transitTimeFormat || '24h');
+        // --- FIX HERE: Load settings for BOTH names ---
+        const savedTransit = savedOptions.transitTimeFormat || '24h';
+        setRadio('transitTimeFormat_sidebar', savedTransit);
+        setRadio('transitTimeFormat_modal', savedTransit);
+        // ----------------------------------------------
 
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
@@ -292,7 +296,7 @@ async function handleConvertClick() {
 
     const options = {
         segmentTimeFormat: document.querySelector('input[name="segmentTimeFormat"]:checked').value,
-        transitTimeFormat: document.querySelector('input[name="transitTimeFormat"]:checked').value,
+        transitTimeFormat: document.querySelector('input[name="transitTimeFormat_sidebar"]:checked').value,
     };
 
     try {
