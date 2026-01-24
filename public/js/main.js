@@ -817,11 +817,39 @@ const historyManager = {
     }
 };
 
-// --- EVENT LISTENERS & APP INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     loadOptions();
     loadPresetLogoGrid();
     historyManager.init();
+
+    // <--- NEW: Synchronization Logic for Duplicate IDs (Sidebar vs Modal) --->
+    // This ensures that if you click "12h" in the sidebar, it updates the modal and vice versa.
+    const transitRadios = document.querySelectorAll('input[name="transitTimeFormat_sidebar"], input[name="transitTimeFormat_modal"]');
+
+    function syncTransitTimeFormats(e) {
+        const selectedValue = e.target.value;
+
+        // 1. Visually update the matching radio in the other group
+        transitRadios.forEach(radio => {
+            if (radio.value === selectedValue) {
+                radio.checked = true;
+            }
+        });
+
+        // 2. Trigger updates
+        saveOptions();
+        if (lastPnrResult) {
+            handleConvertClick(); // Re-convert if we have data
+        } else {
+            liveUpdateDisplay(); // Just update UI if empty
+        }
+    }
+
+    transitRadios.forEach(radio => {
+        radio.addEventListener('change', syncTransitTimeFormats);
+    });
+    // <--- END NEW LOGIC --->
+
 
     document.getElementById('convertBtn').addEventListener('click', handleConvertClick);
 
@@ -841,7 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const start = input.selectionStart;
             const end = input.selectionEnd;
             const before = input.value.slice(0, start);
-            const after  = input.value.slice(end);
+            const after = input.value.slice(end);
             input.value = before + pastedText + after;
             const newPos = start + pastedText.length;
             input.setSelectionRange(newPos, newPos);
@@ -858,14 +886,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('editableToggle').addEventListener('change', () => { updateEditableState(); saveOptions(); });
     document.getElementById('autoConvertToggle').addEventListener('change', saveOptions);
 
-    const allTheRest = '.options input, .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
+    // Note: I removed 'transitTimeFormat' from this generic listener to prevent double-firing, 
+    // as it is now handled by the specific sync logic above.
+    const allTheRest = '.options input:not([name^="transitTimeFormat"]), .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
+
     document.querySelectorAll(allTheRest).forEach(el => {
         const eventType = el.matches('input[type="checkbox"], input[type="radio"], select') ? 'change' : 'input';
         el.addEventListener(eventType, () => {
             saveOptions();
             if (el.id === 'showTaxes' || el.id === 'showFees') toggleFareInputsVisibility();
             if (el.id === 'showTransit') toggleTransitSymbolInputVisibility();
-            if ((el.name === 'segmentTimeFormat' || el.name === 'transitTimeFormat') && lastPnrResult) {
+
+            // Only check segmentTimeFormat here now
+            if (el.name === 'segmentTimeFormat' && lastPnrResult) {
                 handleConvertClick();
             } else {
                 liveUpdateDisplay();
@@ -915,10 +948,10 @@ document.addEventListener('DOMContentLoaded', () => {
         screenshotBtn.addEventListener('click', async () => {
             const outputEl = document.getElementById('output').querySelector('.output-container');
             if (!outputEl) { showPopup('Nothing to capture.'); return; }
-            
+
             const originalText = screenshotBtn.innerText;
             screenshotBtn.innerText = "HQ Capturing...";
-            
+
             try {
                 // PASS 2 FOR HIGH QUALITY
                 const canvas = await generateItineraryCanvasDoc(outputEl, 2);
@@ -939,12 +972,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const stdResBtn = document.getElementById('copyTextBtn');
     if (stdResBtn) {
         // Renaming the button to reflect new purpose
-        stdResBtn.innerText = "📧 Screenshot"; 
-        
+        stdResBtn.innerText = "📧 Screenshot";
+
         stdResBtn.addEventListener('click', async () => {
             const outputEl = document.getElementById('output').querySelector('.output-container');
             if (!outputEl) { showPopup('Nothing to capture.'); return; }
-            
+
             const originalText = stdResBtn.innerText;
             stdResBtn.innerText = "Capturing...";
 
@@ -964,13 +997,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-// --- HELPER: Manage User Email (Local Storage) ---
+    // --- HELPER: Manage User Email (Local Storage) ---
     function getStoredUserEmail() {
         return localStorage.getItem('pnrConverterUserEmail');
     }
 
     function setStoredUserEmail(email) {
-        if(email && email.includes('@')) {
+        if (email && email.includes('@')) {
             localStorage.setItem('pnrConverterUserEmail', email.trim());
             updateEmailDisplay();
             return true;
@@ -981,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateEmailDisplay() {
         const email = getStoredUserEmail();
         const display = document.getElementById('userEmailDisplay');
-        if(display) {
+        if (display) {
             display.textContent = email ? `Reporting as: ${email}` : "No email set";
         }
     }
@@ -990,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('userEmailDisplay')?.addEventListener('click', () => {
         const current = getStoredUserEmail() || "";
         const newEmail = prompt("Enter email for reporting:", current);
-        if(newEmail !== null) setStoredUserEmail(newEmail);
+        if (newEmail !== null) setStoredUserEmail(newEmail);
     });
 
     function updateReportButtonState() {
@@ -1010,18 +1043,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 btn.classList.add('btn-disabled');
                 btn.classList.remove('active');
-                if(globalClassOverride) {
+                if (globalClassOverride) {
                     globalClassOverride = null; // Reset if cleared
                     const original = btn.getAttribute('data-original-text');
-                    if(original) btn.textContent = original;
+                    if (original) btn.textContent = original;
                 }
             }
         });
 
-        if(msg) msg.style.display = isEnabled ? 'none' : 'block';
+        if (msg) msg.style.display = isEnabled ? 'none' : 'block';
     }
 
-// Bind state checker
+    // Bind state checker
     document.getElementById('pnrInput').addEventListener('input', updateReportButtonState);
     document.getElementById('convertBtn').addEventListener('click', () => setTimeout(updateReportButtonState, 500));
     updateReportButtonState(); // Initial check
@@ -1029,12 +1062,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MAIN LOGIC: Class Override & Seamless IP Report ---
     const classBtns = document.querySelectorAll('.class-override-btn');
-    
+
     classBtns.forEach(btn => {
         btn.addEventListener('click', async (e) => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
-            
+
             if (!e.target.getAttribute('data-original-text')) {
                 e.target.setAttribute('data-original-text', originalText);
             }
@@ -1046,12 +1079,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.textContent = originalText;
             } else {
                 globalClassOverride = val;
-                
+
                 // UI Updates
                 classBtns.forEach(b => {
                     b.classList.remove('active');
                     const otherOriginal = b.getAttribute('data-original-text');
-                    if(otherOriginal) b.textContent = otherOriginal; 
+                    if (otherOriginal) b.textContent = otherOriginal;
                 });
                 e.target.classList.add('active');
                 document.getElementById('showClass').checked = true;
@@ -1066,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (typeof lastPastedPNR !== 'undefined' && lastPastedPNR) {
                     pnrDataToSend = lastPastedPNR;
                 }
-                
+
                 // Visual Feedback
                 e.target.textContent = "Sending...";
                 e.target.disabled = true;
@@ -1085,13 +1118,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     // B. Send Report
                     await fetch("https://api.web3forms.com/submit", {
                         method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json", 
-                            "Accept": "application/json" 
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
                         },
                         body: JSON.stringify({
                             access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
-                            name: "System Reporter", 
+                            name: "System Reporter",
                             email: "system@pnrconverter.com", // System email
                             subject: `Override: ${val} (IP: ${userIP})`,
                             message: `User (IP: ${userIP}) corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
@@ -1120,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hook into existing convert button to update button state
     document.getElementById('convertBtn').addEventListener('click', () => {
         // Small delay to allow lastPnrResult to populate
-        setTimeout(updateReportButtonState, 500); 
+        setTimeout(updateReportButtonState, 500);
     });
     // --- HIGHLIGHTER IMPLEMENTATION ---
 
@@ -1173,102 +1206,102 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-// 3. Handle Mouse Release (Apply Highlight)
-outputArea.addEventListener('mouseup', () => {
-    if (!activeTool) return;
+    // 3. Handle Mouse Release (Apply Highlight)
+    outputArea.addEventListener('mouseup', () => {
+        if (!activeTool) return;
 
-    const selection = window.getSelection();
-    if (selection.isCollapsed || !selection.rangeCount) return;
+        const selection = window.getSelection();
+        if (selection.isCollapsed || !selection.rangeCount) return;
 
-    const outputContainer = document.querySelector('.output-container');
-    if (!outputContainer) return;
+        const outputContainer = document.querySelector('.output-container');
+        if (!outputContainer) return;
 
-    // Check strict containment
-    if (!outputContainer.contains(selection.anchorNode) || 
-        !outputContainer.contains(selection.focusNode)) {
-        return;
-    }
+        // Check strict containment
+        if (!outputContainer.contains(selection.anchorNode) ||
+            !outputContainer.contains(selection.focusNode)) {
+            return;
+        }
 
-    if (activeTool === 'highlight') {
-        const range = selection.getRangeAt(0);
-        const highlightClass = 'user-highlight';
+        if (activeTool === 'highlight') {
+            const range = selection.getRangeAt(0);
+            const highlightClass = 'user-highlight';
 
-        // 1. Identify the root for our search (TreeWalker requires an Element, not Text)
-        const rootNode = range.commonAncestorContainer.nodeType === 3 
-            ? range.commonAncestorContainer.parentNode 
-            : range.commonAncestorContainer;
+            // 1. Identify the root for our search (TreeWalker requires an Element, not Text)
+            const rootNode = range.commonAncestorContainer.nodeType === 3
+                ? range.commonAncestorContainer.parentNode
+                : range.commonAncestorContainer;
 
-        // 2. Walk through all Text Nodes within the selection
-        const walker = document.createTreeWalker(
-            rootNode,
-            NodeFilter.SHOW_TEXT,
-            {
-                acceptNode: function(node) {
-                    // Only accept nodes that touch the selection
-                    if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
-                    
-                    // CRITICAL: Prevent darkening by skipping text that is already highlighted
-                    if (node.parentElement && node.parentElement.classList.contains(highlightClass)) {
-                        return NodeFilter.FILTER_REJECT;
+            // 2. Walk through all Text Nodes within the selection
+            const walker = document.createTreeWalker(
+                rootNode,
+                NodeFilter.SHOW_TEXT,
+                {
+                    acceptNode: function (node) {
+                        // Only accept nodes that touch the selection
+                        if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
+
+                        // CRITICAL: Prevent darkening by skipping text that is already highlighted
+                        if (node.parentElement && node.parentElement.classList.contains(highlightClass)) {
+                            return NodeFilter.FILTER_REJECT;
+                        }
+
+                        return NodeFilter.FILTER_ACCEPT;
                     }
-                    
-                    return NodeFilter.FILTER_ACCEPT;
                 }
-            }
-        );
+            );
 
-        const textNodes = [];
-        let currentNode = walker.nextNode();
-        while (currentNode) {
-            textNodes.push(currentNode);
-            currentNode = walker.nextNode();
+            const textNodes = [];
+            let currentNode = walker.nextNode();
+            while (currentNode) {
+                textNodes.push(currentNode);
+                currentNode = walker.nextNode();
+            }
+
+            // 3. Wrap each valid text node individually
+            textNodes.forEach(node => {
+                try {
+                    const subRange = document.createRange();
+                    subRange.selectNodeContents(node);
+
+                    // Trim the range if it's the start or end of the user's selection
+                    if (node === range.startContainer) {
+                        subRange.setStart(node, range.startOffset);
+                    }
+                    if (node === range.endContainer) {
+                        subRange.setEnd(node, range.endOffset);
+                    }
+
+                    // Don't process empty ranges (can happen at boundaries)
+                    if (subRange.toString().length === 0) return;
+
+                    const span = document.createElement('span');
+                    span.className = highlightClass;
+                    span.setAttribute('translate', 'no');
+                    span.classList.add('notranslate');
+
+                    subRange.surroundContents(span);
+                } catch (e) {
+                    console.warn("Highlight error on node:", e);
+                }
+            });
+
+            // Clear selection to show the result clearly
+            selection.removeAllRanges();
         }
-
-        // 3. Wrap each valid text node individually
-        textNodes.forEach(node => {
-            try {
-                const subRange = document.createRange();
-                subRange.selectNodeContents(node);
-
-                // Trim the range if it's the start or end of the user's selection
-                if (node === range.startContainer) {
-                    subRange.setStart(node, range.startOffset);
+        else if (activeTool === 'erase') {
+            // Eraser Logic: Find if we clicked inside a highlight span
+            let node = selection.anchorNode;
+            while (node && node !== outputArea) {
+                if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
+                    // Unwrap the span (remove background, keep text)
+                    const parent = node.parentNode;
+                    while (node.firstChild) parent.insertBefore(node.firstChild, node);
+                    parent.removeChild(node);
+                    selection.removeAllRanges();
+                    return;
                 }
-                if (node === range.endContainer) {
-                    subRange.setEnd(node, range.endOffset);
-                }
-
-                // Don't process empty ranges (can happen at boundaries)
-                if (subRange.toString().length === 0) return;
-
-                const span = document.createElement('span');
-                span.className = highlightClass;
-                span.setAttribute('translate', 'no');
-                span.classList.add('notranslate');
-
-                subRange.surroundContents(span);
-            } catch (e) {
-                console.warn("Highlight error on node:", e);
+                node = node.parentNode;
             }
-        });
-
-        // Clear selection to show the result clearly
-        selection.removeAllRanges();
-    } 
-    else if (activeTool === 'erase') {
-        // Eraser Logic: Find if we clicked inside a highlight span
-        let node = selection.anchorNode;
-        while (node && node !== outputArea) {
-            if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
-                // Unwrap the span (remove background, keep text)
-                const parent = node.parentNode;
-                while (node.firstChild) parent.insertBefore(node.firstChild, node);
-                parent.removeChild(node);
-                selection.removeAllRanges();
-                return;
-            }
-            node = node.parentNode;
         }
-    }
-});
+    });
 });
