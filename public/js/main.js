@@ -616,7 +616,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         `;
 
         floatingPanel.innerHTML = `
-            <input type="text" placeholder="Baggage..." 
+            <input type="text" placeholder="Baggage..."
+                    name = "baggageInput"
                    value="${currentBaggageValue}" 
                    oninput="${updateJs.replace(/this.innerText/g, 'this.value')}"> <div class="float-btn-grid">
                 <button class="float-btn" onclick="${updateJs}">15 Kgs</button>
