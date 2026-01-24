@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <!--content type header charset utf-8-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
+    <!-- The following meta tag is correct HTML and does not cause TS1109 in HTML files.
+         If you are seeing TS1109: (JS) Expression expected. in a TypeScript or JavaScript file,
+         it is likely that you have accidentally pasted HTML code into a .ts or .js file.
+         Make sure this line only appears in your HTML file, not in any .ts or .js files. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>International PNR Converter | Human-Readable Itinerary Output</title>
     <link rel="shortcut icon" href="pass.jpeg" type="image/x-icon">
@@ -14,7 +17,7 @@
 
     <meta property="og:title" content="PNR Converter - Convert Flight PNR to Readable Itinerary">
     <meta property="og:description"
-        content="Easily convert airline PNR data into a clear, human-readable itinerary format.">
+          content="Easily convert airline PNR data into a clear, human-readable itinerary format.">
     <meta property="og:image" content="pass.jpeg">
     <meta property="og:type" content="website">
     <style>
@@ -31,7 +34,6 @@
             --history-purple: #D4AF37;
             --history-purple-hover: #BC9B31;
             --transit-long-yellow: #f39c12;
-
             /* Light Theme (Default) */
             --bg-main: #F5F7FA;
             --bg-card: #FFFFFF;
@@ -114,9 +116,9 @@
             margin-bottom: 20px;
         }
 
-        .card-header h3 {
-            margin: 0;
-        }
+            .card-header h3 {
+                margin: 0;
+            }
 
         .header-actions {
             display: flex;
@@ -140,17 +142,17 @@
             transition: all 0.2s ease;
         }
 
-        .header-btn:hover {
-            background-color: var(--bg-hover);
-            color: var(--text-main);
-            border-color: #d1d9e0;
-        }
+            .header-btn:hover {
+                background-color: var(--bg-hover);
+                color: var(--text-main);
+                border-color: #d1d9e0;
+            }
 
-        .header-btn svg {
-            width: 18px;
-            height: 18px;
-            stroke: currentColor;
-        }
+            .header-btn svg {
+                width: 18px;
+                height: 18px;
+                stroke: currentColor;
+            }
 
         #themeToggleBtn .moon-icon {
             display: none;
@@ -193,13 +195,13 @@
             color: var(--text-main);
         }
 
-        textarea#pnrInput:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
-            position: relative;
-            z-index: 2;
-        }
+            textarea#pnrInput:focus {
+                outline: none;
+                border-color: var(--primary-blue);
+                box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+                position: relative;
+                z-index: 2;
+            }
 
         #baggageAmountInput {
             height: 30px;
@@ -220,9 +222,9 @@
             cursor: pointer;
         }
 
-        #convertBtn:hover {
-            background-color: var(--primary-blue-hover);
-        }
+            #convertBtn:hover {
+                background-color: var(--primary-blue-hover);
+            }
 
         .vertical-icon-group {
             display: flex;
@@ -244,11 +246,11 @@
             flex: 1;
         }
 
-        .control-icon-btn:hover {
-            background-color: var(--bg-hover);
-            color: var(--text-main);
-            z-index: 1;
-        }
+            .control-icon-btn:hover {
+                background-color: var(--bg-hover);
+                color: var(--text-main);
+                z-index: 1;
+            }
 
         #pasteBtn {
             border-radius: 0 6px 0 0;
@@ -352,14 +354,14 @@
             transition: 0.2s;
         }
 
-        .toggle-switch input:checked+.switch-body {
+        .toggle-switch input:checked + .switch-body {
             background: var(--success-green);
         }
 
-        .toggle-switch input:checked+.switch-body::after {
-            left: calc(100% - 2px);
-            transform: translateX(-100%);
-        }
+            .toggle-switch input:checked + .switch-body::after {
+                left: calc(100% - 2px);
+                transform: translateX(-100%);
+            }
 
         .c-unit-toggle {
             position: relative;
@@ -386,17 +388,17 @@
             transition: background-color 0.3s;
         }
 
-        .c-unit-toggle__label::before {
-            position: absolute;
-            content: "";
-            height: 19px;
-            width: 20px;
-            top: 3px;
-            left: 4px;
-            background-color: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
+            .c-unit-toggle__label::before {
+                position: absolute;
+                content: "";
+                height: 19px;
+                width: 20px;
+                top: 3px;
+                left: 4px;
+                background-color: white;
+                border-radius: 50%;
+                transition: transform 0.3s;
+            }
 
         .c-unit-toggle__options {
             display: flex;
@@ -409,13 +411,13 @@
             font-size: 10px;
         }
 
-        .c-unit-toggle__input:checked+.c-unit-toggle__label {
+        .c-unit-toggle__input:checked + .c-unit-toggle__label {
             background-color: var(--success-green);
         }
 
-        .c-unit-toggle__input:checked+.c-unit-toggle__label::before {
-            transform: translateX(21px);
-        }
+            .c-unit-toggle__input:checked + .c-unit-toggle__label::before {
+                transform: translateX(21px);
+            }
 
         .fare-options-grid {
             display: grid;
@@ -430,34 +432,34 @@
             gap: 5px;
         }
 
-        .fare-group.hidden {
-            display: none;
-        }
+            .fare-group.hidden {
+                display: none;
+            }
 
-        .fare-group label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
+            .fare-group label {
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--text-secondary);
+            }
 
-        .fare-group input,
-        .fare-group select {
-            padding: 8px;
-            border: 1px solid var(--border-main);
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: var(--bg-card);
-            color: var(--text-main);
-        }
+            .fare-group input,
+            .fare-group select {
+                padding: 8px;
+                border: 1px solid var(--border-main);
+                border-radius: 4px;
+                width: 100%;
+                box-sizing: border-box;
+                background-color: var(--bg-card);
+                color: var(--text-main);
+            }
 
-        .fare-group .count-fare-wrapper {
-            display: flex;
-        }
+            .fare-group .count-fare-wrapper {
+                display: flex;
+            }
 
-        .fare-group .count-fare-wrapper>div {
-            flex: 0.4;
-        }
+                .fare-group .count-fare-wrapper > div {
+                    flex: 0.4;
+                }
 
         .baggage-options {
             margin-top: 20px;
@@ -501,12 +503,12 @@
             justify-content: center;
         }
 
-        .combobox-arrow::after {
-            content: '';
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 5px solid var(--text-secondary);
-        }
+            .combobox-arrow::after {
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid var(--text-secondary);
+            }
 
         .combobox-dropdown {
             position: absolute;
@@ -523,18 +525,18 @@
             display: none;
         }
 
-        .combobox-dropdown.open {
-            display: block;
-        }
+            .combobox-dropdown.open {
+                display: block;
+            }
 
         .combobox-option {
             padding: 8px;
             cursor: pointer;
         }
 
-        .combobox-option:hover {
-            background-color: var(--bg-hover);
-        }
+            .combobox-option:hover {
+                background-color: var(--bg-hover);
+            }
 
         #allTheWayInputs {
             display: none;
@@ -542,9 +544,9 @@
             gap: 10px;
         }
 
-        #allTheWayInputs.visible {
-            display: flex;
-        }
+            #allTheWayInputs.visible {
+                display: flex;
+            }
 
         .output-area .output-actions {
             display: flex;
@@ -561,12 +563,12 @@
             margin: 15px 0 200px 0;
         }
 
-        #output[contenteditable="true"] {
-            border: 2px dashed #3498db;
-            padding: 10px;
-            border-radius: 8px;
-            background-color: #fafdff;
-        }
+            #output[contenteditable="true"] {
+                border: 2px dashed #3498db;
+                padding: 10px;
+                border-radius: 8px;
+                background-color: #fafdff;
+            }
 
         .info {
             color: #fff;
@@ -589,16 +591,15 @@
             border: 1px solid #e0e6ec !important;
             background: #ffffff !important;
             box-sizing: border-box !important;
-    
             /* ADD THESE 2 LINES: */
             max-width: 1000px; /* Restricts width to a document size */
-            margin: 0 auto;   /* Centers it on the page */
+            margin: 0 auto; /* Centers it on the page */
         }
 
-        #output .output-container * {
-            /* Base text color */
-            color: #000000;
-        }
+            #output .output-container * {
+                /* Base text color */
+                color: #000000;
+            }
 
         #output .itinerary-main-logo-container {
             display: flex;
@@ -627,10 +628,10 @@
             border-bottom: 1px solid #eee !important;
         }
 
-        #output .itinerary-header p {
-            margin: 0;
-            font-size: 14px;
-        }
+            #output .itinerary-header p {
+                margin: 0;
+                font-size: 14px;
+            }
 
         #output .itinerary-leg-header {
             text-align: center;
@@ -645,18 +646,18 @@
             /* Original blue from first file */
         }
 
-        #output .itinerary-leg-header:first-of-type {
-            margin-top: 10px;
-        }
+            #output .itinerary-leg-header:first-of-type {
+                margin-top: 10px;
+            }
 
         #output .flight-item {
             padding: 7px 15px 0px;
             /* border-bottom: 1px dashed #ccc !important; */
         }
 
-        #output .flight-item:last-child {
-            border-bottom: none !important;
-        }
+            #output .flight-item:last-child {
+                border-bottom: none !important;
+            }
 
         #output .transit-item {
             font-style: italic;
@@ -668,20 +669,20 @@
             font-weight: bold;
         }
 
-        #output .transit-item.transit-short {
-            color: #e74c3c !important;
-            /* Original red */
-        }
+            #output .transit-item.transit-short {
+                color: #e74c3c !important;
+                /* Original red */
+            }
 
-        #output .transit-item.transit-minimum {
-            color: #27ae60 !important;
-            /* Original green */
-        }
+            #output .transit-item.transit-minimum {
+                color: #27ae60 !important;
+                /* Original green */
+            }
 
-        #output .transit-item.transit-long {
-            color: #f39c12 !important;
-            /* Original yellow */
-        }
+            #output .transit-item.transit-long {
+                color: #f39c12 !important;
+                /* Original yellow */
+            }
 
         #output .airline-logo {
             width: 95px;
@@ -702,15 +703,15 @@
             color: #34495e !important;
         }
 
-        #output .flight-detail.notes-detail {
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
+            #output .flight-detail.notes-detail {
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
 
-        #output .flight-detail strong {
-            margin-right: 5px;
-            color: #5f6c7b !important;
-        }
+            #output .flight-detail strong {
+                margin-right: 5px;
+                color: #5f6c7b !important;
+            }
 
         #output .flight-content {
             display: flex;
@@ -727,9 +728,9 @@
             white-space: pre-line;
         }
 
-        #output .fare-summary strong {
-            font-size: 1.1em;
-        }
+            #output .fare-summary strong {
+                font-size: 1.1em;
+            }
 
         /* --- sidebar scroll bar styling --- */
         body::-webkit-scrollbar,
@@ -745,9 +746,9 @@
             border-radius: 20px;
         }
 
-        body::-webkit-scrollbar-thumb:hover {
-            background-color: white;
-        }
+            body::-webkit-scrollbar-thumb:hover {
+                background-color: white;
+            }
 
         /* --- sidebar scroll bar styling --- */
         .sidebar::-webkit-scrollbar {
@@ -761,9 +762,9 @@
             border-radius: 20px;
         }
 
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background-color: white;
-        }
+            .sidebar::-webkit-scrollbar-thumb:hover {
+                background-color: white;
+            }
 
         /* --- Sidebar & Modal Styles --- */
         .sidebar {
@@ -774,15 +775,15 @@
             font-family: monospace;
         }
 
-        .sidebar h3 {
-            margin-top: 0;
-            font-size: x-large;
-        }
+            .sidebar h3 {
+                margin-top: 0;
+                font-size: x-large;
+            }
 
-        .sidebar h4 {
-            margin: 20px 0 10px;
-            color: var(--text-main);
-        }
+            .sidebar h4 {
+                margin: 20px 0 10px;
+                color: var(--text-main);
+            }
 
         .options label {
             display: block;
@@ -806,14 +807,14 @@
             gap: 8px
         }
 
-        .custom-transit-input.hidden {
-            display: none
-        }
+            .custom-transit-input.hidden {
+                display: none
+            }
 
-        .custom-transit-input label {
-            margin: 0;
-            font-size: 14px
-        }
+            .custom-transit-input label {
+                margin: 0;
+                font-size: 14px
+            }
 
         #customBrandingSection {
             margin-top: 20px;
@@ -821,30 +822,30 @@
             border-top: 1px solid var(--border-main)
         }
 
-        #customBrandingSection.hidden {
-            display: none
-        }
+            #customBrandingSection.hidden {
+                display: none
+            }
 
         .custom-branding-input {
             margin-bottom: 15px
         }
 
-        .custom-branding-input label {
-            font-weight: 500;
-            margin-bottom: 8px;
-            display: block
-        }
+            .custom-branding-input label {
+                font-weight: 500;
+                margin-bottom: 8px;
+                display: block
+            }
 
-        .custom-branding-input input[type=file],
-        .custom-branding-input textarea {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid var(--border-main);
-            background-color: var(--bg-card);
-            color: var(--text-main);
-        }
+            .custom-branding-input input[type=file],
+            .custom-branding-input textarea {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 8px;
+                border-radius: 4px;
+                border: 1px solid var(--border-main);
+                background-color: var(--bg-card);
+                color: var(--text-main);
+            }
 
         .clear-btn {
             background-color: white;
@@ -879,10 +880,10 @@
             transition: opacity .3s, visibility .3s
         }
 
-        .modal-overlay:not(.hidden) {
-            opacity: 1;
-            visibility: visible
-        }
+            .modal-overlay:not(.hidden) {
+                opacity: 1;
+                visibility: visible
+            }
 
         .modal-content {
             background: var(--bg-card);
@@ -891,9 +892,7 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, .3);
             width: 95%;
             max-width: 1100px;
-            /* Increased width */
             height: 85vh;
-            /* Fixed height for scrolling */
             display: flex;
             flex-direction: column;
             position: relative;
@@ -925,16 +924,16 @@
             margin-bottom: 15px
         }
 
-        .modal-header .close-btn {
-            background: 0 0;
-            border: none;
-            font-size: 2.5rem;
-            line-height: 1;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 0;
-            margin: 0
-        }
+            .modal-header .close-btn {
+                background: 0 0;
+                border: none;
+                font-size: 2.5rem;
+                line-height: 1;
+                color: var(--text-secondary);
+                cursor: pointer;
+                padding: 0;
+                margin: 0
+            }
 
         .history-controls {
             display: flex;
@@ -978,14 +977,14 @@
             background: var(--secondary-dark);
         }
 
-        #screenshotBtn:hover{
-            background : green;
-        }
+            #screenshotBtn:hover {
+                background: green;
+            }
 
-        #copyTextBtn:hover,
-        .use-history-btn:hover {
-            background: var(--secondary-dark-hover);
-        }
+            #copyTextBtn:hover,
+            .use-history-btn:hover {
+                background: var(--secondary-dark-hover);
+            }
 
         #historySearchInput,
         #historySortSelect {
@@ -1016,15 +1015,15 @@
             transition: background-color .2s, transform .2s
         }
 
-        .history-item:hover {
-            background-color: var(--bg-hover);
-            transform: translateX(5px)
-        }
+            .history-item:hover {
+                background-color: var(--bg-hover);
+                transform: translateX(5px)
+            }
 
-        .history-item:active {
-            background-color: var(--bg-hover);
-            transform: translateX(5px)
-        }
+            .history-item:active {
+                background-color: var(--bg-hover);
+                transform: translateX(5px)
+            }
 
         .history-item-pax {
             font-weight: 700;
@@ -1056,22 +1055,22 @@
             z-index: 1;
         }
 
-        #historyPreviewPanel:not(.hidden) {
-            transform: translateX(0%)
-        }
+            #historyPreviewPanel:not(.hidden) {
+                transform: translateX(0%)
+            }
 
-        /* Hide the close button inside the preview panel on desktop (not needed) */
-        #historyPreviewPanel .preview-header #closePreviewBtn {
-            display: none;
-        }
+            /* Hide the close button inside the preview panel on desktop (not needed) */
+            #historyPreviewPanel .preview-header #closePreviewBtn {
+                display: none;
+            }
 
-        #historyPreviewPanel:empty::before {
-            content: "Select an item from the list to view details.";
-            display: block;
-            text-align: center;
-            margin-top: 50px;
-            color: var(--text-secondary);
-        }
+            #historyPreviewPanel:empty::before {
+                content: "Select an item from the list to view details.";
+                display: block;
+                text-align: center;
+                margin-top: 50px;
+                color: var(--text-secondary);
+            }
 
 
         .preview-header {
@@ -1089,21 +1088,21 @@
             flex-grow: 1
         }
 
-        .preview-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-            border: 1px solid #ddd
-        }
+            .preview-content img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+                margin: 0 auto;
+                border: 1px solid #ddd
+            }
 
-        .preview-content pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background: var(--bg-main);
-            padding: 15px;
-            border-radius: 4px
-        }
+            .preview-content pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                background: var(--bg-main);
+                padding: 15px;
+                border-radius: 4px
+            }
 
         .popup-notification-container {
             position: fixed;
@@ -1126,10 +1125,10 @@
             transition: all .5s cubic-bezier(.68, -.55, .27, 1.55)
         }
 
-        .popup-notification.show {
-            opacity: 1;
-            transform: translateX(0)
-        }
+            .popup-notification.show {
+                opacity: 1;
+                transform: translateX(0)
+            }
 
         .loading-spinner {
             display: none;
@@ -1165,7 +1164,7 @@
             /* #inputControls {
                 flex-wrap: wrap;
             } */
-            /* 
+            /*
             textarea#pnrInput {
                 border-radius: 6px;
                 border-right: 1px solid var(--border-main);
@@ -1213,9 +1212,9 @@
                 transition: transform .7s ease-in-out
             }
 
-            .sidebar.is-open {
-                transform: translateX(0)
-            }
+                .sidebar.is-open {
+                    transform: translateX(0)
+                }
         }
 
         #notes-header {
@@ -1299,29 +1298,28 @@
             height: auto;
         }
 
-        .about-me a {
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
+            .about-me a {
+                color: var(--primary-blue);
+                text-decoration: none;
+            }
 
-        .about-me a:hover {
-            text-decoration: underline;
-        }
+                .about-me a:hover {
+                    text-decoration: underline;
+                }
 
-        .about-me img {
-            width: 40px;
-            height: 40px;
-            margin-left: 5px;
-        }
+            .about-me img {
+                width: 40px;
+                height: 40px;
+                margin-left: 5px;
+            }
 
-        .about-me img:hover {
-            transform: scale(1.1);
-            transition: transform 0.2s;
-        }
+                .about-me img:hover {
+                    transform: scale(1.1);
+                    transition: transform 0.2s;
+                }
 
         #copyRight {
             top: 50px;
-
         }
 
         .myLogo {
@@ -1344,7 +1342,6 @@
             margin: 0px;
             border-radius: 50%;
             grid-template-columns: 5fr 1fr;
-
         }
 
         .boxScale {
@@ -1386,9 +1383,9 @@
             box-shadow: 0px 2px 50px 5px rgba(0, 127, 255, 0.6);
         }
 
-        #developerName:hover {
-            animation: nameColor 2s infinite;
-        }
+            #developerName:hover {
+                animation: nameColor 2s infinite;
+            }
 
         @keyframes nameColor {
             0% {
@@ -1528,17 +1525,17 @@
             transition: 0.2s;
         }
 
-        /* Hover effect for light/dark mode */
-        .bag-btn:hover {
-            background: var(--text-secondary, #e0e0e0);
-            color: var(--text-main, #000);
-        }
+            /* Hover effect for light/dark mode */
+            .bag-btn:hover {
+                background: var(--text-secondary, #e0e0e0);
+                color: var(--text-main, #000);
+            }
 
-        /* Active button highlight */
-        .bag-btn.active {
-            background: var(--accent-color, #00aaff);
-            color: #fff;
-        }
+            /* Active button highlight */
+            .bag-btn.active {
+                background: var(--accent-color, #00aaff);
+                color: #fff;
+            }
 
         /* Dark mode overrides */
         [data-theme="dark"] .bag-btn {
@@ -1547,15 +1544,15 @@
             border-color: var(--primary-blue-dark, #4a69bd);
         }
 
-        [data-theme="dark"] .bag-btn:hover {
-            background: var(--text-secondary-dark, #555);
-            color: var(--text-main-dark, #fff);
-        }
+            [data-theme="dark"] .bag-btn:hover {
+                background: var(--text-secondary-dark, #555);
+                color: var(--text-main-dark, #fff);
+            }
 
-        [data-theme="dark"] .bag-btn.active {
-            background: var(--accent-color-dark, #00ccff);
-            color: #000;
-        }
+            [data-theme="dark"] .bag-btn.active {
+                background: var(--accent-color-dark, #00ccff);
+                color: #000;
+            }
 
         .btn-pcs {
             background-color: var(--primary-blue-hover);
@@ -1580,33 +1577,33 @@
             font-size: 16px;
         }
 
-        #reportErrorBtn:hover {
-            background-color: #a00405;
-        }
+            #reportErrorBtn:hover {
+                background-color: #a00405;
+            }
 
-        /* Tooltip */
-        #reportErrorBtn .tooltip {
-            visibility: hidden;
-            width: 220px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 5px;
-            padding: 6px;
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 1000;
-            pointer-events: none;
-        }
+            /* Tooltip */
+            #reportErrorBtn .tooltip {
+                visibility: hidden;
+                width: 220px;
+                background-color: #333;
+                color: #fff;
+                text-align: center;
+                border-radius: 5px;
+                padding: 6px;
+                position: absolute;
+                bottom: 125%;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                transition: opacity 0.3s;
+                z-index: 1000;
+                pointer-events: none;
+            }
 
-        #reportErrorBtn:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
+            #reportErrorBtn:hover .tooltip {
+                visibility: visible;
+                opacity: 1;
+            }
 
         @media (max-width: 768px) {
             .history-split-container {
@@ -1633,14 +1630,14 @@
                 padding: 0;
             }
 
-            #historyPreviewPanel:not(.hidden) {
-                transform: translateX(0) !important;
-            }
+                #historyPreviewPanel:not(.hidden) {
+                    transform: translateX(0) !important;
+                }
 
-            #historyPreviewPanel .preview-header #closePreviewBtn {
-                display: block;
-                /* Show close button on mobile */
-            }
+                #historyPreviewPanel .preview-header #closePreviewBtn {
+                    display: block;
+                    /* Show close button on mobile */
+                }
         }
 
         /* Settings Modal Specific Styles */
@@ -1653,11 +1650,11 @@
             flex-direction: column;
         }
 
-        .settings-modal .modal-header {
-            padding: 20px;
-            margin: 0;
-            border-bottom: 1px solid var(--border-main);
-        }
+            .settings-modal .modal-header {
+                padding: 20px;
+                margin: 0;
+                border-bottom: 1px solid var(--border-main);
+            }
 
         .settings-container {
             display: flex;
@@ -1689,16 +1686,16 @@
             justify-content: flex-start;
         }
 
-        .tab-btn:hover {
-            background-color: var(--bg-hover);
-            color: var(--text-main);
-        }
+            .tab-btn:hover {
+                background-color: var(--bg-hover);
+                color: var(--text-main);
+            }
 
-        .tab-btn.active {
-            background-color: var(--bg-card);
-            color: var(--primary-blue);
-            border-left-color: var(--primary-blue);
-        }
+            .tab-btn.active {
+                background-color: var(--bg-card);
+                color: var(--primary-blue);
+                border-left-color: var(--primary-blue);
+            }
 
         /* Right Side Content */
         .settings-content {
@@ -1712,10 +1709,10 @@
             display: none;
         }
 
-        .tab-pane.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
+            .tab-pane.active {
+                display: block;
+                animation: fadeIn 0.3s ease;
+            }
 
         @keyframes fadeIn {
             from {
@@ -1743,10 +1740,10 @@
             border-radius: 6px;
         }
 
-        .setting-group h4 {
-            margin-top: 0;
-            color: var(--primary-blue);
-        }
+            .setting-group h4 {
+                margin-top: 0;
+                color: var(--primary-blue);
+            }
 
         /* Responsive Settings */
         /*@media (max-width: 768px) {
@@ -1824,17 +1821,17 @@
             border: 1px dotted var(--border-main);
         }
 
-        .non-active-version:hover {
-            cursor: pointer;
-            background-color: var(--primary-blue);
-            color: white;
-            border: 1px solid white;
-        }
+            .non-active-version:hover {
+                cursor: pointer;
+                background-color: var(--primary-blue);
+                color: white;
+                border: 1px solid white;
+            }
 
-        .non-active-version a {
-            text-decoration: none;
-            color: inherit;
-        }
+            .non-active-version a {
+                text-decoration: none;
+                color: inherit;
+            }
 
         .blur-bottom {
             position: fixed;
@@ -1868,165 +1865,170 @@
             text-align: center;
         }
 
-        .logo-option img {
-            max-width: 70px;
-            max-height: 40px;
-            object-fit: contain;
-        }
+            .logo-option img {
+                max-width: 70px;
+                max-height: 40px;
+                object-fit: contain;
+            }
 
-        .logo-option.selected {
-            border-color: var(--primary-blue);
-            background: var(--bg-card);
-            box-shadow: 0px 0px 6px rgba(0, 0, 255, 0.3);
-        }
+            .logo-option.selected {
+                border-color: var(--primary-blue);
+                background: var(--bg-card);
+                box-shadow: 0px 0px 6px rgba(0, 0, 255, 0.3);
+            }
 
-        
+
         /* Wrapper to hold the Flight Leg and the Input Box side-by-side */
-.leg-wrapper {
-    display: flex;
-    gap: 10px;
-    align-items: stretch; /* Makes them the same height */
-    margin-bottom: 5px;   /* Spacing between rows */
-}
+        .leg-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: stretch; /* Makes them the same height */
+            margin-bottom: 5px; /* Spacing between rows */
+        }
 
-/* The Input Box Styling */
-.side-input-panel {
-    width: 160px; /* Fixed width for the controls */
-    background-color: #f0f2f5;
-    border: 1px dashed #ccc;
-    border-radius: 6px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-}
+        /* The Input Box Styling */
+        .side-input-panel {
+            width: 160px; /* Fixed width for the controls */
+            background-color: #f0f2f5;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+        }
 
-.side-input-panel input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 5px;
-    font-size: 13px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-}
+            .side-input-panel input {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 5px;
+                font-size: 13px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                text-align: center;
+                font-weight: bold;
+            }
 
-.btn-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-}
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
 
-.mini-btn {
-    font-size: 10px;
-    padding: 4px 0;
-    cursor: pointer;
-    background: #fff;
-    border: 1px solid #4a69bd;
-    color: #4a69bd;
-    border-radius: 3px;
-    transition: 0.2s;
-}
+        .mini-btn {
+            font-size: 10px;
+            padding: 4px 0;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #4a69bd;
+            color: #4a69bd;
+            border-radius: 3px;
+            transition: 0.2s;
+        }
 
-.mini-btn:hover {
-    background: #4a69bd;
-    color: white;
-}
+            .mini-btn:hover {
+                background: #4a69bd;
+                color: white;
+            }
 
 
-/* 2. The Input Field inside the panel */
-.floating-baggage-panel input {
-    width: 20%;
-    box-sizing: border-box;
-    padding: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 13px;
-    color: #2c3e50;
-}
+        /* 2. The Input Field inside the panel */
+        .floating-baggage-panel input {
+            width: 20%;
+            box-sizing: border-box;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            color: #2c3e50;
+        }
 
-/* 4. The Buttons (New Style) */
-.float-btn {
-    background-color: skyblue;
-    color: white;
-    border: none;
-    padding: 6px 4px;
-    font-size: 11px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s, transform 0.1s;
-    box-shadow: 0 2px 4px rgba(74, 105, 189, 0.2);
-    margin: 0 2px;
-}
+        /* 4. The Buttons (New Style) */
+        .float-btn {
+            background-color: skyblue;
+            color: white;
+            border: none;
+            padding: 6px 4px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(74, 105, 189, 0.2);
+            margin: 0 2px;
+        }
 
-.float-btn:hover {
-    background-color: #324b8f; /* Darker blue on hover */
-    transform: translateY(-1px); /* Slight lift effect */
-}
+            .float-btn:hover {
+                background-color: #324b8f; /* Darker blue on hover */
+                transform: translateY(-1px); /* Slight lift effect */
+            }
 
-.float-btn:active {
-    background-color: #324b8f; /* Click effect */
-}
-/* Disabled state for report buttons */
-.bag-btn.btn-disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none; /* Prevents clicking */
-    filter: grayscale(100%);
-}
+            .float-btn:active {
+                background-color: #324b8f; /* Click effect */
+            }
+        /* Disabled state for report buttons */
+        .bag-btn.btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none; /* Prevents clicking */
+            filter: grayscale(100%);
+        }
 
-/* Optional: Small user badge styling */
-.user-email-badge {
-    font-size: 11px; 
-    color: var(--text-secondary); 
-    margin-top: 5px; 
-    font-style: italic;
-    cursor: pointer;
-    text-decoration: underline;
-}
+        /* Optional: Small user badge styling */
+        .user-email-badge {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            font-style: italic;
+            cursor: pointer;
+            text-decoration: underline;
+        }
 
-/* Add to your <style> block in index.html */
+        /* Add to your <style> block in index.html */
 
-/* 1. Visual feedback for the Active Button */
-#highlighterBtn.active-tool {
-    background-color: #f1c40f !important; /* Vivid Yellow */
-    color: #000 !important;
-}
-#eraserBtn.active-tool {
-    background-color: #e74c3c !important; /* Red for Eraser */
-    color: white !important;
-    border-color: #c0392b !important;
-}
+        /* 1. Visual feedback for the Active Button */
+        #highlighterBtn.active-tool {
+            background-color: #f1c40f !important; /* Vivid Yellow */
+            color: #000 !important;
+        }
 
-/* 2. Cursor changes */
-.cursor-highlight { cursor: pointer; } /* Standard text cursor makes selecting easier */
-.cursor-erase { cursor: cell; }     /* Distinct cursor for erasing */
+        #eraserBtn.active-tool {
+            background-color: #e74c3c !important; /* Red for Eraser */
+            color: white !important;
+            border-color: #c0392b !important;
+        }
 
-/* 3. THE THICK HIGHLIGHTER STYLE */
-.user-highlight {
-    background-color: #ffff00;
-    color: #000 !important;      /* Enforce black text for contrast */
-    
-    /* These properties create the "Tall/Thick" look */
-    padding-top: 3px;           /* Extends yellow above text */
-    padding-bottom: 3px;        /* Extends yellow below text */
-    padding-left: 0px;          /* Small buffer on left */
-    padding-right: 0px;         /* Small buffer on right */
-    
-    /* Adds a slight bleed effect to look like ink */
-    box-shadow: 0 0 0 1px #ffff00; 
-    border-radius: 2px;         /* Softens the corners slightly */
-}
-#highlighterBtn{
-    color: black;
-}
+        /* 2. Cursor changes */
+        .cursor-highlight {
+            cursor: pointer;
+        }
+        /* Standard text cursor makes selecting easier */
+        .cursor-erase {
+            cursor: cell;
+        }
+        /* Distinct cursor for erasing */
 
+        /* 3. THE THICK HIGHLIGHTER STYLE */
+        .user-highlight {
+            background-color: #ffff00;
+            color: #000 !important; /* Enforce black text for contrast */
+            /* These properties create the "Tall/Thick" look */
+            padding-top: 3px; /* Extends yellow above text */
+            padding-bottom: 3px; /* Extends yellow below text */
+            padding-left: 0px; /* Small buffer on left */
+            padding-right: 0px; /* Small buffer on right */
+            /* Adds a slight bleed effect to look like ink */
+            box-shadow: 0 0 0 1px #ffff00;
+            border-radius: 2px; /* Softens the corners slightly */
+        }
+
+        #highlighterBtn {
+            color: black;
+        }
     </style>
 </head>
 
