@@ -338,6 +338,7 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         }
         document.getElementById('screenshotBtn').style.display = 'none';
         document.getElementById('copyTextBtn').style.display = 'none';
+        document.getElementById('ActionToolBtn').style.display = 'none';
         return;
     }
 
@@ -395,6 +396,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     const output = document.getElementById('output');
     const screenshotBtn = document.getElementById('screenshotBtn');
     const copyTextBtn = document.getElementById('copyTextBtn');
+    const actionToolBtn = document.getElementById('ActionToolBtn');
+
     output.innerHTML = '';
 
     const { flights = [], passengers = [], recordLocator = '' } = pnrResult || {};
@@ -402,9 +405,11 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     if (flights.length > 0) {
         screenshotBtn.style.display = 'inline-block';
         copyTextBtn.style.display = 'inline-block';
+        actionToolBtn.style.display = 'inline-block';
     } else {
         screenshotBtn.style.display = 'none';
         copyTextBtn.style.display = 'none';
+        actionToolBtn.style.display = 'none';
         if (pnrProcessingAttempted) output.innerHTML = '<div class="info">No flight segments found.</div>';
         else output.innerHTML = '<div class="info">Enter PNR data and click Convert to begin.</div>';
         return;
