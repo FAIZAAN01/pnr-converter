@@ -267,8 +267,8 @@ function parseGalileoEnhanced(pnrText, options) {
     const use24hTransit = options.transitTimeFormat === '24h';
     
     const flightSegmentRegexCompact = /^\s*(\d+)\s+([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+\S*\s*([A-Z]{3})([A-Z]{3})\s+\S+\s+(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}))?/;
-    const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
-
+    //const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
+    const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?(?:([A-Z0-9]{2}):)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
     const halts = /\bE\s*(\d{1,2})\b(?![A-Z])/i;
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
@@ -280,8 +280,8 @@ function parseGalileoEnhanced(pnrText, options) {
         let line = rawLine.replace(/^\s*\*/, '');
 
         let flightMatch = line.match(flightSegmentRegexCompact);
-        let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator, depTerminal, arrTerminal;
-
+        //let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator, depTerminal, arrTerminal;
+        let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator, depTerminal, arrTerminal, prefixOperatingCode;
         if (flightMatch) {
             [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
             depTerminal = null;
@@ -289,7 +289,8 @@ function parseGalileoEnhanced(pnrText, options) {
         } else {
             flightMatch = line.match(flightSegmentRegexFlexible);
             if (flightMatch) {
-                [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
+                //[, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
+                [, segmentNumStr, prefixOperatingCode, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, depTerminal, arrAirport, arrTerminal, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
             }
         }
 
@@ -456,11 +457,20 @@ function parseGalileoEnhanced(pnrText, options) {
                 }
             }
 
+            let initialOperatedBy = null;
+            if (prefixOperatingCode) {
+                const opName = airlineDatabase[prefixOperatingCode.toUpperCase()];
+                initialOperatedBy = opName ? `${opName} (${prefixOperatingCode})` : prefixOperatingCode;
+            }
 
             currentFlight = {
                 segment: parseInt(segmentNumStr, 10) || flightIndex,
-                airline: { code: airlineCode, name: airlineDatabase[airlineCode] || `Unknown Airline (${airlineCode})` },
+                airline: {
+                    code: airlineCode,
+                    name: airlineDatabase[airlineCode] || `Unknown Airline (${airlineCode})`
+                },
                 flightNumber: flightNumRaw,
+                operatedBy: initialOperatedBy,
                 travelClass: { code: travelClass || '', name: getTravelClassName(travelClass, airlineCode) },
                 date: departureMoment.isValid() ? departureMoment.format('dddd, DD MMM YYYY') : '',
                 departure: {
@@ -499,7 +509,11 @@ if (haltsMatch) {
 }
         previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && operatedByMatch) {
-            currentFlight.operatedBy = operatedByMatch[1].trim();
+            const textOpBy = operatedByMatch[1].trim();
+            // If we already have a prefix (like IndiGo), we can append or prioritize the text description
+            currentFlight.operatedBy = currentFlight.operatedBy
+                ? `${currentFlight.operatedBy} / ${textOpBy}`
+                : textOpBy;
         } else if (currentFlight && line.trim().length > 0) {
             currentFlight.notes.push(line.trim());
         }
