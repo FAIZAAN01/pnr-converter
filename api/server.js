@@ -282,7 +282,7 @@ function parseGalileoEnhanced(pnrText, options) {
         let segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator, depTerminal, arrTerminal;
 
         if (flightMatch) {
-            [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
+            [, segmentNumStr, opCarrierCode, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
             depTerminal = null;
             arrTerminal = null;
             // If opCarrierCode exists (like '6E'), we can store it
