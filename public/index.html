@@ -93,7 +93,8 @@
             display: flex;
             flex-direction: column;
             gap: 30px;
-            min-width: 0;
+            min-width: 0; /* Important for flex-shrink issues */
+            width: 100%; /* Ensures it takes up available space immediately */
         }
 
         .input-area,
@@ -551,6 +552,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            min-height: 50px; /* Reserves space for buttons */
         }
 
         #output {
@@ -558,7 +560,11 @@
             min-width: 300px;
             max-width: 100%;
             overflow-x: auto;
-            margin: 15px 0 200px 0;
+            /* Reduced margin and added min-height to prevent jumping */
+            margin: 15px 0 50px 0;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
         }
 
         #output[contenteditable="true"] {
@@ -686,8 +692,10 @@
         #output .airline-logo {
             width: 95px;
             height: 65px;
+            background-color: #f9f9f9; /* Placeholder color while loading */
             object-fit: contain;
             border-radius: 5px;
+            display: block; /* Prevents inline-spacing shifts */
         }
 
         #output .flight-header {
@@ -2033,10 +2041,12 @@
             width: 30px;
             height: 30px;
         }
-        #ActionToolBtn{
-            float: right;
-            margin-top: -20px;
+        #ActionToolBtn {
+            /* Remove float and negative margin */
             display: none;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
     </style>
