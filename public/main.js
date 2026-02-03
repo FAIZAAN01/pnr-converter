@@ -1045,7 +1045,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const isEnabled = hasPnrMemory || hasPnrInput || hasPasted;
 
         const btns = document.querySelectorAll('.class-override-btn');
-        const msg = document.getElementById('pnrStatusMsg');
 
         btns.forEach(btn => {
             if (isEnabled) {
@@ -1060,8 +1059,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
-        if (msg) msg.style.display = isEnabled ? 'none' : 'block';
     }
 
     // Bind state checker
