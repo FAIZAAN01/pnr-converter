@@ -1738,41 +1738,10 @@
             border-radius: 6px;
         }
 
-            .setting-group h4 {
-                margin-top: 0;
-                color: var(--primary-blue);
-            }
-
-        /* Responsive Settings */
-        /*@media (max-width: 768px) {
-            .settings-container {
-                flex-direction: column;
-            }
-
-            .settings-tabs {
-                width: 100%;
-                flex-direction: row;
-                border-right: none;
-                border-bottom: 1px solid var(--border-main);
-                overflow-x: auto;
-            }
-
-            .tab-btn {
-                border-left: none;
-                border-bottom: 3px solid transparent;
-                white-space: nowrap;
-            }
-
-            .tab-btn.active {
-                border-left-color: transparent;
-                border-bottom-color: var(--primary-blue);
-            }
-
-            .checkbox-grid-settings {
-                grid-template-columns: 1fr;
-            }
-        }*/
-
+        .setting-group h4 {
+            margin-top: 0;
+            color: var(--primary-blue);
+        }
         .refreshBtn {
             border: 1px solid white;
         }
@@ -2360,16 +2329,6 @@
 
                         <!-- Tab 1: General Display -->
                         <div id="tab-general" class="tab-pane active">
-                            <!-- <h3>Visibility Options</h3>
-                                            <div class="checkbox-grid-settings">
-                                                <label><input type="checkbox" id="showAirline" checked> Show Airline Logo/Name</label>
-                                                <label><input type="checkbox" id="showAircraft" checked> Show Aircraft Type</label>
-                                                <label><input type="checkbox" id="showOperatedBy" checked> Show "Operated By"</label>
-                                                <label><input type="checkbox" id="showClass"> Show Cabin Class</label>
-                                                <label><input type="checkbox" id="showMeal"> Show Meal Service</label>
-                                                <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show PNR Notes</label>
-                                            </div>-->
-
                             <h3>Fare Details</h3>
                             <div class="checkbox-grid-settings">
                                 <label><input type="checkbox" id="showTaxes"> Display Tax Input Block</label>
@@ -2473,26 +2432,6 @@
                     Notes
                 </label>
 
-                <!-- <hr>
-                <h4>Segment Time Format</h4>
-                <div class="time-format-group">
-                    <label><input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour</label>
-                    <label><input type="radio" id="segmentTime24" name="segmentTimeFormat" value="24h" checked>
-                        24-Hour</label>
-                </div>
-
-                <label id="showTransitLabel"><input type="checkbox" id="showTransit" checked> Show Transit
-                    Times</label>
-                <div id="transitSymbolContainer" class="custom-transit-input">
-                    <label for="transitSymbolInput">Separator:</label>
-                    <input type="text" id="transitSymbolInput" placeholder=":::::::">
-                </div> -->
-                <!-- <hr>
-                <h4>Fare Display Options</h4>
-                <label><input type="checkbox" id="showTaxes" checked> Show Taxes</label>
-                <label><input type="checkbox" id="showFees" checked> Show Fees</label> -->
-
-
                 <hr>
                 <div class="options-group">
                     <h3>Additional Information to Display</h3>
@@ -2544,20 +2483,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- <h4>Branding</h4>
-                <label><input type="checkbox" id="showItineraryLogo" checked>Show Main Itinerary Logo</label>
-                <div id="customBrandingSection">
-                    <div class="custom-branding-input">
-                        <label for="customLogoInput">Custom Logo:</label>
-                        <input type="file" id="customLogoInput" accept="image/png, image/jpeg, image/gif">
-                        <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
-                    </div>
-                    <div class="custom-branding-input">
-                        <label for="customTextInput">Custom Text:</label>
-                        <textarea id="customTextInput" rows="3" placeholder="Your Company Name Contact Info"></textarea>
-                    </div>
-                    <button id="clearCustomBrandingBtn" class="clear-btn">Clear Branding</button>
-                </div> -->
                 <div id="formatTransitTime">
                     <h4>Transit Time Format</h4>
                     <div class="time-format-group">
