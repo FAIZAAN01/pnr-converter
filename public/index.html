@@ -14,7 +14,7 @@
 
     <meta property="og:title" content="PNR Converter - Convert Flight PNR to Readable Itinerary">
     <meta property="og:description"
-        content="Easily convert airline PNR data into a clear, human-readable itinerary format.">
+          content="Easily convert airline PNR data into a clear, human-readable itinerary format.">
     <meta property="og:image" content="pass.jpeg">
     <meta property="og:type" content="website">
     <style>
@@ -31,7 +31,6 @@
             --history-purple: #D4AF37;
             --history-purple-hover: #BC9B31;
             --transit-long-yellow: #f39c12;
-
             /* Light Theme (Default) */
             --bg-main: #F5F7FA;
             --bg-card: #FFFFFF;
@@ -114,9 +113,9 @@
             margin-bottom: 20px;
         }
 
-        .card-header h3 {
-            margin: 0;
-        }
+            .card-header h3 {
+                margin: 0;
+            }
 
         .header-actions {
             display: flex;
@@ -140,17 +139,17 @@
             transition: all 0.2s ease;
         }
 
-        .header-btn:hover {
-            background-color: var(--bg-hover);
-            color: var(--text-main);
-            border-color: #d1d9e0;
-        }
+            .header-btn:hover {
+                background-color: var(--bg-hover);
+                color: var(--text-main);
+                border-color: #d1d9e0;
+            }
 
-        .header-btn svg {
-            width: 18px;
-            height: 18px;
-            stroke: currentColor;
-        }
+            .header-btn svg {
+                width: 18px;
+                height: 18px;
+                stroke: currentColor;
+            }
 
         #themeToggleBtn .moon-icon {
             display: none;
@@ -193,13 +192,13 @@
             color: var(--text-main);
         }
 
-        textarea#pnrInput:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
-            position: relative;
-            z-index: 2;
-        }
+            textarea#pnrInput:focus {
+                outline: none;
+                border-color: var(--primary-blue);
+                box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+                position: relative;
+                z-index: 2;
+            }
 
         #baggageAmountInput {
             height: 30px;
@@ -220,9 +219,9 @@
             cursor: pointer;
         }
 
-        #convertBtn:hover {
-            background-color: var(--primary-blue-hover);
-        }
+            #convertBtn:hover {
+                background-color: var(--primary-blue-hover);
+            }
 
         .vertical-icon-group {
             display: flex;
@@ -244,11 +243,11 @@
             flex: 1;
         }
 
-        .control-icon-btn:hover {
-            background-color: var(--bg-hover);
-            color: var(--text-main);
-            z-index: 1;
-        }
+            .control-icon-btn:hover {
+                background-color: var(--bg-hover);
+                color: var(--text-main);
+                z-index: 1;
+            }
 
         #pasteBtn {
             border-radius: 0 6px 0 0;
@@ -352,14 +351,14 @@
             transition: 0.2s;
         }
 
-        .toggle-switch input:checked+.switch-body {
+        .toggle-switch input:checked + .switch-body {
             background: var(--success-green);
         }
 
-        .toggle-switch input:checked+.switch-body::after {
-            left: calc(100% - 2px);
-            transform: translateX(-100%);
-        }
+            .toggle-switch input:checked + .switch-body::after {
+                left: calc(100% - 2px);
+                transform: translateX(-100%);
+            }
 
         .c-unit-toggle {
             position: relative;
@@ -386,17 +385,17 @@
             transition: background-color 0.3s;
         }
 
-        .c-unit-toggle__label::before {
-            position: absolute;
-            content: "";
-            height: 19px;
-            width: 20px;
-            top: 3px;
-            left: 4px;
-            background-color: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
+            .c-unit-toggle__label::before {
+                position: absolute;
+                content: "";
+                height: 19px;
+                width: 20px;
+                top: 3px;
+                left: 4px;
+                background-color: white;
+                border-radius: 50%;
+                transition: transform 0.3s;
+            }
 
         .c-unit-toggle__options {
             display: flex;
@@ -409,13 +408,13 @@
             font-size: 10px;
         }
 
-        .c-unit-toggle__input:checked+.c-unit-toggle__label {
+        .c-unit-toggle__input:checked + .c-unit-toggle__label {
             background-color: var(--success-green);
         }
 
-        .c-unit-toggle__input:checked+.c-unit-toggle__label::before {
-            transform: translateX(21px);
-        }
+            .c-unit-toggle__input:checked + .c-unit-toggle__label::before {
+                transform: translateX(21px);
+            }
 
         .fare-options-grid {
             display: grid;
@@ -430,34 +429,34 @@
             gap: 5px;
         }
 
-        .fare-group.hidden {
-            display: none;
-        }
+            .fare-group.hidden {
+                display: none;
+            }
 
-        .fare-group label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
+            .fare-group label {
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--text-secondary);
+            }
 
-        .fare-group input,
-        .fare-group select {
-            padding: 8px;
-            border: 1px solid var(--border-main);
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-            background-color: var(--bg-card);
-            color: var(--text-main);
-        }
+            .fare-group input,
+            .fare-group select {
+                padding: 8px;
+                border: 1px solid var(--border-main);
+                border-radius: 4px;
+                width: 100%;
+                box-sizing: border-box;
+                background-color: var(--bg-card);
+                color: var(--text-main);
+            }
 
-        .fare-group .count-fare-wrapper {
-            display: flex;
-        }
+            .fare-group .count-fare-wrapper {
+                display: flex;
+            }
 
-        .fare-group .count-fare-wrapper>div {
-            flex: 0.4;
-        }
+                .fare-group .count-fare-wrapper > div {
+                    flex: 0.4;
+                }
 
         .baggage-options {
             margin-top: 20px;
@@ -501,12 +500,12 @@
             justify-content: center;
         }
 
-        .combobox-arrow::after {
-            content: '';
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 5px solid var(--text-secondary);
-        }
+            .combobox-arrow::after {
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid var(--text-secondary);
+            }
 
         .combobox-dropdown {
             position: absolute;
@@ -523,18 +522,18 @@
             display: none;
         }
 
-        .combobox-dropdown.open {
-            display: block;
-        }
+            .combobox-dropdown.open {
+                display: block;
+            }
 
         .combobox-option {
             padding: 8px;
             cursor: pointer;
         }
 
-        .combobox-option:hover {
-            background-color: var(--bg-hover);
-        }
+            .combobox-option:hover {
+                background-color: var(--bg-hover);
+            }
 
         #allTheWayInputs {
             display: none;
@@ -542,9 +541,9 @@
             gap: 10px;
         }
 
-        #allTheWayInputs.visible {
-            display: flex;
-        }
+            #allTheWayInputs.visible {
+                display: flex;
+            }
 
         .output-area .output-actions {
             display: flex;
@@ -561,12 +560,12 @@
             margin: 15px 0 200px 0;
         }
 
-        #output[contenteditable="true"] {
-            border: 2px dashed #3498db;
-            padding: 10px;
-            border-radius: 8px;
-            background-color: #fafdff;
-        }
+            #output[contenteditable="true"] {
+                border: 2px dashed #3498db;
+                padding: 10px;
+                border-radius: 8px;
+                background-color: #fafdff;
+            }
 
         .info {
             color: #fff;
@@ -589,16 +588,17 @@
             border: 1px solid #e0e6ec !important;
             background: #ffffff !important;
             box-sizing: border-box !important;
-    
             /* ADD THESE 2 LINES: */
-            max-width: 1000px; /* Restricts width to a document size */
-            margin: 0 auto;   /* Centers it on the page */
+            max-width: 1000px;
+            /* Restricts width to a document size */
+            margin: 0 auto;
+            /* Centers it on the page */
         }
 
-        #output .output-container * {
-            /* Base text color */
-            color: #000000;
-        }
+            #output .output-container * {
+                /* Base text color */
+                color: #000000;
+            }
 
         #output .itinerary-main-logo-container {
             display: flex;
@@ -627,10 +627,10 @@
             border-bottom: 1px solid #eee !important;
         }
 
-        #output .itinerary-header p {
-            margin: 0;
-            font-size: 14px;
-        }
+            #output .itinerary-header p {
+                margin: 0;
+                font-size: 14px;
+            }
 
         #output .itinerary-leg-header {
             text-align: center;
@@ -645,18 +645,18 @@
             /* Original blue from first file */
         }
 
-        #output .itinerary-leg-header:first-of-type {
-            margin-top: 10px;
-        }
+            #output .itinerary-leg-header:first-of-type {
+                margin-top: 10px;
+            }
 
         #output .flight-item {
             padding: 7px 15px 0px;
             /* border-bottom: 1px dashed #ccc !important; */
         }
 
-        #output .flight-item:last-child {
-            border-bottom: none !important;
-        }
+            #output .flight-item:last-child {
+                border-bottom: none !important;
+            }
 
         #output .transit-item {
             font-style: italic;
@@ -668,20 +668,20 @@
             font-weight: bold;
         }
 
-        #output .transit-item.transit-short {
-            color: #e74c3c !important;
-            /* Original red */
-        }
+            #output .transit-item.transit-short {
+                color: #e74c3c !important;
+                /* Original red */
+            }
 
-        #output .transit-item.transit-minimum {
-            color: #27ae60 !important;
-            /* Original green */
-        }
+            #output .transit-item.transit-minimum {
+                color: #27ae60 !important;
+                /* Original green */
+            }
 
-        #output .transit-item.transit-long {
-            color: #f39c12 !important;
-            /* Original yellow */
-        }
+            #output .transit-item.transit-long {
+                color: #f39c12 !important;
+                /* Original yellow */
+            }
 
         #output .airline-logo {
             width: 95px;
@@ -702,15 +702,15 @@
             color: #34495e !important;
         }
 
-        #output .flight-detail.notes-detail {
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
+            #output .flight-detail.notes-detail {
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
 
-        #output .flight-detail strong {
-            margin-right: 5px;
-            color: #5f6c7b !important;
-        }
+            #output .flight-detail strong {
+                margin-right: 5px;
+                color: #5f6c7b !important;
+            }
 
         #output .flight-content {
             display: flex;
@@ -727,9 +727,9 @@
             white-space: pre-line;
         }
 
-        #output .fare-summary strong {
-            font-size: 1.1em;
-        }
+            #output .fare-summary strong {
+                font-size: 1.1em;
+            }
 
         /* --- sidebar scroll bar styling --- */
         body::-webkit-scrollbar,
@@ -745,9 +745,9 @@
             border-radius: 20px;
         }
 
-        body::-webkit-scrollbar-thumb:hover {
-            background-color: white;
-        }
+            body::-webkit-scrollbar-thumb:hover {
+                background-color: white;
+            }
 
         /* --- sidebar scroll bar styling --- */
         .sidebar::-webkit-scrollbar {
@@ -761,9 +761,9 @@
             border-radius: 20px;
         }
 
-        .sidebar::-webkit-scrollbar-thumb:hover {
-            background-color: white;
-        }
+            .sidebar::-webkit-scrollbar-thumb:hover {
+                background-color: white;
+            }
 
         /* --- Sidebar & Modal Styles --- */
         .sidebar {
@@ -774,15 +774,15 @@
             font-family: monospace;
         }
 
-        .sidebar h3 {
-            margin-top: 0;
-            font-size: x-large;
-        }
+            .sidebar h3 {
+                margin-top: 0;
+                font-size: x-large;
+            }
 
-        .sidebar h4 {
-            margin: 20px 0 10px;
-            color: var(--text-main);
-        }
+            .sidebar h4 {
+                margin: 20px 0 10px;
+                color: var(--text-main);
+            }
 
         .options label {
             display: block;
@@ -806,14 +806,14 @@
             gap: 8px
         }
 
-        .custom-transit-input.hidden {
-            display: none
-        }
+            .custom-transit-input.hidden {
+                display: none
+            }
 
-        .custom-transit-input label {
-            margin: 0;
-            font-size: 14px
-        }
+            .custom-transit-input label {
+                margin: 0;
+                font-size: 14px
+            }
 
         #customBrandingSection {
             margin-top: 20px;
@@ -821,30 +821,30 @@
             border-top: 1px solid var(--border-main)
         }
 
-        #customBrandingSection.hidden {
-            display: none
-        }
+            #customBrandingSection.hidden {
+                display: none
+            }
 
         .custom-branding-input {
             margin-bottom: 15px
         }
 
-        .custom-branding-input label {
-            font-weight: 500;
-            margin-bottom: 8px;
-            display: block
-        }
+            .custom-branding-input label {
+                font-weight: 500;
+                margin-bottom: 8px;
+                display: block
+            }
 
-        .custom-branding-input input[type=file],
-        .custom-branding-input textarea {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid var(--border-main);
-            background-color: var(--bg-card);
-            color: var(--text-main);
-        }
+            .custom-branding-input input[type=file],
+            .custom-branding-input textarea {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 8px;
+                border-radius: 4px;
+                border: 1px solid var(--border-main);
+                background-color: var(--bg-card);
+                color: var(--text-main);
+            }
 
         .clear-btn {
             background-color: white;
@@ -879,10 +879,10 @@
             transition: opacity .3s, visibility .3s
         }
 
-        .modal-overlay:not(.hidden) {
-            opacity: 1;
-            visibility: visible
-        }
+            .modal-overlay:not(.hidden) {
+                opacity: 1;
+                visibility: visible
+            }
 
         .modal-content {
             background: var(--bg-card);
@@ -923,16 +923,16 @@
             margin-bottom: 15px
         }
 
-        .modal-header .close-btn {
-            background: 0 0;
-            border: none;
-            font-size: 2.5rem;
-            line-height: 1;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 0;
-            margin: 0
-        }
+            .modal-header .close-btn {
+                background: 0 0;
+                border: none;
+                font-size: 2.5rem;
+                line-height: 1;
+                color: var(--text-secondary);
+                cursor: pointer;
+                padding: 0;
+                margin: 0
+            }
 
         .history-controls {
             display: flex;
@@ -976,14 +976,14 @@
             background: var(--secondary-dark);
         }
 
-        #screenshotBtn:hover{
-            background : green;
-        }
+            #screenshotBtn:hover {
+                background: green;
+            }
 
-        #copyTextBtn:hover,
-        .use-history-btn:hover {
-            background: var(--secondary-dark-hover);
-        }
+            #copyTextBtn:hover,
+            .use-history-btn:hover {
+                background: var(--secondary-dark-hover);
+            }
 
         #historySearchInput,
         #historySortSelect {
@@ -1014,15 +1014,15 @@
             transition: background-color .2s, transform .2s
         }
 
-        .history-item:hover {
-            background-color: var(--bg-hover);
-            transform: translateX(5px)
-        }
+            .history-item:hover {
+                background-color: var(--bg-hover);
+                transform: translateX(5px)
+            }
 
-        .history-item:active {
-            background-color: var(--bg-hover);
-            transform: translateX(5px)
-        }
+            .history-item:active {
+                background-color: var(--bg-hover);
+                transform: translateX(5px)
+            }
 
         .history-item-pax {
             font-weight: 700;
@@ -1054,22 +1054,22 @@
             z-index: 1;
         }
 
-        #historyPreviewPanel:not(.hidden) {
-            transform: translateX(0%)
-        }
+            #historyPreviewPanel:not(.hidden) {
+                transform: translateX(0%)
+            }
 
-        /* Hide the close button inside the preview panel on desktop (not needed) */
-        #historyPreviewPanel .preview-header #closePreviewBtn {
-            display: none;
-        }
+            /* Hide the close button inside the preview panel on desktop (not needed) */
+            #historyPreviewPanel .preview-header #closePreviewBtn {
+                display: none;
+            }
 
-        #historyPreviewPanel:empty::before {
-            content: "Select an item from the list to view details.";
-            display: block;
-            text-align: center;
-            margin-top: 50px;
-            color: var(--text-secondary);
-        }
+            #historyPreviewPanel:empty::before {
+                content: "Select an item from the list to view details.";
+                display: block;
+                text-align: center;
+                margin-top: 50px;
+                color: var(--text-secondary);
+            }
 
 
         .preview-header {
@@ -1087,21 +1087,21 @@
             flex-grow: 1
         }
 
-        .preview-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-            border: 1px solid #ddd
-        }
+            .preview-content img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+                margin: 0 auto;
+                border: 1px solid #ddd
+            }
 
-        .preview-content pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            background: var(--bg-main);
-            padding: 15px;
-            border-radius: 4px
-        }
+            .preview-content pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                background: var(--bg-main);
+                padding: 15px;
+                border-radius: 4px
+            }
 
         .popup-notification-container {
             position: fixed;
@@ -1124,10 +1124,10 @@
             transition: all .5s cubic-bezier(.68, -.55, .27, 1.55)
         }
 
-        .popup-notification.show {
-            opacity: 1;
-            transform: translateX(0)
-        }
+            .popup-notification.show {
+                opacity: 1;
+                transform: translateX(0)
+            }
 
         .loading-spinner {
             display: none;
@@ -1163,7 +1163,7 @@
             /* #inputControls {
                 flex-wrap: wrap;
             } */
-            /* 
+            /*
             textarea#pnrInput {
                 border-radius: 6px;
                 border-right: 1px solid var(--border-main);
@@ -1211,9 +1211,9 @@
                 transition: transform .7s ease-in-out
             }
 
-            .sidebar.is-open {
-                transform: translateX(0)
-            }
+                .sidebar.is-open {
+                    transform: translateX(0)
+                }
         }
 
         #notes-header {
@@ -1297,29 +1297,28 @@
             height: auto;
         }
 
-        .about-me a {
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
+            .about-me a {
+                color: var(--primary-blue);
+                text-decoration: none;
+            }
 
-        .about-me a:hover {
-            text-decoration: underline;
-        }
+                .about-me a:hover {
+                    text-decoration: underline;
+                }
 
-        .about-me img {
-            width: 40px;
-            height: 40px;
-            margin-left: 5px;
-        }
+            .about-me img {
+                width: 40px;
+                height: 40px;
+                margin-left: 5px;
+            }
 
-        .about-me img:hover {
-            transform: scale(1.1);
-            transition: transform 0.2s;
-        }
+                .about-me img:hover {
+                    transform: scale(1.1);
+                    transition: transform 0.2s;
+                }
 
         #copyRight {
             top: 50px;
-
         }
 
         .myLogo {
@@ -1342,7 +1341,6 @@
             margin: 0px;
             border-radius: 50%;
             grid-template-columns: 5fr 1fr;
-
         }
 
         .boxScale {
@@ -1384,9 +1382,9 @@
             box-shadow: 0px 2px 50px 5px rgba(0, 127, 255, 0.6);
         }
 
-        #developerName:hover {
-            animation: nameColor 2s infinite;
-        }
+            #developerName:hover {
+                animation: nameColor 2s infinite;
+            }
 
         @keyframes nameColor {
             0% {
@@ -1526,17 +1524,17 @@
             transition: 0.2s;
         }
 
-        /* Hover effect for light/dark mode */
-        .bag-btn:hover {
-            background: var(--text-secondary, #e0e0e0);
-            color: var(--text-main, #000);
-        }
+            /* Hover effect for light/dark mode */
+            .bag-btn:hover {
+                background: var(--text-secondary, #e0e0e0);
+                color: var(--text-main, #000);
+            }
 
-        /* Active button highlight */
-        .bag-btn.active {
-            background: var(--accent-color, #00aaff);
-            color: #fff;
-        }
+            /* Active button highlight */
+            .bag-btn.active {
+                background: var(--accent-color, #00aaff);
+                color: #fff;
+            }
 
         /* Dark mode overrides */
         [data-theme="dark"] .bag-btn {
@@ -1545,15 +1543,15 @@
             border-color: var(--primary-blue-dark, #4a69bd);
         }
 
-        [data-theme="dark"] .bag-btn:hover {
-            background: var(--text-secondary-dark, #555);
-            color: var(--text-main-dark, #fff);
-        }
+            [data-theme="dark"] .bag-btn:hover {
+                background: var(--text-secondary-dark, #555);
+                color: var(--text-main-dark, #fff);
+            }
 
-        [data-theme="dark"] .bag-btn.active {
-            background: var(--accent-color-dark, #00ccff);
-            color: #000;
-        }
+            [data-theme="dark"] .bag-btn.active {
+                background: var(--accent-color-dark, #00ccff);
+                color: #000;
+            }
 
         .btn-pcs {
             background-color: var(--primary-blue-hover);
@@ -1578,33 +1576,33 @@
             font-size: 16px;
         }
 
-        #reportErrorBtn:hover {
-            background-color: #a00405;
-        }
+            #reportErrorBtn:hover {
+                background-color: #a00405;
+            }
 
-        /* Tooltip */
-        #reportErrorBtn .tooltip {
-            visibility: hidden;
-            width: 220px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 5px;
-            padding: 6px;
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 1000;
-            pointer-events: none;
-        }
+            /* Tooltip */
+            #reportErrorBtn .tooltip {
+                visibility: hidden;
+                width: 220px;
+                background-color: #333;
+                color: #fff;
+                text-align: center;
+                border-radius: 5px;
+                padding: 6px;
+                position: absolute;
+                bottom: 125%;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                transition: opacity 0.3s;
+                z-index: 1000;
+                pointer-events: none;
+            }
 
-        #reportErrorBtn:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
+            #reportErrorBtn:hover .tooltip {
+                visibility: visible;
+                opacity: 1;
+            }
 
         @media (max-width: 768px) {
             .history-split-container {
@@ -1631,14 +1629,14 @@
                 padding: 0;
             }
 
-            #historyPreviewPanel:not(.hidden) {
-                transform: translateX(0) !important;
-            }
+                #historyPreviewPanel:not(.hidden) {
+                    transform: translateX(0) !important;
+                }
 
-            #historyPreviewPanel .preview-header #closePreviewBtn {
-                display: block;
-                /* Show close button on mobile */
-            }
+                #historyPreviewPanel .preview-header #closePreviewBtn {
+                    display: block;
+                    /* Show close button on mobile */
+                }
         }
 
         /* Settings Modal Specific Styles */
@@ -1651,11 +1649,11 @@
             flex-direction: column;
         }
 
-        .settings-modal .modal-header {
-            padding: 20px;
-            margin: 0;
-            border-bottom: 1px solid var(--border-main);
-        }
+            .settings-modal .modal-header {
+                padding: 20px;
+                margin: 0;
+                border-bottom: 1px solid var(--border-main);
+            }
 
         .settings-container {
             display: flex;
@@ -1687,16 +1685,16 @@
             justify-content: flex-start;
         }
 
-        .tab-btn:hover {
-            background-color: var(--bg-hover);
-            color: var(--text-main);
-        }
+            .tab-btn:hover {
+                background-color: var(--bg-hover);
+                color: var(--text-main);
+            }
 
-        .tab-btn.active {
-            background-color: var(--bg-card);
-            color: var(--primary-blue);
-            border-left-color: var(--primary-blue);
-        }
+            .tab-btn.active {
+                background-color: var(--bg-card);
+                color: var(--primary-blue);
+                border-left-color: var(--primary-blue);
+            }
 
         /* Right Side Content */
         .settings-content {
@@ -1710,10 +1708,10 @@
             display: none;
         }
 
-        .tab-pane.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
+            .tab-pane.active {
+                display: block;
+                animation: fadeIn 0.3s ease;
+            }
 
         @keyframes fadeIn {
             from {
@@ -1741,10 +1739,10 @@
             border-radius: 6px;
         }
 
-        .setting-group h4 {
-            margin-top: 0;
-            color: var(--primary-blue);
-        }
+            .setting-group h4 {
+                margin-top: 0;
+                color: var(--primary-blue);
+            }
 
         /* Responsive Settings */
         /*@media (max-width: 768px) {
@@ -1822,17 +1820,17 @@
             border: 1px dotted var(--border-main);
         }
 
-        .non-active-version:hover {
-            cursor: pointer;
-            background-color: var(--primary-blue);
-            color: white;
-            border: 1px solid white;
-        }
+            .non-active-version:hover {
+                cursor: pointer;
+                background-color: var(--primary-blue);
+                color: white;
+                border: 1px solid white;
+            }
 
-        .non-active-version a {
-            text-decoration: none;
-            color: inherit;
-        }
+            .non-active-version a {
+                text-decoration: none;
+                color: inherit;
+            }
 
         .blur-bottom {
             position: fixed;
@@ -1866,179 +1864,204 @@
             text-align: center;
         }
 
-        .logo-option img {
-            max-width: 70px;
-            max-height: 40px;
-            object-fit: contain;
-        }
+            .logo-option img {
+                max-width: 70px;
+                max-height: 40px;
+                object-fit: contain;
+            }
 
-        .logo-option.selected {
-            border-color: var(--primary-blue);
-            background: var(--bg-card);
-            box-shadow: 0px 0px 6px rgba(0, 0, 255, 0.3);
-        }
+            .logo-option.selected {
+                border-color: var(--primary-blue);
+                background: var(--bg-card);
+                box-shadow: 0px 0px 6px rgba(0, 0, 255, 0.3);
+            }
 
-        
+
         /* Wrapper to hold the Flight Leg and the Input Box side-by-side */
-.leg-wrapper {
-    display: flex;
-    gap: 10px;
-    align-items: stretch; /* Makes them the same height */
-    margin-bottom: 5px;   /* Spacing between rows */
-}
+        .leg-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            /* Makes them the same height */
+            margin-bottom: 5px;
+            /* Spacing between rows */
+        }
 
-/* The Input Box Styling */
-.side-input-panel {
-    width: 160px; /* Fixed width for the controls */
-    background-color: #f0f2f5;
-    border: 1px dashed #ccc;
-    border-radius: 6px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-}
+        /* The Input Box Styling */
+        .side-input-panel {
+            width: 160px;
+            /* Fixed width for the controls */
+            background-color: #f0f2f5;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+        }
 
-.side-input-panel input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 5px;
-    font-size: 13px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-}
+            .side-input-panel input {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 5px;
+                font-size: 13px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                text-align: center;
+                font-weight: bold;
+            }
 
-.btn-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-}
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
 
-.mini-btn {
-    font-size: 10px;
-    padding: 4px 0;
-    cursor: pointer;
-    background: #fff;
-    border: 1px solid #4a69bd;
-    color: #4a69bd;
-    border-radius: 3px;
-    transition: 0.2s;
-}
+        .mini-btn {
+            font-size: 10px;
+            padding: 4px 0;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #4a69bd;
+            color: #4a69bd;
+            border-radius: 3px;
+            transition: 0.2s;
+        }
 
-.mini-btn:hover {
-    background: #4a69bd;
-    color: white;
-}
+            .mini-btn:hover {
+                background: #4a69bd;
+                color: white;
+            }
 
 
-/* 2. The Input Field inside the panel */
-.floating-baggage-panel input {
-    width: 20%;
-    box-sizing: border-box;
-    padding: 8px;
-    margin-bottom: 8px;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 13px;
-    color: #2c3e50;
-}
+        /* 2. The Input Field inside the panel */
+        .floating-baggage-panel input {
+            width: 20%;
+            box-sizing: border-box;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+            color: #2c3e50;
+        }
 
-/* 4. The Buttons (New Style) */
-.float-btn {
-    background-color: skyblue;
-    color: white;
-    border: none;
-    padding: 6px 4px;
-    font-size: 11px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s, transform 0.1s;
-    box-shadow: 0 2px 4px rgba(74, 105, 189, 0.2);
-    margin: 0 2px;
-}
+        /* 4. The Buttons (New Style) */
+        .float-btn {
+            background-color: skyblue;
+            color: white;
+            border: none;
+            padding: 6px 4px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(74, 105, 189, 0.2);
+            margin: 0 2px;
+        }
 
-.float-btn:hover {
-    background-color: #324b8f; /* Darker blue on hover */
-    transform: translateY(-1px); /* Slight lift effect */
-}
+            .float-btn:hover {
+                background-color: #324b8f;
+                /* Darker blue on hover */
+                transform: translateY(-1px);
+                /* Slight lift effect */
+            }
 
-.float-btn:active {
-    background-color: #324b8f; /* Click effect */
-}
-/* Disabled state for report buttons */
-.bag-btn.btn-disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none; /* Prevents clicking */
-    filter: grayscale(100%);
-}
+            .float-btn:active {
+                background-color: #324b8f;
+                /* Click effect */
+            }
 
-/* Optional: Small user badge styling */
-.user-email-badge {
-    font-size: 11px; 
-    color: var(--text-secondary); 
-    margin-top: 5px; 
-    font-style: italic;
-    cursor: pointer;
-    text-decoration: underline;
-}
+        /* Disabled state for report buttons */
+        .bag-btn.btn-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+            /* Prevents clicking */
+            filter: grayscale(100%);
+        }
 
-/* Add to your <style> block in index.html */
+        /* Optional: Small user badge styling */
+        .user-email-badge {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            font-style: italic;
+            cursor: pointer;
+            text-decoration: underline;
+        }
 
-/* 1. Visual feedback for the Active Button */
-#highlighterBtn.active-tool {
-    background-color: #f1c40f !important; /* Vivid Yellow */
-    color: #000 !important;
-}
-#eraserBtn.active-tool {
-    background-color: #e74c3c !important; /* Red for Eraser */
-    color: white !important;
-    border-color: #c0392b !important;
-}
+        /* Add to your <style> block in index.html */
 
-/* 2. Cursor changes */
-.cursor-highlight { cursor: pointer; } /* Standard text cursor makes selecting easier */
-.cursor-erase { cursor: cell; }     /* Distinct cursor for erasing */
+        /* 1. Visual feedback for the Active Button */
+        #highlighterBtn.active-tool {
+            background-color: #f1c40f !important;
+            /* Vivid Yellow */
+            color: #000 !important;
+        }
 
-/* 3. THE THICK HIGHLIGHTER STYLE */
-.user-highlight {
-    background-color: #ffff00;
-    color: #000 !important;      /* Enforce black text for contrast */
-    
-    /* These properties create the "Tall/Thick" look */
-    padding-top: 3px;           /* Extends yellow above text */
-    padding-bottom: 3px;        /* Extends yellow below text */
-    padding-left: 0px;          /* Small buffer on left */
-    padding-right: 0px;         /* Small buffer on right */
-    
-    /* Adds a slight bleed effect to look like ink */
-    box-shadow: 0 0 0 1px #ffff00; 
-    border-radius: 2px;         /* Softens the corners slightly */
-}
-#highlighterBtn{
-    color: black;
-    padding:0;
-    width: 30px;
-    height: 30px;
-}
+        #eraserBtn.active-tool {
+            background-color: #e74c3c !important;
+            /* Red for Eraser */
+            color: white !important;
+            border-color: #c0392b !important;
+        }
+
+        /* 2. Cursor changes */
+        .cursor-highlight {
+            cursor: pointer;
+        }
+
+        /* Standard text cursor makes selecting easier */
+        .cursor-erase {
+            cursor: cell;
+        }
+
+        /* Distinct cursor for erasing */
+
+        /* 3. THE THICK HIGHLIGHTER STYLE */
+        .user-highlight {
+            background-color: #ffff00;
+            color: #000 !important;
+            /* Enforce black text for contrast */
+            /* These properties create the "Tall/Thick" look */
+            padding-top: 3px;
+            /* Extends yellow above text */
+            padding-bottom: 3px;
+            /* Extends yellow below text */
+            padding-left: 0px;
+            /* Small buffer on left */
+            padding-right: 0px;
+            /* Small buffer on right */
+            /* Adds a slight bleed effect to look like ink */
+            box-shadow: 0 0 0 1px #ffff00;
+            border-radius: 2px;
+            /* Softens the corners slightly */
+        }
+
+        #highlighterBtn {
+            color: black;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
         #eraserBtn {
             color: red;
             padding: 0;
             width: 30px;
             height: 30px;
         }
-        #ActionToolBtn{
+
+        #ActionToolBtn {
             float: right;
             margin-top: -20px;
             display: none;
         }
-
     </style>
 </head>
 
@@ -2058,17 +2081,16 @@
                     <div class="header-actions">
                         <button id="advancedSettingsBtn" class="header-btn" title="Advanced Settings">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="3"></circle>
-                                <path
-                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
                                 </path>
                             </svg>
                             Settings
                         </button>
                         <button id="historyBtn" class="header-btn" title="View history">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
+                                 stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
@@ -2076,7 +2098,7 @@
                         </button>
                         <button id="themeToggleBtn" class="header-btn" title="Toggle Theme">
                             <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="5"></circle>
                                 <line x1="12" y1="1" x2="12" y2="3"></line>
                                 <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -2088,13 +2110,13 @@
                                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                             </svg>
                             <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                             </svg>
                         </button>
                         <button id="mobileMenuBtn" class="header-btn" title="Open Menu">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
+                                 stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -2111,8 +2133,8 @@
                     <div class="vertical-icon-group">
                         <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round">
+                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                 stroke-linejoin="round">
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2">
                                 </path>
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
@@ -2120,11 +2142,10 @@
                         </button>
                         <button id="clearBtn" class="control-icon-btn" title="Clear input">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round"
-                                stroke-linejoin="round">
+                                 fill="none" stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round"
+                                 stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline>
-                                <path
-                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
                                 </path>
                             </svg>
                         </button>
@@ -2133,8 +2154,12 @@
 
                 <div class="input-actions-group">
                     <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
-                        <span class="toggle-switch-label"><span class="toggle-text">Auto
-                                Convert</span></span>
+                        <span class="toggle-switch-label">
+                            <span class="toggle-text">
+                                Auto
+                                Convert
+                            </span>
+                        </span>
                         <input type="checkbox" id="autoConvertToggle">
                         <span class="switch-body"></span>
                     </label>
@@ -2144,45 +2169,55 @@
                     <div class="fare-group">
                         <label for="adultCountInput">ADLT</label>
                         <div class="count-fare-wrapper">
-                            <div><input id="adultCountInput" type="text" inputmode="decimal" value="1"
-                                    title="Number of Adults"></div>
-                            <div><input id="adultFareInput" type="text" inputmode="decimal" placeholder="Fare"
-                                    title="Fare"></div>
+                            <div>
+                                <input id="adultCountInput" type="text" inputmode="decimal" value="1"
+                                       title="Number of Adults">
+                            </div>
+                            <div>
+                                <input id="adultFareInput" type="text" inputmode="decimal" placeholder="Fare"
+                                       title="Fare">
+                            </div>
                         </div>
                     </div>
                     <div class="fare-group">
                         <label for="childCountInput">CHLD</label>
                         <div class="count-fare-wrapper">
-                            <div><input id="childCountInput" type="text" inputmode="decimal" value="0"
-                                    title="Number of Children">
+                            <div>
+                                <input id="childCountInput" type="text" inputmode="decimal" value="0"
+                                       title="Number of Children">
                             </div>
-                            <div><input id="childFareInput" type="text" inputmode="decimal" placeholder="Fare"
-                                    title="Fare"></div>
+                            <div>
+                                <input id="childFareInput" type="text" inputmode="decimal" placeholder="Fare"
+                                       title="Fare">
+                            </div>
                         </div>
                     </div>
                     <div class="fare-group">
                         <label for="infantCountInput">INFT</label>
                         <div class="count-fare-wrapper">
-                            <div><input id="infantCountInput" type="text" inputmode="decimal" value="0"
-                                    title="Number of Infants">
+                            <div>
+                                <input id="infantCountInput" type="text" inputmode="decimal" value="0"
+                                       title="Number of Infants">
                             </div>
                             <div><input id="infantFareInput" type="text" inputmode="decimal" placeholder="Fare"></div>
                         </div>
                     </div>
                     <div class="fare-group" id="taxInputContainer">
                         <label for="taxInput">Tax (per person)</label><input id="taxInput" type="text"
-                            inputmode="decimal" placeholder="Tax">
+                                                                             inputmode="decimal" placeholder="Tax">
                     </div>
                     <div class="fare-group" id="feeInputContainer">
                         <label for="feeInput">Fee (per person)</label><input id="feeInput" type="text"
-                            inputmode="decimal" placeholder="Fee">
+                                                                             inputmode="decimal" placeholder="Fee">
                     </div>
-                    <div class="fare-group"><label for="currencySelect">Currency</label><select id="currencySelect">
+                    <div class="fare-group">
+                        <label for="currencySelect">Currency</label><select id="currencySelect">
                             <option value="USD" selected>USD $</option>
                             <option value="EUR">EUR €</option>
                             <option value="INR">INR ₹</option>
                             <option value="RWF">RWF</option>
-                        </select></div>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="baggage-options">
@@ -2193,7 +2228,7 @@
                     <div class="combobox-container" id="baggageCombobox">
                         <label for="baggageAmountInput"></label>
                         <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
-                            placeholder="23">
+                               placeholder="23">
 
                         <!-- Quick-Select Baggage Buttons -->
                     </div>
@@ -2216,22 +2251,39 @@
                         <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
                         <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
                     </div>
-<div class="class-overwrite-options" style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-        <label for="non-visible" style="font-weight: bold; display: block; margin:0;">Force Cabin Class:</label>
-        <span style="font-size: 10px; color: var(--text-secondary); font-style: italic;">
-            System Report Active
-        </span>
-    </div>
+                    <div class="class-overwrite-options"
+                         style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                            <label for="non-visible" style="font-weight: bold; display: block; margin:0;">
+                                Force Cabin
+                                Class:
+                            </label>
+                            <span style="font-size: 10px; color: var(--text-secondary); font-style: italic;">
+                                System Report Active
+                            </span>
+                        </div>
 
-    <div id="classQuickButtons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-        <button class="bag-btn class-override-btn btn-disabled" data-value="Economy">Economy</button>
-        <button class="bag-btn class-override-btn btn-disabled" data-value="Business">Business</button>
-        <button class="bag-btn class-override-btn btn-disabled" data-value="First">First</button>
-        <button class="bag-btn class-override-btn btn-disabled" data-value="Premium Economy">Prem Eco</button>
-    </div>
-    <p id="pnrStatusMsg" style="font-size: 10px; color: red; margin-top: 5px; display:none;">* Enter PNR data to enable options</p>
-</div>
+                        <div id="classQuickButtons"
+                             style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                            <button class="bag-btn class-override-btn btn-disabled"
+                                    data-value="Economy">
+                                Economy
+                            </button>
+                            <button class="bag-btn class-override-btn btn-disabled"
+                                    data-value="Business">
+                                Business
+                            </button>
+                            <button class="bag-btn class-override-btn btn-disabled" data-value="First">First</button>
+                            <button class="bag-btn class-override-btn btn-disabled" data-value="Premium Economy">
+                                Prem
+                                Eco
+                            </button>
+                        </div>
+                        <p id="pnrStatusMsg" style="font-size: 10px; color: red; margin-top: 5px; display:none;">
+                            * Enter
+                            PNR data to enable options
+                        </p>
+                    </div>
                 </div>
                 <div class="loading-spinner" id="loadingSpinner"></div>
             </div>
@@ -2239,10 +2291,13 @@
                 <div class="output-actions">
                     <div>
                         <h3>Converted Itinerary</h3>
-                        <button id="screenshotBtn"><svg xmlns="http://www.w3.org/2000/svg" fill="#00ff00" width="15px" height="15px" viewBox="0 0 32 32" version="1.1">
-                            <title>whatsapp</title>
-                            <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z"/>
-                            </svg> Copy Screenshot</button>
+                        <button id="screenshotBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="#00ff00" width="15px"
+                                 height="15px" viewBox="0 0 32 32" version="1.1">
+                                <title>whatsapp</title>
+                                <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z" />
+                            </svg> Copy Screenshot
+                        </button>
                         <button id="copyTextBtn">📋 Copy Text</button>
                     </div>
                     <button id="reportErrorBtn" class="btn-disabled">
@@ -2257,7 +2312,8 @@
                 </div>
                 <div class="actionToolBtn" id="ActionToolBtn">
                     <button id="highlighterBtn" title="Highlighter">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24"
+                             fill="none">
                             <path opacity="0.5"
                                   d="M22 10.5V12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2H13.5"
                                   stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" />
@@ -2270,7 +2326,8 @@
                     </button>
 
                     <button id="eraserBtn" title="Eraser">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24"
+                             fill="none">
                             <path d="M7.67004 11.6064L8.20037 12.1367L7.67004 11.6064ZM6 13.9682H5.25H6ZM10.0318 18V18.75V18ZM11.6064 7.67004L11.076 7.13971L11.6064 7.67004ZM12.6506 16.073C12.9435 16.3659 13.4183 16.3659 13.7112 16.073C14.0041 15.7801 14.0041 15.3053 13.7112 15.0124L12.6506 16.073ZM8.98764 10.2888C8.69474 9.99588 8.21987 9.99588 7.92698 10.2888C7.63408 10.5817 7.63408 11.0565 7.92698 11.3494L8.98764 10.2888ZM15.7996 11.8633L11.8633 15.7996L12.924 16.8603L16.8603 12.924L15.7996 11.8633ZM8.20037 12.1367L12.1367 8.20037L11.076 7.13971L7.13971 11.076L8.20037 12.1367ZM8.20037 15.7996C7.6287 15.228 7.25442 14.8514 7.01378 14.536C6.78634 14.2379 6.75 14.0841 6.75 13.9682H5.25C5.25 14.544 5.492 15.0144 5.82124 15.4459C6.13728 15.8601 6.59802 16.3186 7.13971 16.8603L8.20037 15.7996ZM7.13971 11.076C6.59802 11.6177 6.13728 12.0762 5.82124 12.4904C5.492 12.922 5.25 13.3924 5.25 13.9682H6.75C6.75 13.8522 6.78634 13.6984 7.01378 13.4003C7.25442 13.0849 7.6287 12.7084 8.20037 12.1367L7.13971 11.076ZM11.8633 15.7996C11.2916 16.3713 10.9151 16.7456 10.5997 16.9862C10.3016 17.2137 10.1478 17.25 10.0318 17.25V18.75C10.6076 18.75 11.078 18.508 11.5096 18.1788C11.9238 17.8627 12.3823 17.402 12.924 16.8603L11.8633 15.7996ZM7.13971 16.8603C7.6814 17.402 8.13989 17.8627 8.55411 18.1788C8.98563 18.508 9.45604 18.75 10.0318 18.75V17.25C9.91588 17.25 9.76207 17.2137 9.46398 16.9862C9.14858 16.7456 8.77204 16.3713 8.20037 15.7996L7.13971 16.8603ZM15.7996 8.20037C16.3713 8.77204 16.7456 9.14858 16.9862 9.46398C17.2137 9.76207 17.25 9.91588 17.25 10.0318H18.75C18.75 9.45604 18.508 8.98563 18.1788 8.55411C17.8627 8.13989 17.402 7.6814 16.8603 7.13971L15.7996 8.20037ZM16.8603 12.924C17.402 12.3823 17.8627 11.9238 18.1788 11.5096C18.508 11.078 18.75 10.6076 18.75 10.0318H17.25C17.25 10.1478 17.2137 10.3016 16.9862 10.5997C16.7456 10.9151 16.3713 11.2916 15.7996 11.8633L16.8603 12.924ZM16.8603 7.13971C16.3186 6.59802 15.8601 6.13728 15.4459 5.82124C15.0144 5.492 14.544 5.25 13.9682 5.25V6.75C14.0841 6.75 14.2379 6.78634 14.536 7.01378C14.8514 7.25442 15.228 7.6287 15.7996 8.20037L16.8603 7.13971ZM12.1367 8.20037C12.7084 7.6287 13.0849 7.25442 13.4003 7.01378C13.6984 6.78634 13.8522 6.75 13.9682 6.75V5.25C13.3924 5.25 12.922 5.492 12.4904 5.82124C12.0762 6.13728 11.6177 6.59802 11.076 7.13971L12.1367 8.20037ZM13.7112 15.0124L8.98764 10.2888L7.92698 11.3494L12.6506 16.073L13.7112 15.0124Z"
                                   fill="#1C274C" />
                             <path opacity="0.5"
@@ -2286,6 +2343,126 @@
 
             </div>
         </div>
+        <div id="advancedSettingsModal" class="modal-overlay hidden">
+            <div class="modal-content settings-modal">
+                <div class="modal-header">
+                    <h2>Advanced Settings</h2>
+                    <div class="old-version non-active-version" onclick="https://pnrconverter-sv.vercel.app/">
+                        <a href="https://pnrconverter-sv.vercel.app">Old Version 1.0</a>
+                    </div>
+                    <div class="new-version active-version">New Version 1.2.5</div>
+                    <button id="closeSettingsBtn" class="close-btn">×</button>
+                </div>
+
+                <div class="settings-container">
+                    <!-- Sidebar / Tabs for Settings -->
+                    <div class="settings-tabs">
+                        <button class="tab-btn active" data-tab="general">General Display</button>
+                        <button class="tab-btn" data-tab="formats">Time & Formats</button>
+                        <button class="tab-btn" data-tab="branding">Branding & Logo</button>
+                    </div>
+
+                    <!-- Settings Content Area -->
+                    <div class="settings-content">
+
+                        <!-- Tab 1: General Display -->
+                        <div id="tab-general" class="tab-pane active">
+                            <!-- <h3>Visibility Options</h3>
+                                            <div class="checkbox-grid-settings">
+                                                <label><input type="checkbox" id="showAirline" checked> Show Airline Logo/Name</label>
+                                                <label><input type="checkbox" id="showAircraft" checked> Show Aircraft Type</label>
+                                                <label><input type="checkbox" id="showOperatedBy" checked> Show "Operated By"</label>
+                                                <label><input type="checkbox" id="showClass"> Show Cabin Class</label>
+                                                <label><input type="checkbox" id="showMeal"> Show Meal Service</label>
+                                                <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show PNR Notes</label>
+                                            </div>-->
+
+                            <h3>Fare Details</h3>
+                            <div class="checkbox-grid-settings">
+                                <label><input type="checkbox" id="showTaxes"> Display Tax Input Block</label>
+                                <label><input type="checkbox" id="showFees"> Display Fee Input Block</label>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Time & Formats -->
+                        <div id="tab-formats" class="tab-pane">
+                            <h3>Time Format</h3>
+                            <div class="setting-group">
+                                <h4>Flight Segments</h4>
+                                <div class="time-format-group">
+                                    <label>
+                                        <input type="radio" id="segmentTime12" name="segmentTimeFormat" value="12h"> 12-Hour
+                                        (02:00 PM)
+                                    </label>
+                                    <label>
+                                        <input type="radio" id="segmentTime24" name="segmentTimeFormat" value="24h" checked>
+                                        24-Hour (14:00)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-group">
+                                <h4>Transit/Layover</h4>
+                                <div class="time-format-group">
+                                    <label for="transitTime12-modal">
+                                        <input type="radio" id="transitTime12-modal" name="transitTimeFormat_modal" value="12h">
+                                        12-Hour
+                                    </label>
+                                    <label for="transitTime24-modal">
+                                        <input type="radio" id="transitTime24-modal" name="transitTimeFormat_modal" value="24h"
+                                               checked>
+                                        24-Hour
+                                    </label>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h3>Transit Visuals</h3>
+                            <label id="showTransitLabel">
+                                <input type="checkbox" id="showTransit" checked> Show
+                                Transit Rows in
+                                Itinerary
+                            </label>
+                            <div id="transitSymbolContainer" class="custom-transit-input" style="margin-top: 10px;">
+                                <label for="transitSymbolInput">Separator Symbol:</label>
+                                <input type="text" id="transitSymbolInput" placeholder=":::::::">
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: Branding -->
+                        <div id="tab-branding" class="tab-pane">
+                            <h3>Custom Branding</h3>
+                            <label>
+                                <input type="checkbox" id="showItineraryLogo" checked> Enable Main Itinerary
+                                Logo
+                            </label>
+
+                            <div id="customBrandingSection">
+                                <div class="custom-branding-input">
+                                    <label for="customLogoInput">Upload Agency Logo:</label>
+                                    <input type="file" id="customLogoInput" accept="image/png, image/jpeg, image/gif">
+                                    <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
+                                </div>
+                                <div class="custom-branding-input">
+                                    <label for="non-visible">Select Company Logo:</label>
+                                    <input id="non-visible" hidden />
+
+                                    <div id="logoSelectGrid" class="logo-grid"></div>
+
+                                    <img id="selectedLogoPreview" class="custom-logo-preview" />
+                                </div>
+                                <div class="custom-branding-input">
+                                    <label for="customTextInput">Agency Contact Info:</label>
+                                    <textarea id="customTextInput" rows="4"
+                                              placeholder="Your Company Name&#10;Address&#10;Phone Number"></textarea>
+                                </div>
+                                <button id="clearCustomBrandingBtn" class="clear-btn">Reset Branding</button>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="sidebar card">
             <div class="options">
@@ -2295,8 +2472,10 @@
                 <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
                 <label><input type="checkbox" id="showClass"> Show Cabin</label>
                 <label><input type="checkbox" id="showMeal"> Show Meal</label>
-                <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show
-                    Notes</label>
+                <label id="showNotesLabel">
+                    <input type="checkbox" id="showNotes"> Show
+                    Notes
+                </label>
 
                 <!-- <hr>
                 <h4>Segment Time Format</h4>
@@ -2312,163 +2491,60 @@
                     <label for="transitSymbolInput">Separator:</label>
                     <input type="text" id="transitSymbolInput" placeholder=":::::::">
                 </div> -->
-
                 <!-- <hr>
                 <h4>Fare Display Options</h4>
                 <label><input type="checkbox" id="showTaxes" checked> Show Taxes</label>
                 <label><input type="checkbox" id="showFees" checked> Show Fees</label> -->
 
-                <div id="advancedSettingsModal" class="modal-overlay hidden">
-                    <div class="modal-content settings-modal">
-                        <div class="modal-header">
-                            <h2>Advanced Settings</h2>
-                            <div class="old-version non-active-version" onclick="https://pnrconverter-sv.vercel.app/"><a
-                                    href="https://pnrconverter-sv.vercel.app">Old Version 1.0</a></div>
-                            <div class="new-version active-version">New Version 1.2.5</div>
-                            <button id="closeSettingsBtn" class="close-btn">×</button>
-                        </div>
-
-                        <div class="settings-container">
-                            <!-- Sidebar / Tabs for Settings -->
-                            <div class="settings-tabs">
-                                <button class="tab-btn active" data-tab="general">General Display</button>
-                                <button class="tab-btn" data-tab="formats">Time & Formats</button>
-                                <button class="tab-btn" data-tab="branding">Branding & Logo</button>
-                            </div>
-
-                            <!-- Settings Content Area -->
-                            <div class="settings-content">
-
-                                <!-- Tab 1: General Display -->
-                                <div id="tab-general" class="tab-pane active">
-                                    <!-- <h3>Visibility Options</h3>
-                                    <div class="checkbox-grid-settings">
-                                        <label><input type="checkbox" id="showAirline" checked> Show Airline Logo/Name</label>
-                                        <label><input type="checkbox" id="showAircraft" checked> Show Aircraft Type</label>
-                                        <label><input type="checkbox" id="showOperatedBy" checked> Show "Operated By"</label>
-                                        <label><input type="checkbox" id="showClass"> Show Cabin Class</label>
-                                        <label><input type="checkbox" id="showMeal"> Show Meal Service</label>
-                                        <label id="showNotesLabel"><input type="checkbox" id="showNotes"> Show PNR Notes</label>
-                                    </div>-->
-
-                                    <h3>Fare Details</h3>
-                                    <div class="checkbox-grid-settings">
-                                        <label><input type="checkbox" id="showTaxes"> Display Tax Input Block</label>
-                                        <label><input type="checkbox" id="showFees"> Display Fee Input Block</label>
-                                    </div>
-                                </div>
-
-                                <!-- Tab 2: Time & Formats -->
-                                <div id="tab-formats" class="tab-pane">
-                                    <h3>Time Format</h3>
-                                    <div class="setting-group">
-                                        <h4>Flight Segments</h4>
-                                        <div class="time-format-group">
-                                            <label><input type="radio" id="segmentTime12" name="segmentTimeFormat"
-                                                    value="12h"> 12-Hour
-                                                (02:00 PM)</label>
-                                            <label><input type="radio" id="segmentTime24" name="segmentTimeFormat"
-                                                    value="24h" checked>
-                                                24-Hour (14:00)</label>
-                                        </div>
-                                    </div>
-                                    <div class="setting-group">
-                                        <h4>Transit/Layover</h4>
-                                        <div class="time-format-group">
-                                            <label for="transitTime12-modal">
-                                                <input type="radio" id="transitTime12-modal" name="transitTimeFormat_modal" value="12h">
-                                                12-Hour
-                                            </label>
-                                            <label for="transitTime24-modal">
-                                                <input type="radio" id="transitTime24-modal" name="transitTimeFormat_modal" value="24h" checked>
-                                                24-Hour
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <hr>
-                                    <h3>Transit Visuals</h3>
-                                    <label id="showTransitLabel"><input type="checkbox" id="showTransit" checked> Show
-                                        Transit Rows in
-                                        Itinerary</label>
-                                    <div id="transitSymbolContainer" class="custom-transit-input"
-                                        style="margin-top: 10px;">
-                                        <label for="transitSymbolInput">Separator Symbol:</label>
-                                        <input type="text" id="transitSymbolInput" placeholder=":::::::">
-                                    </div>
-                                </div>
-
-                                <!-- Tab 3: Branding -->
-                                <div id="tab-branding" class="tab-pane">
-                                    <h3>Custom Branding</h3>
-                                    <label><input type="checkbox" id="showItineraryLogo" checked> Enable Main Itinerary
-                                        Logo</label>
-
-                                    <div id="customBrandingSection">
-                                        <div class="custom-branding-input">
-                                            <label for="customLogoInput">Upload Agency Logo:</label>
-                                            <input type="file" id="customLogoInput"
-                                                accept="image/png, image/jpeg, image/gif">
-                                            <img id="customLogoPreview" alt="Logo Preview" class="custom-logo-preview">
-                                        </div>
-                                        <div class="custom-branding-input">
-                                            <label for="non-visible">Select Company Logo:</label>
-                                            <input id="non-visible" hidden/>
-
-                                            <div id="logoSelectGrid" class="logo-grid"></div>
-
-                                            <img id="selectedLogoPreview" class="custom-logo-preview" />
-                                        </div>
-                                        <div class="custom-branding-input">
-                                            <label for="customTextInput">Agency Contact Info:</label>
-                                            <textarea id="customTextInput" rows="4"
-                                                placeholder="Your Company Name&#10;Address&#10;Phone Number"></textarea>
-                                        </div>
-                                        <button id="clearCustomBrandingBtn" class="clear-btn">Reset Branding</button>
-                                    </div>
-                                </div>
-                                <hr>
-
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <hr>
                 <div class="options-group">
                     <h3>Additional Information to Display</h3>
                     <div class="checkbox-grid">
                         <div class="checkbox-container">
-                            <label for="showCovidNotice"><input type="checkbox" id="showCovidNotice"
-                                    name="itineraryNotes" value="covid"> Date Change Allowed With Applicable
-                                <br>Penalties.</label>
+                            <label for="showCovidNotice">
+                                <input type="checkbox" id="showCovidNotice"
+                                       name="itineraryNotes" value="covid"> Date Change Allowed With Applicable
+                                <br>Penalties.
+                            </label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="showTravelInsurance"><input type="checkbox" id="showTravelInsurance"
-                                    name="itineraryNotes" value="insurance"> Before Departure Changes Are Allowed
+                            <label for="showTravelInsurance">
+                                <input type="checkbox" id="showTravelInsurance"
+                                       name="itineraryNotes" value="insurance"> Before Departure Changes Are Allowed
                                 <br>With
-                                Applicable Penalty.</label>
+                                Applicable Penalty.
+                            </label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="showVisaInfo"><input type="checkbox" id="showVisaInfo" name="itineraryNotes"
-                                    value="visa"> Before Departure Refundable With <br>Applicable Penalties.</label>
+                            <label for="showVisaInfo">
+                                <input type="checkbox" id="showVisaInfo" name="itineraryNotes"
+                                       value="visa"> Before Departure Refundable With <br>Applicable Penalties.
+                            </label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="dontShowTravelInsurance"><input type="checkbox" id="dontShowTravelInsurance"
-                                    name="itineraryNotes" value="insurance"> After Departure, Non Refundable.</label>
+                            <label for="dontShowTravelInsurance">
+                                <input type="checkbox" id="dontShowTravelInsurance"
+                                       name="itineraryNotes" value="insurance"> After Departure, Non Refundable.
+                            </label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="noShowRefundPolicy"><input type="checkbox" id="noShowRefundPolicy"
-                                    name="itineraryNotes" value="visa"> Refundable With Applicable Penalties.</label>
+                            <label for="noShowRefundPolicy">
+                                <input type="checkbox" id="noShowRefundPolicy"
+                                       name="itineraryNotes" value="visa"> Refundable With Applicable Penalties.
+                            </label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="showHealthDocs"><input type="checkbox" id="showHealthDocs" name="itineraryNotes"
-                                    value="health"> Non Refundable.</label>
+                            <label for="showHealthDocs">
+                                <input type="checkbox" id="showHealthDocs" name="itineraryNotes"
+                                       value="health"> Non Refundable.
+                            </label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="noShow"><input type="checkbox" id="noShow" name="itineraryNotes" value="health">
-                                No Show Fee Where Applicable</label>
+                            <label for="noShow">
+                                <input type="checkbox" id="noShow" name="itineraryNotes" value="health">
+                                No Show Fee Where Applicable
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -2494,7 +2570,8 @@
                             12-Hour
                         </label>
                         <label for="transitTime24-sidebar">
-                            <input type="radio" id="transitTime24-sidebar" name="transitTimeFormat_sidebar" value="24h" checked>
+                            <input type="radio" id="transitTime24-sidebar" name="transitTimeFormat_sidebar" value="24h"
+                                   checked>
                             24-Hour
                         </label>
                     </div>
@@ -2557,8 +2634,10 @@
                 <p id="developerName">FAIZAAN BHATI</p>
                 <a href="mailto:faizaanbhati95719@gmail.com"><img src="./icons/google.png" alt="gmail"></a>
                 <a href="https://github.com/FAIZAAN01/"><img src="./icons/github.png" alt="github"></a>
-                <a href="https://www.linkedin.com/in/faizaan-bhati-5905b1248/"><img src="./icons/linkedin.png"
-                        alt="linkedin"></a>
+                <a href="https://www.linkedin.com/in/faizaan-bhati-5905b1248/">
+                    <img src="./icons/linkedin.png"
+                         alt="linkedin">
+                </a>
                 <p id="copyRight"> &copy; 2025, Faizaan Bhati</p>
             </div>
             <div class="myLogo">
@@ -2594,14 +2673,14 @@
             </div>
 
         </div>
-<form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
-    <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
-    <input id="nameInput" type="text" name="name" placeholder="Name" autocomplete="on" required>
-    <input id="emailInput" type="email" name="email" placeholder="Email" autocomplete="on" required>
-    <input type="hidden" name="pnr" id="pnrHidden">
-    <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
-    <button id="submitBtn" type="submit">Send Query</button>
-</form>
+        <form action="https://api.web3forms.com/submit" method="POST" id="contactForm" class="contact-form">
+            <input type="hidden" name="access_key" value="8e411ec7-fb3e-48fc-8907-d8bf830626ff">
+            <input id="nameInput" type="text" name="name" placeholder="Name" autocomplete="on" required>
+            <input id="emailInput" type="email" name="email" placeholder="Email" autocomplete="on" required>
+            <input type="hidden" name="pnr" id="pnrHidden">
+            <textarea id="messageInput" name="message" placeholder="Message" required></textarea>
+            <button id="submitBtn" type="submit">Send Query</button>
+        </form>
         <div class="footer-content">
             <p>Latest Update: <span id="latestUpdate">Version 1.2.5 deployed on 21 Nov 2025</span></p>
             <p> |- New Advance Settings Option</p>
@@ -2962,51 +3041,51 @@
         });
     </script>
     <script>
-const form = document.getElementById('contactForm');
-const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('contactForm');
+        const submitBtn = document.getElementById('submitBtn');
 
-form.addEventListener('submit', async (e) => {
-    e.preventDefault(); // prevent default submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // prevent default submission
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending...";
 
-    const formData = new FormData(form);
+            const formData = new FormData(form);
 
-    try {
-        const response = await fetch('https://api.web3forms.com/submit', {
-            method: 'POST',
-            body: formData
+            try {
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log(result);
+
+                if (result.success) {
+                    submitBtn.textContent = "Query Sent";
+                    form.reset();
+                    setTimeout(() => {
+                        submitBtn.textContent = "Send Query";
+                        submitBtn.disabled = false;
+                    }, 3000); // 3 seconds
+                } else {
+                    submitBtn.textContent = "Failed. Try Again";
+                    setTimeout(() => {
+                        submitBtn.textContent = "Send Query";
+                        submitBtn.disabled = false;
+                    }, 3000);
+                }
+
+            } catch (error) {
+                console.error(error);
+                submitBtn.textContent = "Error. Try Again";
+                setTimeout(() => {
+                    submitBtn.textContent = "Send Query";
+                    submitBtn.disabled = false;
+                }, 3000);
+            }
         });
-
-        const result = await response.json();
-        console.log(result);
-
-        if(result.success){
-            submitBtn.textContent = "Query Sent";
-            form.reset();
-            setTimeout(() => {
-                submitBtn.textContent = "Send Query";
-                submitBtn.disabled = false;
-            }, 3000); // 3 seconds
-        } else {
-            submitBtn.textContent = "Failed. Try Again";
-            setTimeout(() => {
-                submitBtn.textContent = "Send Query";
-                submitBtn.disabled = false;
-            }, 3000);
-        }
-
-    } catch (error) {
-        console.error(error);
-        submitBtn.textContent = "Error. Try Again";
-        setTimeout(() => {
-            submitBtn.textContent = "Send Query";
-            submitBtn.disabled = false;
-        }, 3000);
-    }
-});
-</script>
+    </script>
     <script>
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
