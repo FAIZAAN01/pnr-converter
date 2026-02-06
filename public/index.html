@@ -1015,15 +1015,27 @@
             transition: background-color .2s, transform .2s
         }
 
-            .history-item:hover {
-                background-color: var(--bg-hover);
-                transform: translateX(5px)
-            }
+        .history-item:hover {
+            background-color: var(--bg-hover);
+            transform: translateX(5px)
+        }
 
-            .history-item:active {
-                background-color: var(--bg-hover);
-                transform: translateX(5px)
-            }
+        .history-item:active {
+            background-color: var(--bg-hover);
+            transform: translateX(5px)
+        }
+
+        /* Style for the selected history item */
+        .history-item.selected {
+            background-color: var(--bg-hover) !important;
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        /* Ensure text stays visible in dark mode when selected */
+        [data-theme='dark'] .history-item.selected {
+            background-color: var(--primary-blue-hover) !important;
+        }
 
         .history-item-pax {
             font-weight: 700;

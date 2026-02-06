@@ -794,6 +794,10 @@ const historyManager = {
         document.getElementById('historyList')?.addEventListener('click', (e) => {
             const itemEl = e.target.closest('.history-item');
             if (!itemEl) return;
+
+            document.querySelectorAll('.history-item').forEach(el => el.classList.remove('selected'));
+            itemEl.classList.add('selected');
+
             const id = Number(itemEl.dataset.id);
             const entry = this.get().find(item => item.id === id);
             if (!entry) return;
