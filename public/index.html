@@ -17,6 +17,8 @@
           content="Easily convert airline PNR data into a clear, human-readable itinerary format.">
     <meta property="og:image" content="pass.jpeg">
     <meta property="og:type" content="website">
+    <link rel="preload" href="/main.js" as="script">
+    <link rel="preload" href="/js/html2canvas.min.js" as="script">
     <style>
         /* --- THEME VARIABLES --- */
         :root {
@@ -1738,10 +1740,11 @@
             border-radius: 6px;
         }
 
-        .setting-group h4 {
-            margin-top: 0;
-            color: var(--primary-blue);
-        }
+            .setting-group h4 {
+                margin-top: 0;
+                color: var(--primary-blue);
+            }
+
         .refreshBtn {
             border: 1px solid white;
         }
@@ -2666,8 +2669,8 @@
 
     </footer>
 
-    <script src="../js/html2canvas.min.js"></script>
-    <script src="./main.js"></script>
+    <script src="/main.js" defer></script>
+    <script src="/js/html2canvas.min.js" defer></script>
     <!-- Put this script at the very bottom of your body, after all elements -->
 
     <script>

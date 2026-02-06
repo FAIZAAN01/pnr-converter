@@ -54,6 +54,7 @@ function reverseString(str) {
 }
 
 async function generateItineraryCanvasDoc(element, customScale = 2) { 
+    const html2canvas = (await import('/js/html2canvas.min.js')).default;
     if (!element) throw new Error("Element for canvas generation not found."); 
     
     // 1. Calculate dynamic width based on the content + buffer
