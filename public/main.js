@@ -585,21 +585,30 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             }
         });
 
+        const rawClassCode = flight.travelClass.code || ''; // Get the single letter like 'L' or 'M'
+
         const headerText = [
             flight.date,
             displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '',
-            flight.flightNumber, flight.duration,
+            flight.flightNumber,
+            flight.duration,
             displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '',
             displayPnrOptions.showClass ? (globalClassOverride || flight.travelClass.name || '') : '',
             flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
         ].filter(Boolean).join(' - ');
 
+        // Append the hidden code at the very end of the header
+        const hiddenCodeHtml = `<span style="opacity: 0; font-size: 1px; user-select: all;">[${rawClassCode}]</span>`;
+
         flightItem.innerHTML = `
-            <div class="flight-content">
-                ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
-                <div><div class="flight-header">${headerText}</div>${detailsHtml}</div>
-            </div>
-        `;
+    <div class="flight-content">
+        ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
+        <div>
+            <div class="flight-header">${headerText} ${hiddenCodeHtml}</div>
+            ${detailsHtml}
+        </div>
+    </div>
+`;
 
         // 4. FLOATING INPUT PANEL
         const floatingPanel = document.createElement('div');
