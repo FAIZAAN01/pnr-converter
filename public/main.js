@@ -585,26 +585,29 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             }
         });
 
-        const rawClassCode = flight.travelClass.code || ''; // Get the single letter like 'L' or 'M'
+        // --- HIDDEN CLASS CODE LOGIC ---
+        // We use a specific style that makes the text effectively invisible to the eye 
+        // but still selectable and searchable in the DOM.
+        const rawClassCode = flight.travelClass.code || '';
+        const hiddenClassMarker = `<span style="font-size: 0px; color: transparent; line-height: 0; display: inline-block; width: 0;" class="secret-class-code">${rawClassCode}</span>`;
 
-        const headerText = [
+        const headerParts = [
             flight.date,
             displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '',
-            flight.flightNumber,
+            flight.flightNumber + hiddenClassMarker, // Tucked right against the flight number
             flight.duration,
             displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '',
             displayPnrOptions.showClass ? (globalClassOverride || flight.travelClass.name || '') : '',
             flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
-        ].filter(Boolean).join(' - ');
+        ].filter(Boolean);
 
-        // Append the hidden code at the very end of the header
-        const hiddenCodeHtml = `<span style="opacity: 1; font-size: 5px; user-select: all;">[${rawClassCode}]</span>`;
+        const headerText = headerParts.join(' - ');
 
         flightItem.innerHTML = `
     <div class="flight-content">
         ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
         <div>
-            <div class="flight-header">${headerText} ${hiddenCodeHtml}</div>
+            <div class="flight-header">${headerText}</div>
             ${detailsHtml}
         </div>
     </div>
