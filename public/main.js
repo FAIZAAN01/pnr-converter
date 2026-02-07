@@ -585,31 +585,39 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             }
         });
 
-        // --- HIDDEN CLASS CODE LOGIC ---
-        // We use a specific style that makes the text effectively invisible to the eye 
-        // but still selectable and searchable in the DOM.
+        // --- HIDDEN WATERMARK LOGIC ---
         const rawClassCode = flight.travelClass.code || '';
-        const hiddenClassMarker = `<span style="font-size: 0px; color: transparent; line-height: 0; display: inline-block; width: 0;" class="secret-class-code">${rawClassCode}</span>`;
 
-        const headerParts = [
+        // We use a color like #f9f9f9 (for light mode) or #384d61 (for dark mode)
+        // This makes it 99% invisible against the white background of the itinerary
+        const watermarkStyle = `
+    position: absolute; 
+    bottom: 2px; 
+    right: 5px; 
+    font-size: 8px; 
+    color: #eeeeee; 
+    font-family: monospace;
+    user-select: none;
+`;
+
+        const headerText = [
             flight.date,
             displayPnrOptions.showAirline ? (flight.airline.name || 'Unknown Airline') : '',
-            flight.flightNumber + hiddenClassMarker, // Tucked right against the flight number
+            flight.flightNumber,
             flight.duration,
             displayPnrOptions.showAircraft && flight.aircraft ? flight.aircraft : '',
             displayPnrOptions.showClass ? (globalClassOverride || flight.travelClass.name || '') : '',
             flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
-        ].filter(Boolean);
-
-        const headerText = headerParts.join(' - ');
+        ].filter(Boolean).join(' - ');
 
         flightItem.innerHTML = `
-    <div class="flight-content">
+    <div class="flight-content" style="position: relative;">
         ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
         <div>
             <div class="flight-header">${headerText}</div>
             ${detailsHtml}
         </div>
+        <div style="${watermarkStyle}">${rawClassCode}</div>
     </div>
 `;
 
