@@ -594,7 +594,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     position: absolute; 
     bottom: 2px; 
     right: 5px; 
-    font-size: 8px; 
+    font-size: 5px; 
     color: #eeeeee; 
     font-family: monospace;
     user-select: none;
