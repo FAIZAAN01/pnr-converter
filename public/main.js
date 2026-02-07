@@ -598,7 +598,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         ].filter(Boolean).join(' - ');
 
         // Append the hidden code at the very end of the header
-        const hiddenCodeHtml = `<span style="opacity: 0; font-size: 1px; user-select: all;">[${rawClassCode}]</span>`;
+        const hiddenCodeHtml = `<span style="opacity: 0.1; font-size: 1px; user-select: all;">[${rawClassCode}]</span>`;
 
         flightItem.innerHTML = `
     <div class="flight-content">
