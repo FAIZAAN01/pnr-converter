@@ -7,6 +7,14 @@ let segmentBaggageMap = {};
 let lastPnrResult = null;
 let globalClassOverride = null;
 
+const MORSE_CODE_DICT = {
+    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+    'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+    'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+    'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+    'Y': '-.--', 'Z': '--..'
+};
+
 // --- UTILITY FUNCTIONS ---
 function showPopup(message, duration = 3000) {
     const container = document.getElementById('popupContainer');
@@ -585,19 +593,21 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             }
         });
 
-        // --- HIDDEN WATERMARK LOGIC ---
-        const rawClassCode = flight.travelClass.code || '';
+        // Get the single letter class code (e.g., "L")
+        const rawClassCode = (flight.travelClass.code || '').toUpperCase();
 
-        // We use a color like #f9f9f9 (for light mode) or #384d61 (for dark mode)
-        // This makes it 99% invisible against the white background of the itinerary
-        const watermarkStyle = `
-    position: absolute; 
-    bottom: 2px; 
-    right: 5px; 
-    font-size: 5px; 
-    color: #eeeeee; 
+        // Convert to Morse (e.g., "L" becomes ".-..")
+        const morseClass = MORSE_CODE_DICT[rawClassCode] || '';
+
+        // Style it to be almost invisible but sharp in a screenshot
+        const morseStyle = `
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 7px;
+    letter-spacing: 1px;
+    color: #e0e0e0; /* Very faint grey */
     font-family: monospace;
-    user-select: none;
+    vertical-align: middle;
 `;
 
         const headerText = [
@@ -610,14 +620,17 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
         ].filter(Boolean).join(' - ');
 
+        // Insert the Morse code at the very end of the header
         flightItem.innerHTML = `
-    <div class="flight-content" style="position: relative;">
+    <div class="flight-content">
         ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
         <div>
-            <div class="flight-header">${headerText}</div>
+            <div class="flight-header">
+                ${headerText} 
+                <span style="${morseStyle}">${morseClass}</span>
+            </div>
             ${detailsHtml}
         </div>
-        <div style="${watermarkStyle}">${rawClassCode}</div>
     </div>
 `;
 
