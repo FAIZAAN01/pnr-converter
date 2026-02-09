@@ -17,7 +17,7 @@ const MORSE_CODE_DICT = {
 
 // --- UTILITY FUNCTIONS ---
 function showPopup(message, duration = 3000) {
-    const container = document.getElementById('popupContainer');
+    const container = document.getElementById('popupContainer'); 
     if (!container) return;
     const popup = document.createElement('div');
     popup.className = 'popup-notification';
@@ -603,7 +603,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const morseStyle = `
     display: inline-block;
     margin-left: 10px;
-    font-size: 7px;
+    font-size: 5px;
     letter-spacing: 1px;
     color: #e0e0e0; /* Very faint grey */
     font-family: monospace;
