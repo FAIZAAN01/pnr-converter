@@ -211,54 +211,6 @@ function loadOptions() {
     } catch (e) { console.error("Failed to load options:", e); }
 }
 
-function loadOptions() {
-    try {
-        const savedOptions = JSON.parse(localStorage.getItem(OPTIONS_STORAGE_KEY) || '{}');
-
-        document.getElementById('autoConvertToggle').checked = savedOptions.autoConvertOnPaste ?? false;
-        document.getElementById('editableToggle').checked = savedOptions.isEditable ?? false;
-
-        const setRadio = (name, val) => {
-            if (!val) return;
-            const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
-            if (el) el.checked = true;
-        };
-        setRadio('segmentTimeFormat', savedOptions.segmentTimeFormat || '24h');
-        setRadio('transitTimeFormat', savedOptions.transitTimeFormat || '24h');
-
-        const checkboxIds = [
-            'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
-            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
-        ];
-        const defaultValues = {
-            showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
-            showTransit: true, showTaxes: true, showFees: true
-        };
-        checkboxIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.checked = savedOptions[id] ?? (defaultValues[id] || false);
-        });
-
-        if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
-        document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
-
-        const customLogoData = localStorage.getItem(CUSTOM_LOGO_KEY);
-        const customTextData = localStorage.getItem(CUSTOM_TEXT_KEY);
-        if (customLogoData) {
-            document.getElementById('customLogoPreview').src = customLogoData;
-            document.getElementById('customLogoPreview').style.display = 'block';
-        }
-        if (customTextData) document.getElementById('customTextInput').value = customTextData;
-
-        updateEditableState();
-        toggleCustomBrandingSection();
-        toggleFareInputsVisibility();
-        toggleTransitSymbolInputVisibility();
-
-    } catch (e) { console.error("Failed to load options:", e); }
-}
-
 function loadPresetLogoGrid() {
     const grid = document.getElementById("logoSelectGrid");
     const preview = document.getElementById("selectedLogoPreview");
