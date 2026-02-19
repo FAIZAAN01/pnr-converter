@@ -1121,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: JSON.stringify({
                             access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
                             name: "System Reporter",
-                            email: "system@pnrconverter.com", // System email
+                            email: "pnrconverter.vercel.app", // System email
                             subject: `Override: ${val} (IP: ${userIP})`,
                             message: `User (IP: ${userIP}) corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
                         })
