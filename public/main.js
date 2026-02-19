@@ -616,6 +616,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                 <button class="float-btn" onclick="${updateJs}">40 Kgs</button>
                 <button class="float-btn" onclick="${updateJs}">1 Pcs</button>
                 <button class="float-btn" onclick="${updateJs}">2 Pcs</button>
+                <button class="float-btn" onclick="${updateJs}">3 Pcs</button>
             </div>
         `;
 
