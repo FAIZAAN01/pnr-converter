@@ -19,9 +19,19 @@ const MORSE_CODE_DICT = {
 
 function formatCurrency(amount) {
     const num = parseFloat(amount);
-    if (isNaN(num)) return "0.00";
+    if (isNaN(num)) return "0";
 
-    // Formats to 2 decimal places with commas (e.g., 1,250.50)
+    const currency = document.getElementById('currencySelect').value;
+
+    // If RWF, remove all decimals and formatting to 0 places
+    if (currency === 'RWF') {
+        return new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(Math.round(num)); // Round to nearest whole number
+    }
+
+    // For other currencies (USD, EUR, etc.), keep 2 decimal places
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
