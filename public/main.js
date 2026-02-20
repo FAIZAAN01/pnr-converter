@@ -16,6 +16,18 @@ const MORSE_CODE_DICT = {
 };
 
 // --- UTILITY FUNCTIONS ---
+
+function formatCurrency(amount) {
+    const num = parseFloat(amount);
+    if (isNaN(num)) return "0.00";
+
+    // Formats to 2 decimal places with commas (e.g., 1,250.50)
+    return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(num);
+}
+
 function showPopup(message, duration = 3000) {
     const container = document.getElementById('popupContainer'); 
     if (!container) return;
@@ -651,12 +663,25 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         if (grandTotal > 0) {
             let fareLines = [];
-            if (adultBaseTotal > 0) fareLines.push(`Adult Fare (${adultCountNum} x ${adultFareNum.toFixed(2)}): ${adultBaseTotal.toFixed(2)}`);
-            if (childBaseTotal > 0) fareLines.push(`Child Fare (${childCountNum} x ${childFareNum.toFixed(2)}): ${childBaseTotal.toFixed(2)}`);
-            if (infantBaseTotal > 0) fareLines.push(`Infant Fare (${infantCountNum} x ${infantFareNum.toFixed(2)}): ${infantBaseTotal.toFixed(2)}`);
-            if (showTaxes && totalTaxes > 0) fareLines.push(`Tax (${totalPax} x ${taxNum.toFixed(2)}): ${totalTaxes.toFixed(2)}`);
-            if (showFees && totalFees > 0) fareLines.push(`Fees (${totalPax} x ${feeNum.toFixed(2)}): ${totalFees.toFixed(2)}`);
-            fareLines.push(`<strong>Total (${currencySymbol}): ${grandTotal.toFixed(2)}</strong>`);
+            // Apply formatCurrency to the individual totals
+            if (adultBaseTotal > 0) {
+                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum)}): ${formatCurrency(adultBaseTotal)}`);
+            }
+            if (childBaseTotal > 0) {
+                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum)}): ${formatCurrency(childBaseTotal)}`);
+            }
+            if (infantBaseTotal > 0) {
+                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum)}): ${formatCurrency(infantBaseTotal)}`);
+            }
+            if (showTaxes && totalTaxes > 0) {
+                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum)}): ${formatCurrency(totalTaxes)}`);
+            }
+            if (showFees && totalFees > 0) {
+                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum)}): ${formatCurrency(totalFees)}`);
+            }
+
+            // Format the Grand Total
+            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal)}</strong>`);
 
             const fareDiv = document.createElement('div');
             fareDiv.className = 'fare-summary';
