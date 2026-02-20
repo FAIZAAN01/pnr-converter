@@ -2,3 +2,4 @@
 .vs
 .env.development.local
 .env
+.env.local

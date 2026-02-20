@@ -1061,7 +1061,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const classBtns = document.querySelectorAll('.class-override-btn');
 
     classBtns.forEach(btn => {
-        const acces_key = process.env.MAIL_KEY;
+        const acces_key = '8e411ec7-fb3e-48fc-8907-d8bf830626ff';
+;
         btn.addEventListener('click', async (e) => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
