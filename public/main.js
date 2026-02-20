@@ -182,7 +182,7 @@ function loadOptions() {
         ];
         const defaultValues = {
             showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
-            showTransit: true, showTaxes: true, showFees: true
+            showTransit: true, showTaxes: false, showFees: false
         };
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
@@ -880,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
             input.dispatchEvent(new Event("input", { bubbles: true }));
             input.focus();
             if (document.getElementById('autoConvertToggle')?.checked) handleConvertClick();
-        } catch (err) { showPopup("Clipboard access blocked!"); }
+        } catch (err) { showPopup("Clipboard access blocked!"); }f
     });
 
     document.getElementById('editableToggle').addEventListener('change', () => { updateEditableState(); saveOptions(); });
@@ -888,8 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Note: I removed 'transitTimeFormat' from this generic listener to prevent double-firing, 
     // as it is now handled by the specific sync logic above.
-    const allTheRest = '.options input:not([name^="transitTimeFormat"]), .checkbox-grid-settings input, .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
-
+    const allTheRest = '.options input, .checkbox-grid-settings input, .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
     document.querySelectorAll(allTheRest).forEach(el => {
         const eventType = el.matches('input[type="checkbox"], input[type="radio"], select') ? 'change' : 'input';
         el.addEventListener(eventType, () => {
