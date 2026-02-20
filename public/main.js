@@ -888,7 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Note: I removed 'transitTimeFormat' from this generic listener to prevent double-firing, 
     // as it is now handled by the specific sync logic above.
-    const allTheRest = '.options input:not([name^="transitTimeFormat"]), .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
+    const allTheRest = '.options input:not([name^="transitTimeFormat"]), .checkbox-grid-settings input, .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
 
     document.querySelectorAll(allTheRest).forEach(el => {
         const eventType = el.matches('input[type="checkbox"], input[type="radio"], select') ? 'change' : 'input';
