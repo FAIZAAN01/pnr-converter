@@ -261,13 +261,6 @@
             border-top: 0.5px solid var(--border-main);
         }
 
-        .input-actions-group {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-top: 15px;
-        }
-
         button {
             padding: 10px 18px;
             color: white;
@@ -2143,19 +2136,6 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
                     </div>
                 </div>
 
-                <div class="input-actions-group">
-                    <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
-                        <span class="toggle-switch-label">
-                            <span class="toggle-text">
-                                Auto
-                                Convert
-                            </span>
-                        </span>
-                        <input type="checkbox" id="autoConvertToggle">
-                        <span class="switch-body"></span>
-                    </label>
-                </div>
-
                 <div class="fare-options-grid">
                     <div class="fare-group">
                         <label for="adultCountInput">ADLT</label>
@@ -2446,7 +2426,22 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
 
         <div class="sidebar card">
             <div class="options">
-                <h3>Display Options</h3>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+    <h3 style="margin:0;">Display Options</h3>
+    <button id="autoConvertToggle" data-active="false" style="
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: none;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        background-color: #E57373;
+        color: white;
+        transition: background-color 0.3s, transform 0.1s;
+        white-space: nowrap;
+        letter-spacing: 0.3px;
+    ">Auto Convert OFF</button>
+</div>
                 <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
                 <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
                 <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
@@ -3166,6 +3161,41 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
     document.addEventListener('DOMContentLoaded', () => {
       calcInputIds.forEach(id => attachCalc(document.getElementById(id)));
     });
+  })();
+</script>
+
+<script>
+  (function () {
+    const btn = document.getElementById('autoConvertToggle');
+    if (!btn) return;
+
+    // Restore saved state
+    const saved = localStorage.getItem('autoConvert') === 'true';
+    setAutoState(saved);
+
+    btn.addEventListener('click', () => {
+      const isActive = btn.dataset.active === 'true';
+      setAutoState(!isActive);
+    });
+
+    function setAutoState(active) {
+      btn.dataset.active = active;
+      localStorage.setItem('autoConvert', active);
+
+      if (active) {
+        btn.textContent = 'Auto Convert ON';
+        btn.style.backgroundColor = 'var(--success-green)';
+        btn.style.boxShadow = '0 0 8px rgba(46,204,113,0.45)';
+      } else {
+        btn.textContent = 'Auto Convert OFF';
+        btn.style.backgroundColor = 'var(--danger-red)';
+        btn.style.boxShadow = '0 0 8px rgba(229,115,115,0.45)';
+      }
+
+      // Press effect
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => btn.style.transform = '', 120);
+    }
   })();
 </script>
 </body>

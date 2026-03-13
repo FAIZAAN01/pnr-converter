@@ -157,7 +157,7 @@ function updateEditableState() {
 function saveOptions() {
     try {
         const optionsToSave = {
-            autoConvertOnPaste: document.getElementById('autoConvertToggle').checked,
+            autoConvertOnPaste: document.getElementById('autoConvertToggle').dataset.active === 'true',
             isEditable: document.getElementById('editableToggle').checked,
             segmentTimeFormat: document.querySelector('input[name="segmentTimeFormat"]:checked').value,
             transitTimeFormat: document.querySelector('input[name="transitTimeFormat_sidebar"]:checked').value,
