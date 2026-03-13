@@ -2044,6 +2044,63 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
             margin-top: -20px;
             display: none;
         }
+
+        /* Auto Convert Button */
+label[for="autoConvertToggle"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px 6px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+    user-select: none;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
+
+    /* OFF state */
+    background-color: rgba(229, 115, 115, 0.15);
+    color: var(--danger-red);
+    border: 1.5px solid var(--danger-red);
+    box-shadow: 0 0 0 rgba(229,115,115,0);
+}
+
+label[for="autoConvertToggle"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(229,115,115,0.3);
+}
+
+label[for="autoConvertToggle"]:active {
+    transform: scale(0.96);
+}
+
+/* ON state — triggered when checkbox is checked */
+#autoConvertToggle:checked + label[for="autoConvertToggle"] {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: var(--success-green);
+    border-color: var(--success-green);
+    box-shadow: 0 0 0 rgba(46,204,113,0);
+}
+
+#autoConvertToggle:checked + label[for="autoConvertToggle"]:hover {
+    box-shadow: 0 4px 12px rgba(46,204,113,0.3);
+}
+
+/* Dot indicator */
+.ac-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--danger-red);
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+}
+
+#autoConvertToggle:checked + label[for="autoConvertToggle"] .ac-dot {
+    background-color: var(--success-green);
+}
     </style>
     <meta name="google-site-verification" content="l90XKNLj69K53KLIliTB2e4t0fk5MJUlAZkplc9pRKM" />
 </head>
@@ -2427,21 +2484,14 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
         <div class="sidebar card">
             <div class="options">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-    <h3 style="margin:0;">Display Options</h3>
-    <button id="autoConvertToggle" data-active="false" style="
-        padding: 6px 12px;
-        border-radius: 20px;
-        border: none;
-        font-size: 12px;
-        font-weight: 700;
-        cursor: pointer;
-        background-color: #E57373;
-        color: white;
-        transition: background-color 0.3s, transform 0.1s;
-        white-space: nowrap;
-        letter-spacing: 0.3px;
-    ">Auto Convert OFF</button>
-</div>
+                    <h3 style="margin:0;">Display Options</h3>
+
+                    <input type="checkbox" id="autoConvertToggle" style="display:none;">
+                    <label for="autoConvertToggle" id="autoConvertLabel">
+                        <span class="ac-dot"></span>
+                        <span class="ac-text">Auto Convert OFF</span>
+                    </label>
+                </div>
                 <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
                 <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
                 <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
@@ -3196,6 +3246,20 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
       btn.style.transform = 'scale(0.95)';
       setTimeout(() => btn.style.transform = '', 120);
     }
+  })();
+</script>
+<script>
+  (function () {
+    const cb  = document.getElementById('autoConvertToggle');
+    const lbl = document.querySelector('label[for="autoConvertToggle"] .ac-text');
+    if (!cb || !lbl) return;
+
+    const update = () => {
+      lbl.textContent = cb.checked ? 'Auto Convert ON' : 'Auto Convert OFF';
+    };
+
+    cb.addEventListener('change', update);
+    update(); // set correct text on load
   })();
 </script>
 </body>
