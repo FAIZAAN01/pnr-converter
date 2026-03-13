@@ -915,7 +915,7 @@ document.addEventListener('DOMContentLoaded', () => {
             input.dispatchEvent(new Event("input", { bubbles: true }));
             input.focus();
             if (document.getElementById('autoConvertToggle')?.checked) handleConvertClick();
-        } catch (err) { showPopup("Clipboard access blocked!"); }f
+        } catch (err) { showPopup("Clipboard access blocked!"); }
     });
 
     document.getElementById('editableToggle').addEventListener('change', () => { updateEditableState(); saveOptions(); });
