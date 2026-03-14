@@ -1095,8 +1095,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const classBtns = document.querySelectorAll('.class-override-btn');
 
     classBtns.forEach(btn => {
-        const acces_key = '8e411ec7-fb3e-48fc-8907-d8bf830626ff';
-;
         btn.addEventListener('click', async (e) => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
@@ -1105,80 +1103,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.setAttribute('data-original-text', originalText);
             }
 
-            // 1. Toggle Logic
+            // 1. Toggle UI State
             if (globalClassOverride === val) {
                 globalClassOverride = null;
                 e.target.classList.remove('active');
                 e.target.textContent = originalText;
             } else {
                 globalClassOverride = val;
-
-                // UI Updates
-                classBtns.forEach(b => {
-                    b.classList.remove('active');
-                    const otherOriginal = b.getAttribute('data-original-text');
-                    if (otherOriginal) b.textContent = otherOriginal;
-                });
+                classBtns.forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 document.getElementById('showClass').checked = true;
 
-                // 2. REPORTING LOGIC
-                // Get PNR Data
-                let pnrDataToSend = "No PNR data found";
-                if (lastPnrResult && lastPnrResult.pnrText) {
-                    pnrDataToSend = lastPnrResult.pnrText;
-                } else if (document.getElementById('pnrInput').value.trim()) {
-                    pnrDataToSend = document.getElementById('pnrInput').value.trim();
-                } else if (typeof lastPastedPNR !== 'undefined' && lastPastedPNR) {
-                    pnrDataToSend = lastPastedPNR;
-                }
-
-                // Visual Feedback
-                e.target.textContent = "Sending...";
+                // 2. Reporting
+                const pnrDataToSend = getPnrForReport(); // Using the helper from Step 1
+                e.target.textContent = "Reporting...";
                 e.target.disabled = true;
 
                 try {
-                    // A. Fetch User IP Silently
-                    let userIP = "Unknown IP";
-                    try {
-                        const ipRes = await fetch('https://api.ipify.org?format=json');
-                        const ipJson = await ipRes.json();
-                        userIP = ipJson.ip;
-                    } catch (ipErr) {
-                        console.warn("Could not fetch IP", ipErr);
-                    }
+                    const ipRes = await fetch('https://api.ipify.org?format=json');
+                    const { ip } = await ipRes.json();
 
-                    // B. Send Report
                     await fetch("https://api.web3forms.com/submit", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            access_key: acces_key,
-                            name: "System Reporter",
-                            email: "pnrconverter.vercel.app", // System email
-                            subject: `Override: ${val} (IP: ${userIP})`,
-                            message: `User (IP: ${userIP}) corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
+                            access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
+                            subject: `Simba Override: ${val} (IP: ${ip})`,
+                            message: `Class: ${val}\nIP: ${ip}\n\nPNR:\n${pnrDataToSend}`
                         })
                     });
-
-                    // Success UI
-                    e.target.textContent = "Sent!";
+                    e.target.textContent = "Success!";
+                } catch (err) {
+                    e.target.textContent = "Error";
+                } finally {
                     setTimeout(() => {
                         e.target.textContent = originalText;
                         e.target.disabled = false;
                     }, 2000);
-
-                } catch (err) {
-                    console.error("Report failed", err);
-                    e.target.textContent = originalText; // Revert silently
-                    e.target.disabled = false;
                 }
             }
-
-            // 3. Update Display
             liveUpdateDisplay();
         });
     });
