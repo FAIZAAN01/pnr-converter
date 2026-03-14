@@ -2120,6 +2120,8 @@
                         <h3>Preview</h3>
                         <button id="closePreviewBtn" class="close-btn">×</button>
                     </div>
+                    <!-- FIX #3 (html): Added missing previewContent div that main.js references -->
+                    <div id="previewContent" class="preview-content"></div>
                     <div class="blur-bottom blur-section-local"></div>
                 </div>
             </div>
@@ -2127,10 +2129,7 @@
     </div>
 
     <div id="popupContainer" class="popup-notification-container"></div>
-    <!-- Temporary stubs to prevent main.js null errors until main.js is audited -->
-    <input type="checkbox" id="non-visible1" hidden>
-    <div id="baggageDropdown" style="display:none"></div>
-    <div id="baggageCombobox" style="display:none"></div>
+
     <hr>
 
     <footer>
@@ -2139,7 +2138,7 @@
                 <p id="aboutDeveloper">About Developer</p>
                 <p id="developerName">FAIZAAN BHATI</p>
                 <!-- FIX #9: Added rel="noopener noreferrer" to external links -->
-                <a href="mailto:faizaanbhati95719@gmail.com" aria-label="send email">
+                <a href="/cdn-cgi/l/email-protection#0b6d6a62716a6a6569636a7f62323e3c3a324b6c666a626725686466" aria-label="send email">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 430 430">
                         <circle cx="215" cy="215" r="167.5" fill="#ebe6ef" />
                         <path fill="#ebe6ef" fill-rule="evenodd" d="M215 362.5c81.462 0 147.5-66.038 147.5-147.5S296.462 67.5 215 67.5 67.5 133.538 67.5 215 133.538 362.5 215 362.5m0 20c92.508 0 167.5-74.992 167.5-167.5S307.508 47.5 215 47.5 47.5 122.492 47.5 215 122.492 382.5 215 382.5" clip-rule="evenodd" opacity=".4" style="mix-blend-mode:multiply" />
@@ -2204,7 +2203,7 @@
         </div>
     </footer>
 
-    <script src="/main.js" defer></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/main.js" defer></script>
     <script src="/js/html2canvas.min.js" defer></script>
 
     <script>
