@@ -828,7 +828,7 @@ const historyManager = {
                 historyModal.classList.add('hidden');
             } else {
                 const previewContent = document.getElementById('previewContent');
-                previewContent.innerHTML = `<button class="copy-btn" data-copy-target=".text2" style="color:black">Click to Copy Raw PNR Data</button><pre class="text2">${entry.pnrText}</pre><hr><h4>Screenshot</h4><img src="${entry.screenshot}" alt="Itinerary Screenshot"><hr><button class="copy-btn" data-copy-target=".text2" style="color:black">Click to Copy Raw PNR Data</button><pre class="text2">${entry.pnrText}`;
+                previewContent.innerHTML = `<button class="copy-btn" data-copy-target=".text2" style="color:black">Click to Copy Raw PNR Data</button><pre class="text2">${entry.pnrText}</pre><hr><h4>Screenshot</h4><img src="${entry.screenshot}" alt="Itinerary Screenshot">`;
                 document.getElementById('historyPreviewPanel').classList.remove('hidden');
                 document.addEventListener('click', function(e) {
                     if(e.target.matches('.copy-btn')) {
