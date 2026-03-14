@@ -1684,8 +1684,12 @@
         </div>
     </footer>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-    <!-- FIX #16: html2canvas must load before main.js to avoid undefined reference on first call -->
+    <a id="emailLink" aria-label="send email">...</a>
+    <script>
+        const u = 'faizaanbhati95719';
+        const d = 'gmail.com';
+        document.getElementById('emailLink').href = 'mailto:' + u + '@' + d;
+    </script>    <!-- FIX #16: html2canvas must load before main.js to avoid undefined reference on first call -->
     <script src="/js/html2canvas.min.js" defer></script>
     <script src="/main.js" defer></script>
 
