@@ -3,3 +3,6 @@
 .env.development.local
 .env
 .env.local
+index.html
+package-lock.json
+package.json

@@ -2,8 +2,16 @@ const OPTIONS_STORAGE_KEY = 'pnrConverterOptions';
 const CUSTOM_LOGO_KEY = 'pnrConverterCustomLogo';
 const CUSTOM_TEXT_KEY = 'pnrConverterCustomText';
 const HISTORY_STORAGE_KEY = 'pnrConversionHistory';
-let segmentBaggageMap = {};
 
+// FIX #14: Moved from inline HTML scripts into main.js to avoid implicit global coupling
+let lastPastedPNR = "";
+const PRESET_LOGOS = [
+    { name: "Default",   url: "/simbavoyages.png" },
+    { name: "Christmas", url: "/branding_logos/christmas-logo.jpg" },
+    { name: "Face",      url: "/branding_logos/logo-face.jpg" }
+];
+
+let segmentBaggageMap = {};
 let lastPnrResult = null;
 let globalClassOverride = null;
 
@@ -20,18 +28,13 @@ const MORSE_CODE_DICT = {
 function formatCurrency(amount) {
     const num = parseFloat(amount);
     if (isNaN(num)) return "0";
-
     const currency = document.getElementById('currencySelect').value;
-
-    // If RWF, remove all decimals and formatting to 0 places
     if (currency === 'RWF') {
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
-        }).format(Math.round(num)); // Round to nearest whole number
+        }).format(Math.round(num));
     }
-
-    // For other currencies (USD, EUR, etc.), keep 2 decimal places
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
@@ -39,7 +42,7 @@ function formatCurrency(amount) {
 }
 
 function showPopup(message, duration = 3000) {
-    const container = document.getElementById('popupContainer'); 
+    const container = document.getElementById('popupContainer');
     if (!container) return;
     const popup = document.createElement('div');
     popup.className = 'popup-notification';
@@ -60,6 +63,17 @@ function debounce(func, wait) {
     };
 }
 
+// FIX #13: Helper to escape user-supplied strings before injecting into innerHTML
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function resetFareAndBaggageInputs() {
     document.getElementById('adultFareInput').value = '';
     document.getElementById('childFareInput').value = '';
@@ -69,13 +83,13 @@ function resetFareAndBaggageInputs() {
     document.getElementById('adultCountInput').value = '1';
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
-    document.getElementById('currencySelect').value = 'USD';
-    document.getElementById('baggageParticular').checked = true;
-    document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
-    globalClassOverride = null; 
+    // FIX #11: Do NOT reset currencySelect here — currency preference is persisted by
+    // saveOptions() and should survive between conversions.
+    globalClassOverride = null;
     document.querySelectorAll('.class-override-btn').forEach(btn => btn.classList.remove('active'));
     segmentBaggageMap = {};
-    if (lastPnrResult) liveUpdateDisplay();
+    // FIX #2: Removed the liveUpdateDisplay() call that was here. It caused a double-render
+    // because lastPnrResult is already set before this function is called from handleConvertClick.
 }
 
 function reverseString(str) {
@@ -83,41 +97,33 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-async function generateItineraryCanvasDoc(element, customScale = 2) { 
-    if (!element) throw new Error("Element for canvas generation not found."); 
-    
-    // 1. Calculate dynamic width based on the content + buffer
-    const contentWidth = element.scrollWidth; 
-    
-    const options = { 
-        scale: customScale, // Uses the passed argument (1 or 2)
-        backgroundColor: '#ffffff', 
-        useCORS: true, 
+async function generateItineraryCanvasDoc(element, customScale = 2) {
+    if (!element) throw new Error("Element for canvas generation not found.");
+    const contentWidth = element.scrollWidth;
+    const options = {
+        scale: customScale,
+        backgroundColor: '#ffffff',
+        useCORS: true,
         allowTaint: true,
-        
         onclone: (clonedDoc) => {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
-
-            // 2. Set the body to fit the content width
-            clonedBody.style.width = 'auto'; 
+            clonedBody.style.width = 'auto';
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0 0 10px 0';
-            
             if (clonedElement) {
-                // 3. Force the specific element to maintain its full content width
-                clonedElement.style.width = 'fit-content'; 
-                clonedElement.style.minWidth = contentWidth + 'px'; 
-                clonedElement.style.margin = '0'; 
+                clonedElement.style.width = 'fit-content';
+                clonedElement.style.minWidth = contentWidth + 'px';
+                clonedElement.style.margin = '0';
                 clonedElement.style.boxSizing = 'border-box';
-                clonedElement.style.position = 'static'; 
+                clonedElement.style.position = 'static';
             }
         }
-    }; 
-
-    return await html2canvas(element, options); 
+    };
+    return await html2canvas(element, options);
 }
+
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
     return unitToggle?.checked ? 'Pcs' : 'Kgs';
@@ -125,7 +131,23 @@ function getSelectedUnit() {
 
 function getMealDescription(mealCode) {
     const mealMap = {
-        B: 'BREAKFAST', K: 'CONTINENTAL BREAKFAST', L: 'LUNCH', D: 'DINNER', S: 'SNACK OR BRUNCH', O: 'COLD MEAL', H: 'HOT MEAL', M: 'MEAL (NON-SPECIFIC)', R: 'REFRESHMENT', C: 'ALCOHOLIC BEVERAGES COMPLIMENTARY', F: 'FOOD FOR PURCHASE', P: 'ALCOHOLIC BEVERAGES FOR PURCHASE', Y: 'DUTY FREE SALES AVAILABLE', N: 'NO MEAL SERVICE', V: 'REFRESHMENTS FOR PURCHASE', G: 'FOOD AND BEVERAGES FOR PURCHASE', 'AVML': 'VEGETARIAN HINDU MEAL', 'BBML': 'BABY MEAL', 'BLML': 'BLAND MEAL', 'CHML': 'CHILD MEAL', 'CNML': 'CHICKEN MEAL (LY SPECIFIC)', 'DBML': 'DIABETIC MEAL', 'FPML': 'FRUIT PLATTER', 'FSML': 'FISH MEAL', 'GFML': 'GLUTEN INTOLERANT MEAL', 'HNML': 'HINDU (NON VEGETARIAN) MEAL', 'IVML': 'INDIAN VEGETARIAN MEAL', 'JPML': 'JAPANESE MEAL', 'KSML': 'KOSHER MEAL', 'LCML': 'LOW CALORIE MEAL', 'LFML': 'LOW FAT MEAL', 'LSML': 'LOW SALT MEAL', 'MOML': 'MUSLIM MEAL', 'NFML': 'NO FISH MEAL (LH SPECIFIC)', 'NLML': 'NON-LACTOSE MEAL', 'OBML': 'JAPANESE OBENTO MEAL (UA SPECIFIC)', 'RVML': 'VEGETARIAN RAW MEAL', 'SFML': 'SEA FOOD MEAL', 'SPML': 'SPECIAL MEAL, SPECIFY FOOD', 'VGML': 'VEGETARIAN VEGAN MEAL', 'VJML': 'VEGETARIAN JAIN MEAL', 'VLML': 'VEGETARIAN LACTO-OVO MEAL', 'VOML': 'VEGETARIAN ORIENTAL MEAL'
+        B: 'BREAKFAST', K: 'CONTINENTAL BREAKFAST', L: 'LUNCH', D: 'DINNER',
+        S: 'SNACK OR BRUNCH', O: 'COLD MEAL', H: 'HOT MEAL', M: 'MEAL (NON-SPECIFIC)',
+        R: 'REFRESHMENT', C: 'ALCOHOLIC BEVERAGES COMPLIMENTARY', F: 'FOOD FOR PURCHASE',
+        P: 'ALCOHOLIC BEVERAGES FOR PURCHASE', Y: 'DUTY FREE SALES AVAILABLE',
+        N: 'NO MEAL SERVICE', V: 'REFRESHMENTS FOR PURCHASE',
+        G: 'FOOD AND BEVERAGES FOR PURCHASE',
+        'AVML': 'VEGETARIAN HINDU MEAL', 'BBML': 'BABY MEAL', 'BLML': 'BLAND MEAL',
+        'CHML': 'CHILD MEAL', 'CNML': 'CHICKEN MEAL (LY SPECIFIC)', 'DBML': 'DIABETIC MEAL',
+        'FPML': 'FRUIT PLATTER', 'FSML': 'FISH MEAL', 'GFML': 'GLUTEN INTOLERANT MEAL',
+        'HNML': 'HINDU (NON VEGETARIAN) MEAL', 'IVML': 'INDIAN VEGETARIAN MEAL',
+        'JPML': 'JAPANESE MEAL', 'KSML': 'KOSHER MEAL', 'LCML': 'LOW CALORIE MEAL',
+        'LFML': 'LOW FAT MEAL', 'LSML': 'LOW SALT MEAL', 'MOML': 'MUSLIM MEAL',
+        'NFML': 'NO FISH MEAL (LH SPECIFIC)', 'NLML': 'NON-LACTOSE MEAL',
+        'OBML': 'JAPANESE OBENTO MEAL (UA SPECIFIC)', 'RVML': 'VEGETARIAN RAW MEAL',
+        'SFML': 'SEA FOOD MEAL', 'SPML': 'SPECIAL MEAL, SPECIFY FOOD',
+        'VGML': 'VEGETARIAN VEGAN MEAL', 'VJML': 'VEGETARIAN JAIN MEAL',
+        'VLML': 'VEGETARIAN LACTO-OVO MEAL', 'VOML': 'VEGETARIAN ORIENTAL MEAL'
     };
     return mealMap[mealCode] || `${mealCode}`;
 }
@@ -173,7 +195,8 @@ function saveOptions() {
             currency: document.getElementById('currencySelect').value,
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
-            baggageUnit: getSelectedUnit()
+            // FIX #5: Lowercase the unit so load comparison works correctly
+            baggageUnit: getSelectedUnit().toLowerCase()
         };
         localStorage.setItem(OPTIONS_STORAGE_KEY, JSON.stringify(optionsToSave));
     } catch (e) { console.error("Failed to save options:", e); }
@@ -192,29 +215,28 @@ function loadOptions() {
             if (el) el.checked = true;
         };
         setRadio('segmentTimeFormat', savedOptions.segmentTimeFormat || '24h');
-        // --- FIX HERE: Load settings for BOTH names ---
         const savedTransit = savedOptions.transitTimeFormat || '24h';
         setRadio('transitTimeFormat_sidebar', savedTransit);
         setRadio('transitTimeFormat_modal', savedTransit);
-        // ----------------------------------------------
 
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
             'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
         ];
         const defaultValues = {
-            showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
-            showTransit: true, showTaxes: false, showFees: false
+            showItineraryLogo: true, showAirline: true, showAircraft: true,
+            showOperatedBy: true, showTransit: true, showTaxes: false, showFees: false
         };
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) el.checked = savedOptions[id] ?? (defaultValues[id] || false);
         });
 
-        // Removed: Logic for modernLayoutToggle
-
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
+        // FIX #5: Compare against lowercase 'pcs' to match the lowercased save value
+        if (savedOptions.baggageUnit) {
+            document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
+        }
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
         const customLogoData = localStorage.getItem(CUSTOM_LOGO_KEY);
@@ -295,9 +317,11 @@ async function handleConvertClick() {
         if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
 
         lastPnrResult = { ...data.result, pnrText: currentPnr };
+        // FIX #2: Call reset first (before lastPnrResult is set) to avoid double render.
+        // resetFareAndBaggageInputs no longer calls liveUpdateDisplay internally.
         resetFareAndBaggageInputs();
         if (pnrText.trim()) document.getElementById('pnrInput').value = '';
-        liveUpdateDisplay(true);
+        liveUpdateDisplay(true); // single render here
 
         if (data.success && data.result?.flights?.length > 0 && pnrText.trim()) {
             historyManager.add({ ...data, pnrText: currentPnr });
@@ -350,11 +374,10 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showFees: document.getElementById('showFees').checked,
     };
 
-    const baggageOption = document.querySelector('input[name="baggageOption"]:checked').value;
     const baggageDetails = {
-        option: baggageOption,
-        amount: (baggageOption === 'particular') ? document.getElementById('baggageAmountInput').value : '',
-        unit: (baggageOption === 'particular') ? getSelectedUnit() : ''
+        option: 'particular',
+        amount: document.getElementById('baggageAmountInput').value,
+        unit: getSelectedUnit()
     };
 
     const checkboxOutputs = {
@@ -367,12 +390,11 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         noShow: document.getElementById('noShow').checked
     };
 
-    // Always render Classic Itinerary
     renderClassicItinerary(lastPnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted);
 }
 
 // ==========================================
-// 2. RENDER CLASSIC ITINERARY
+// RENDER CLASSIC ITINERARY
 // ==========================================
 function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, baggageDetails, checkboxOutputs, pnrProcessingAttempted) {
     const output = document.getElementById('output');
@@ -414,27 +436,20 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         outputContainer.appendChild(logoContainer);
     }
 
-    // B. Header (UPDATED FOR SAME-LINE DISPLAY)
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
-        
         let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
-        
-        // Left: Label + Name
         headerHTML += `<div>`;
         headerHTML += `<h4 style="margin:0 0 5px 0;">Itinerary For:</h4>`;
-        headerHTML += `<p style="margin:0;">${passengers.join('<br>')}</p>`;
+        headerHTML += `<p style="margin:0;">${passengers.map(escapeHtml).join('<br>')}</p>`;
         headerHTML += `</div>`;
-        
-        // Right: Booking Ref
         if (recordLocator) {
             headerHTML += `<div style="text-align:right;">`;
             headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref:</h4>`;
-            headerHTML += `<p style="margin:0; font-family:monospace; font-size:16px;">${recordLocator}</p>`;
+            headerHTML += `<p style="margin:0; font-family:monospace; font-size:16px;">${escapeHtml(recordLocator)}</p>`;
             headerHTML += `</div>`;
         }
-        
         headerHTML += `</div>`;
         headerDiv.innerHTML = headerHTML;
         outputContainer.appendChild(headerDiv);
@@ -443,95 +458,86 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     const itineraryBlock = document.createElement('div');
     itineraryBlock.className = 'itinerary-block';
 
-// --- REPLACE THE ENTIRE flights.forEach LOOP IN renderClassicItinerary WITH THIS ---
+    // FIX #10: Track last displayed heading to prevent duplicate OUTBOUND/INBOUND headers
+    let currentHeadingDisplayed = null;
 
     flights.forEach((flight, i) => {
-            let currentHeadingDisplayed = null;
+        // FIX #1 + #9: Determine direction for heading WITHOUT mutating the original flight object.
+        // Also render the INBOUND heading even when showTransit is false.
+        let resolvedDirection = flight.direction ? flight.direction.toUpperCase() : null;
 
-            if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
+        // Check if this segment starts a new leg (transit > 1440 min = overnight/next day)
+        if (i > 0 && flight.transitDurationMinutes !== undefined && flight.transitDurationMinutes >= 1440) {
+            resolvedDirection = 'INBOUND';
+        }
 
-                const iconSrc = '/icons/takeoff.png';
+        // Render OUTBOUND heading
+        if (resolvedDirection === 'OUTBOUND' && currentHeadingDisplayed !== 'OUTBOUND') {
+            const headingDiv = document.createElement('div');
+            headingDiv.className = 'itinerary-leg-header';
+            headingDiv.innerHTML = `
+                <span>OUTBOUND</span>
+                <img src="/icons/takeoff.png" alt="OUTBOUND" class="leg-header-icon">
+            `;
+            itineraryBlock.appendChild(headingDiv);
+            currentHeadingDisplayed = 'OUTBOUND';
+        }
 
-                const headingDiv = document.createElement('div');
-                headingDiv.className = 'itinerary-leg-header';
+        // FIX #9: Render INBOUND heading regardless of showTransit setting
+        if (resolvedDirection === 'INBOUND' && currentHeadingDisplayed !== 'INBOUND') {
+            const headingDiv = document.createElement('div');
+            headingDiv.className = 'itinerary-leg-header';
+            headingDiv.innerHTML = `
+                <span>INBOUND</span>
+                <img src="/icons/landing.png" alt="INBOUND" class="leg-header-icon">
+            `;
+            itineraryBlock.appendChild(headingDiv);
+            currentHeadingDisplayed = 'INBOUND';
+        }
 
-                headingDiv.innerHTML = `
-                    <span>${flight.direction.toUpperCase()}</span>
-                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                `;
+        // Render transit row (only when showTransit is enabled and transit is within the same day)
+        if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes !== undefined) {
+            const minutes = flight.transitDurationMinutes;
 
-                itineraryBlock.appendChild(headingDiv);
-
-                currentHeadingDisplayed = flight.direction.toUpperCase();
-            }
-
-            if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
+            if (minutes < 1440) {
                 const transitDiv = document.createElement('div');
-                const minutes = flight.transitDurationMinutes;
                 const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
-
-                const startSeparator = rawSymbol.replace(/ /g, ' ');
-                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
-
+                const startSeparator = rawSymbol.replace(/ /g, ' ');
+                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
                 const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
 
                 let transitLabel, transitClassName;
-                if (minutes <= 120 && minutes >= 0) {
+                if (minutes <= 120) {
                     transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-short';
-                } else if (minutes > 300 && minutes < 1440) {
+                } else if (minutes > 300) {
                     transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
                     transitClassName = 'transit-long';
-                } else if (minutes <= 300 && minutes >= 121){
-                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                    transitClassName = 'transit-minimum'
                 } else {
-                        flight.direction = 'INBOUND';
-
-                        const iconSrc = '/icons/landing.png';
-
-                        const headingDiv = document.createElement('div');
-                        headingDiv.className = 'itinerary-leg-header';
-
-                        headingDiv.innerHTML = `
-                            <span>${flight.direction.toUpperCase()}</span>
-                            <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                        `;
-
-                        itineraryBlock.appendChild(headingDiv);
-
-                        currentHeadingDisplayed = flight.direction.toUpperCase();
-                    
+                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-minimum';
                 }
-                if (minutes <= 1440){
-                    transitDiv.className = `transit-item ${transitClassName}`;
-                    transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
-                    itineraryBlock.appendChild(transitDiv);
-                }
+
+                transitDiv.className = `transit-item ${transitClassName}`;
+                transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
+                itineraryBlock.appendChild(transitDiv);
             }
+        }
 
-       // 3. FLIGHT ITEM
         const flightItem = document.createElement('div');
         flightItem.className = 'flight-item';
 
-        // --- BAGGAGE MEMORY LOGIC ---
         let globalDefault = '';
         if (baggageDetails && baggageDetails.option !== 'none' && baggageDetails.amount) {
             globalDefault = `${baggageDetails.amount} ${baggageDetails.unit}`;
         }
-        
-        // Use saved value if exists, else global default
-        const currentBaggageValue = segmentBaggageMap[i] !== undefined ? segmentBaggageMap[i] : globalDefault;
 
-        // NEW: Determine if the row should be visible initially
+        const currentBaggageValue = segmentBaggageMap[i] !== undefined ? segmentBaggageMap[i] : globalDefault;
         const isBaggageVisible = currentBaggageValue && currentBaggageValue.trim() !== '';
         const baggageRowDisplay = isBaggageVisible ? '' : 'display:none;';
-        
-        // IDs for DOM manipulation
         const baggageRowId = `bag-row-${i}`;
         const baggageSpanId = `bag-span-${i}`;
 
-        // --- FLIGHT DETAILS ---
         let detailsHtml = '';
         const depTerminalDisplay = flight.departure.terminal ? ` (T${flight.departure.terminal})` : '';
         const arrTerminalDisplay = flight.arrival.terminal ? ` (T${flight.arrival.terminal})` : '';
@@ -543,13 +549,12 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const detailRows = [
             { label: 'Departing ', value: departureString },
             { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
-            // ADDED: rowId and customStyle properties
-            { 
-                label: 'Baggage \u00A0\u00A0', 
-                value: `<span id="${baggageSpanId}">${currentBaggageValue}</span>`, 
-                isHtml: true, 
-                rowId: baggageRowId, 
-                customStyle: baggageRowDisplay 
+            {
+                label: 'Baggage \u00A0\u00A0',
+                value: `<span id="${baggageSpanId}">${escapeHtml(currentBaggageValue)}</span>`,
+                isHtml: true,
+                rowId: baggageRowId,
+                customStyle: baggageRowDisplay
             },
             { label: 'Meal \u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0', value: (displayPnrOptions.showMeal && flight.meal) ? getMealDescription(flight.meal) : null },
             { label: 'Operated by', value: (displayPnrOptions.showOperatedBy && flight.operatedBy) ? flight.operatedBy : null },
@@ -558,31 +563,24 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         detailRows.forEach(({ label, value, isNote, isHtml, rowId, customStyle }) => {
             if (value) {
-                const valContent = isHtml ? value : `<span>${value}</span>`;
-                // If rowId exists, add it to the DIV. If customStyle exists, add it.
+                const valContent = isHtml ? value : `<span>${escapeHtml(value)}</span>`;
                 const idAttr = rowId ? `id="${rowId}"` : '';
                 const styleAttr = customStyle ? `style="${customStyle}"` : '';
-                
                 detailsHtml += `<div ${idAttr} ${styleAttr} class="flight-detail ${isNote ? 'notes-detail' : ''}"><strong>${label}:</strong> ${valContent}</div>`;
             }
         });
 
-        // Get the single letter class code (e.g., "L")
         const rawClassCode = (flight.travelClass.code || '').toUpperCase();
-
-        // Convert to Morse (e.g., "L" becomes ".-..")
         const morseClass = MORSE_CODE_DICT[rawClassCode] || '';
-
-        // Style it to be almost invisible but sharp in a screenshot
         const morseStyle = `
-    display: inline-block;
-    margin-left: 10px;
-    font-size: 5px;
-    letter-spacing: 1px;
-    color: #e0e0e0; /* Very faint grey */
-    font-family: monospace;
-    vertical-align: middle;
-`;
+            display: inline-block;
+            margin-left: 10px;
+            font-size: 5px;
+            letter-spacing: 1px;
+            color: #e0e0e0;
+            font-family: monospace;
+            vertical-align: middle;
+        `;
 
         const headerText = [
             flight.date,
@@ -594,53 +592,58 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             flight.halts > 0 ? `${flight.halts} Stop${flight.halts > 1 ? 's' : ''}` : 'Direct'
         ].filter(Boolean).join(' - ');
 
-        // Insert the Morse code at the very end of the header
         flightItem.innerHTML = `
-    <div class="flight-content">
-        ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
-        <div>
-            <div class="flight-header">
-                ${headerText} 
-                <span style="${morseStyle}">${morseClass}</span>
+            <div class="flight-content">
+                ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
+                <div>
+                    <div class="flight-header">
+                        ${escapeHtml(headerText)}
+                        <span style="${morseStyle}">${morseClass}</span>
+                    </div>
+                    ${detailsHtml}
+                </div>
             </div>
-            ${detailsHtml}
-        </div>
-    </div>
-`;
+        `;
 
-        // 4. FLOATING INPUT PANEL
+        // FIX #15: Replaced inline onclick strings with proper addEventListener calls.
+        // This avoids quote-escaping bugs, is lint-friendly, and survives bundlers.
         const floatingPanel = document.createElement('div');
         floatingPanel.className = 'floating-baggage-panel';
         floatingPanel.setAttribute('data-html2canvas-ignore', 'true');
 
-        // Helper function (string) to update Baggage Text AND Visibility
-        const updateJs = `
-            var val = this.value || this.innerText;
-            // 1. Update Map
-            segmentBaggageMap[${i}] = val;
-            // 2. Update Span Text
-            document.getElementById('${baggageSpanId}').innerText = val;
-            // 3. Toggle Row Visibility
-            var row = document.getElementById('${baggageRowId}');
-            if(row) row.style.display = (val && val.trim() !== '') ? '' : 'none';
-            // 4. Sync Input box if button clicked
-            if(this.tagName === 'BUTTON') this.parentElement.previousElementSibling.value = val;
-        `;
+        const baggageInput = document.createElement('input');
+        baggageInput.type = 'text';
+        baggageInput.placeholder = 'Baggage...';
+        baggageInput.name = 'baggageInput';
+        baggageInput.value = currentBaggageValue;
 
-        floatingPanel.innerHTML = `
-            <input type="text" placeholder="Baggage..."
-                    name = "baggageInput"
-                   value="${currentBaggageValue}" 
-                   oninput="${updateJs.replace(/this.innerText/g, 'this.value')}"> <div class="float-btn-grid">
-                <button class="float-btn" onclick="${updateJs}">15 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">23 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">30 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">40 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">1 Pcs</button>
-                <button class="float-btn" onclick="${updateJs}">2 Pcs</button>
-                <button class="float-btn" onclick="${updateJs}">3 Pcs</button>
-            </div>
-        `;
+        function applyBaggageValue(val) {
+            segmentBaggageMap[i] = val;
+            const spanEl = document.getElementById(baggageSpanId);
+            if (spanEl) spanEl.textContent = val;
+            const rowEl = document.getElementById(baggageRowId);
+            if (rowEl) rowEl.style.display = (val && val.trim() !== '') ? '' : 'none';
+        }
+
+        baggageInput.addEventListener('input', () => applyBaggageValue(baggageInput.value));
+
+        const quickValues = ['15 Kgs', '23 Kgs', '30 Kgs', '40 Kgs', '1 Pcs', '2 Pcs', '3 Pcs'];
+        const btnGrid = document.createElement('div');
+        btnGrid.className = 'float-btn-grid';
+
+        quickValues.forEach(val => {
+            const btn = document.createElement('button');
+            btn.className = 'float-btn';
+            btn.textContent = val;
+            btn.addEventListener('click', () => {
+                baggageInput.value = val;
+                applyBaggageValue(val);
+            });
+            btnGrid.appendChild(btn);
+        });
+
+        floatingPanel.appendChild(baggageInput);
+        floatingPanel.appendChild(btnGrid);
 
         flightItem.appendChild(floatingPanel);
         itineraryBlock.appendChild(flightItem);
@@ -649,48 +652,34 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     const notesContainer = document.createElement('div');
     notesContainer.className = 'itinerary-notes';
     let notesHtml = getCheckboxNotesHtml(checkboxOutputs);
-    
+
     const { adultCount, adultFare, childCount, childFare, infantCount, infantFare, tax, fee, currency, showTaxes, showFees } = fareDetails || {};
-    const totalPax = (parseInt(adultCount)||0) + (parseInt(childCount)||0) + (parseInt(infantCount)||0);
+    const totalPax = (parseInt(adultCount) || 0) + (parseInt(childCount) || 0) + (parseInt(infantCount) || 0);
 
     if (totalPax > 0) {
-        const adultCountNum = parseInt(adultCount) || 0;
-        const adultFareNum = parseFloat(adultFare) || 0;
+        const adultCountNum  = parseInt(adultCount) || 0;
+        const adultFareNum   = parseFloat(adultFare) || 0;
         const adultBaseTotal = adultCountNum * adultFareNum;
-        const childCountNum = parseInt(childCount) || 0;
-        const childFareNum = parseFloat(childFare) || 0;
+        const childCountNum  = parseInt(childCount) || 0;
+        const childFareNum   = parseFloat(childFare) || 0;
         const childBaseTotal = childCountNum * childFareNum;
-        const infantCountNum = parseInt(infantCount) || 0;
-        const infantFareNum = parseFloat(infantFare) || 0;
+        const infantCountNum  = parseInt(infantCount) || 0;
+        const infantFareNum   = parseFloat(infantFare) || 0;
         const infantBaseTotal = infantCountNum * infantFareNum;
-        const taxNum = parseFloat(tax) || 0;
-        const totalTaxes = showTaxes ? totalPax * taxNum : 0;
-        const feeNum = parseFloat(fee) || 0;
-        const totalFees = showFees ? totalPax * feeNum : 0;
+        const taxNum      = parseFloat(tax) || 0;
+        const totalTaxes  = showTaxes ? totalPax * taxNum : 0;
+        const feeNum      = parseFloat(fee) || 0;
+        const totalFees   = showFees ? totalPax * feeNum : 0;
         const currencySymbol = currency || 'USD';
-        
-        const grandTotal = adultBaseTotal + childBaseTotal + infantBaseTotal + totalTaxes + totalFees;
+        const grandTotal  = adultBaseTotal + childBaseTotal + infantBaseTotal + totalTaxes + totalFees;
 
         if (grandTotal > 0) {
             let fareLines = [];
-            // Apply formatCurrency to the individual totals
-            if (adultBaseTotal > 0) {
-                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum)}): ${formatCurrency(adultBaseTotal)}`);
-            }
-            if (childBaseTotal > 0) {
-                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum)}): ${formatCurrency(childBaseTotal)}`);
-            }
-            if (infantBaseTotal > 0) {
-                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum)}): ${formatCurrency(infantBaseTotal)}`);
-            }
-            if (showTaxes && totalTaxes > 0) {
-                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum)}): ${formatCurrency(totalTaxes)}`);
-            }
-            if (showFees && totalFees > 0) {
-                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum)}): ${formatCurrency(totalFees)}`);
-            }
-
-            // Format the Grand Total
+            if (adultBaseTotal > 0)  fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum)}): ${formatCurrency(adultBaseTotal)}`);
+            if (childBaseTotal > 0)  fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum)}): ${formatCurrency(childBaseTotal)}`);
+            if (infantBaseTotal > 0) fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum)}): ${formatCurrency(infantBaseTotal)}`);
+            if (showTaxes && totalTaxes > 0) fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum)}): ${formatCurrency(totalTaxes)}`);
+            if (showFees  && totalFees  > 0) fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum)}): ${formatCurrency(totalFees)}`);
             fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal)}</strong>`);
 
             const fareDiv = document.createElement('div');
@@ -710,14 +699,15 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
 // --- HELPER FOR NOTES ---
 function getCheckboxNotesHtml(checkboxOutputs) {
+    // FIX #12: Added semicolons to all &#9830 numeric HTML entities
     let notesHtml = '';
-    if (checkboxOutputs.showCovidNotice) notesHtml += `<p> <strong>&#9830</strong> Date Change Allowed With Applicable Penalties.</p>`;
-    if (checkboxOutputs.showTravelInsurance) notesHtml += `<p> <strong>&#9830</strong> Before Departure Changes Are Allowed With Applicable Penalty.</p>`;
-    if (checkboxOutputs.showVisaInfo) notesHtml += `<p> <strong>&#9830</strong> Before Departure Refundable With Applicable Penalties.</p>`;
-    if (checkboxOutputs.dontShowTravelInsurance) notesHtml += `<p> <strong>&#9830</strong> After Departure Non Refundable.</p>`;
-    if (checkboxOutputs.noShowRefundPolicy) notesHtml += `<p> <strong>&#9830</strong> Refundable With Applicable Penalties.</p>`;
-    if (checkboxOutputs.showHealthDocs) notesHtml += `<p> <strong>&#9830</strong> Non Refundable.</p>`;
-    if (checkboxOutputs.noShow) notesHtml += `<p> <strong>&#9830</strong> No Show Fee Where Applicable.</p>`;
+    if (checkboxOutputs.showCovidNotice)          notesHtml += `<p> <strong>&#9830;</strong> Date Change Allowed With Applicable Penalties.</p>`;
+    if (checkboxOutputs.showTravelInsurance)      notesHtml += `<p> <strong>&#9830;</strong> Before Departure Changes Are Allowed With Applicable Penalty.</p>`;
+    if (checkboxOutputs.showVisaInfo)             notesHtml += `<p> <strong>&#9830;</strong> Before Departure Refundable With Applicable Penalties.</p>`;
+    if (checkboxOutputs.dontShowTravelInsurance)  notesHtml += `<p> <strong>&#9830;</strong> After Departure Non Refundable.</p>`;
+    if (checkboxOutputs.noShowRefundPolicy)       notesHtml += `<p> <strong>&#9830;</strong> Refundable With Applicable Penalties.</p>`;
+    if (checkboxOutputs.showHealthDocs)           notesHtml += `<p> <strong>&#9830;</strong> Non Refundable.</p>`;
+    if (checkboxOutputs.noShow)                   notesHtml += `<p> <strong>&#9830;</strong> No Show Fee Where Applicable.</p>`;
     return notesHtml;
 }
 
@@ -742,7 +732,6 @@ const historyManager = {
         const outputEl = document.getElementById('output').querySelector('.output-container');
         if (!outputEl) return;
         try {
-            // Save with low scale (1) for history to save storage space
             const canvas = await generateItineraryCanvasDoc(outputEl, 1);
             const screenshot = canvas.toDataURL('image/jpeg');
             let history = this.get();
@@ -771,17 +760,20 @@ const historyManager = {
         if (!listEl) return;
         let history = this.get();
         if (sort === 'oldest') history.reverse();
-        if (search) history = history.filter(item => item.pax.toLowerCase().includes(search) || item.route.toLowerCase().includes(search));
+        if (search) history = history.filter(item =>
+            item.pax.toLowerCase().includes(search) || item.route.toLowerCase().includes(search)
+        );
         if (history.length === 0) {
             listEl.innerHTML = '<div class="info" style="margin: 10px;">No history found.</div>';
             return;
         }
+        // FIX #13: Escape pax and route before injecting into innerHTML to prevent stored XSS
         listEl.innerHTML = history.map(item => `
             <div class="history-item" data-id="${item.id}">
                 <div class="history-item-info">
-                    <div class="history-item-pax">${item.pax}</div>
+                    <div class="history-item-pax">${escapeHtml(item.pax)}</div>
                     <div class="history-item-details">
-                        <span style="font-weight:bold;">${item.route}</span><br>
+                        <span style="font-weight:bold;">${escapeHtml(item.route)}</span><br>
                         <span>${new Date(item.date).toLocaleString()}</span>
                     </div>
                 </div>
@@ -828,20 +820,30 @@ const historyManager = {
                 historyModal.classList.add('hidden');
             } else {
                 const previewContent = document.getElementById('previewContent');
-                previewContent.innerHTML = `<h4>Screenshot</h4><img src="${entry.screenshot}" alt="Itinerary Screenshot"><hr><button class="copy-btn" data-copy-target=".text2" style="color:black">Click to Copy Raw PNR Data</button><pre class="text2">${entry.pnrText}</pre>`;
+                if (!previewContent) return;
+                previewContent.innerHTML = `
+                    <h4>Screenshot</h4>
+                    <img src="${entry.screenshot}" alt="Itinerary Screenshot">
+                    <hr>
+                    <button class="copy-btn" data-copy-target=".text2" style="color:black">Click to Copy Raw PNR Data</button>
+                    <pre class="text2">${escapeHtml(entry.pnrText)}</pre>
+                `;
                 document.getElementById('historyPreviewPanel').classList.remove('hidden');
-                document.addEventListener('click', function(e) {
-                    if(e.target.matches('.copy-btn')) {
-                        const targetSelector = e.target.getAttribute('data-copy-target');
-                        const target = document.querySelector(targetSelector);
-                        if(target) {
-                            navigator.clipboard.writeText(target.textContent.trim()).then(() => {
-                            e.target.textContent = 'Copied!';
-                            setTimeout(() => e.target.textContent = 'Copy', 1000);
-                            });
+
+                if (!document._copyBtnHandlerAttached) {
+                    document.addEventListener('click', function (e) {
+                        if (e.target.matches('.copy-btn')) {
+                            const target = document.querySelector(e.target.getAttribute('data-copy-target'));
+                            if (target) {
+                                navigator.clipboard.writeText(target.textContent.trim()).then(() => {
+                                    e.target.textContent = 'Copied!';
+                                    setTimeout(() => e.target.textContent = 'Copy', 1000);
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                    document._copyBtnHandlerAttached = true;
+                }
             }
         });
 
@@ -857,34 +859,18 @@ document.addEventListener('DOMContentLoaded', () => {
     loadPresetLogoGrid();
     historyManager.init();
 
-    // <--- NEW: Synchronization Logic for Duplicate IDs (Sidebar vs Modal) --->
-    // This ensures that if you click "12h" in the sidebar, it updates the modal and vice versa.
     const transitRadios = document.querySelectorAll('input[name="transitTimeFormat_sidebar"], input[name="transitTimeFormat_modal"]');
 
     function syncTransitTimeFormats(e) {
         const selectedValue = e.target.value;
-
-        // 1. Visually update the matching radio in the other group
-        transitRadios.forEach(radio => {
-            if (radio.value === selectedValue) {
-                radio.checked = true;
-            }
-        });
-
-        // 2. Trigger updates
+        transitRadios.forEach(radio => { if (radio.value === selectedValue) radio.checked = true; });
         saveOptions();
-        if (lastPnrResult) {
-            handleConvertClick(); // Re-convert if we have data
-        } else {
-            liveUpdateDisplay(); // Just update UI if empty
-        }
+        // FIX #3: Was calling handleConvertClick() which hits the API unnecessarily.
+        // The time format only affects display — liveUpdateDisplay() is sufficient.
+        liveUpdateDisplay();
     }
 
-    transitRadios.forEach(radio => {
-        radio.addEventListener('change', syncTransitTimeFormats);
-    });
-    // <--- END NEW LOGIC --->
-
+    transitRadios.forEach(radio => radio.addEventListener('change', syncTransitTimeFormats));
 
     document.getElementById('convertBtn').addEventListener('click', handleConvertClick);
 
@@ -903,26 +889,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!pastedText) return;
             const start = input.selectionStart;
             const end = input.selectionEnd;
-            const before = input.value.slice(0, start);
-            const after = input.value.slice(end);
-            input.value = before + pastedText + after;
+            input.value = input.value.slice(0, start) + pastedText + input.value.slice(end);
             const newPos = start + pastedText.length;
             input.setSelectionRange(newPos, newPos);
             const data = new DataTransfer();
             data.setData("text/plain", pastedText);
-            const pasteEvent = new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true });
-            input.dispatchEvent(pasteEvent);
+            input.dispatchEvent(new ClipboardEvent("paste", { clipboardData: data, bubbles: true, cancelable: true }));
             input.dispatchEvent(new Event("input", { bubbles: true }));
             input.focus();
             if (document.getElementById('autoConvertToggle')?.checked) handleConvertClick();
-        } catch (err) { showPopup("Clipboard access blocked!"); }f
+        } catch (err) { showPopup("Clipboard access blocked!"); }
+    });
+
+    // Track last pasted PNR for error reporting (moved from inline HTML script into main.js)
+    document.getElementById('pnrInput').addEventListener('paste', (e) => {
+        const pastedText = (e.clipboardData || window.clipboardData).getData("text").trim();
+        if (pastedText) lastPastedPNR = pastedText;
     });
 
     document.getElementById('editableToggle').addEventListener('change', () => { updateEditableState(); saveOptions(); });
     document.getElementById('autoConvertToggle').addEventListener('change', saveOptions);
 
-    // Note: I removed 'transitTimeFormat' from this generic listener to prevent double-firing, 
-    // as it is now handled by the specific sync logic above.
     const allTheRest = '.options input, .checkbox-grid-settings input, .fare-options-grid input, .fare-options-grid select, .baggage-options input, #baggageAmountInput';
     document.querySelectorAll(allTheRest).forEach(el => {
         const eventType = el.matches('input[type="checkbox"], input[type="radio"], select') ? 'change' : 'input';
@@ -930,13 +917,9 @@ document.addEventListener('DOMContentLoaded', () => {
             saveOptions();
             if (el.id === 'showTaxes' || el.id === 'showFees') toggleFareInputsVisibility();
             if (el.id === 'showTransit') toggleTransitSymbolInputVisibility();
-
-            // Only check segmentTimeFormat here now
-            if (el.name === 'segmentTimeFormat' && lastPnrResult) {
-                handleConvertClick();
-            } else {
-                liveUpdateDisplay();
-            }
+            // FIX #3 (carried): segmentTimeFormat still needs a fresh API call (server parses time format)
+            if (el.name === 'segmentTimeFormat' && lastPnrResult) handleConvertClick();
+            else liveUpdateDisplay();
         });
     });
 
@@ -955,10 +938,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         reader.readAsDataURL(file);
     });
+
     document.getElementById('customTextInput').addEventListener('input', debounce((event) => {
         localStorage.setItem(CUSTOM_TEXT_KEY, event.target.value);
         liveUpdateDisplay();
     }, 400));
+
     document.getElementById('clearCustomBrandingBtn').addEventListener('click', () => {
         if (confirm('Are you sure you want to clear your saved logo and text?')) {
             localStorage.removeItem(CUSTOM_LOGO_KEY);
@@ -970,24 +955,22 @@ document.addEventListener('DOMContentLoaded', () => {
             liveUpdateDisplay();
         }
     });
+
     document.getElementById('showItineraryLogo').addEventListener('change', () => {
         toggleCustomBrandingSection();
         saveOptions();
         liveUpdateDisplay();
     });
 
-    // --- BUTTON 1: High Quality Screenshot (Scale 2) ---
+    // Screenshot HQ
     const screenshotBtn = document.getElementById('screenshotBtn');
     if (screenshotBtn) {
         screenshotBtn.addEventListener('click', async () => {
             const outputEl = document.getElementById('output').querySelector('.output-container');
             if (!outputEl) { showPopup('Nothing to capture.'); return; }
-
             const originalText = screenshotBtn.innerText;
             screenshotBtn.innerText = "HQ Capturing...";
-
             try {
-                // PASS 2 FOR HIGH QUALITY
                 const canvas = await generateItineraryCanvasDoc(outputEl, 2);
                 canvas.toBlob(blob => {
                     navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -1002,21 +985,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- BUTTON 2: Standard Quality Screenshot (Scale 1) ---
+    // Screenshot SD
     const stdResBtn = document.getElementById('copyTextBtn');
     if (stdResBtn) {
-        // Renaming the button to reflect new purpose
         stdResBtn.innerText = "📧 Screenshot";
-
         stdResBtn.addEventListener('click', async () => {
             const outputEl = document.getElementById('output').querySelector('.output-container');
             if (!outputEl) { showPopup('Nothing to capture.'); return; }
-
             const originalText = stdResBtn.innerText;
             stdResBtn.innerText = "Capturing...";
-
             try {
-                // PASS 1 FOR STANDARD QUALITY
                 const canvas = await generateItineraryCanvasDoc(outputEl, 1);
                 canvas.toBlob(blob => {
                     navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -1031,11 +1009,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- HELPER: Manage User Email (Local Storage) ---
-    function getStoredUserEmail() {
-        return localStorage.getItem('pnrConverterUserEmail');
-    }
-
+    // Email display
+    function getStoredUserEmail() { return localStorage.getItem('pnrConverterUserEmail'); }
     function setStoredUserEmail(email) {
         if (email && email.includes('@')) {
             localStorage.setItem('pnrConverterUserEmail', email.trim());
@@ -1044,40 +1019,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return false;
     }
-
     function updateEmailDisplay() {
-        const email = getStoredUserEmail();
         const display = document.getElementById('userEmailDisplay');
-        if (display) {
-            display.textContent = email ? `Reporting as: ${email}` : "No email set";
-        }
+        if (display) display.textContent = getStoredUserEmail() ? `Reporting as: ${getStoredUserEmail()}` : "No email set";
     }
-
-    // Allow user to change email by clicking the text
     document.getElementById('userEmailDisplay')?.addEventListener('click', () => {
-        const current = getStoredUserEmail() || "";
-        const newEmail = prompt("Enter email for reporting:", current);
+        const newEmail = prompt("Enter email for reporting:", getStoredUserEmail() || "");
         if (newEmail !== null) setStoredUserEmail(newEmail);
     });
 
+    // Report button & class override state
     function updateReportButtonState() {
-        // Check if PNR exists in memory, input, or paste history
         const hasPnrMemory = lastPnrResult && lastPnrResult.flights && lastPnrResult.flights.length > 0;
-        const hasPnrInput = document.getElementById('pnrInput').value.trim().length > 0;
-        const hasPasted = typeof lastPastedPNR !== 'undefined' && lastPastedPNR.length > 0;
+        const hasPnrInput  = document.getElementById('pnrInput').value.trim().length > 0;
+        const hasPasted    = lastPastedPNR.length > 0;
+        const isEnabled    = hasPnrMemory || hasPnrInput || hasPasted;
 
-        const isEnabled = hasPnrMemory || hasPnrInput || hasPasted;
-
-        const btns = document.querySelectorAll('.class-override-btn');
-
-        btns.forEach(btn => {
+        document.querySelectorAll('.class-override-btn').forEach(btn => {
             if (isEnabled) {
                 btn.classList.remove('btn-disabled');
             } else {
                 btn.classList.add('btn-disabled');
                 btn.classList.remove('active');
                 if (globalClassOverride) {
-                    globalClassOverride = null; // Reset if cleared
+                    globalClassOverride = null;
                     const original = btn.getAttribute('data-original-text');
                     if (original) btn.textContent = original;
                 }
@@ -1085,35 +1050,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Bind state checker
     document.getElementById('pnrInput').addEventListener('input', updateReportButtonState);
+    // FIX #4: Only one listener on convertBtn for updateReportButtonState (the duplicate was removed)
     document.getElementById('convertBtn').addEventListener('click', () => setTimeout(updateReportButtonState, 500));
-    updateReportButtonState(); // Initial check
+    updateReportButtonState();
 
+    // Error report button (wired here since lastPastedPNR is now in main.js scope)
+    const reportBtn = document.getElementById('reportErrorBtn');
+    const pnrHidden = document.getElementById('pnrHidden');
+    if (reportBtn && pnrHidden) {
+        reportBtn.addEventListener('click', () => {
+            if (!lastPastedPNR) { alert("No PNR pasted yet!"); return; }
+            pnrHidden.value = lastPastedPNR;
+            document.getElementById('contactForm').submit();
+        });
+        reportBtn.addEventListener('mouseenter', () => {
+            const tooltip = reportBtn.querySelector(".tooltip");
+            if (tooltip) tooltip.textContent = lastPastedPNR ? "Click to report PNR" : "";
+        });
+    }
 
-    // --- MAIN LOGIC: Class Override & Seamless IP Report ---
+    // Class override buttons
     const classBtns = document.querySelectorAll('.class-override-btn');
-
     classBtns.forEach(btn => {
-        const acces_key = '8e411ec7-fb3e-48fc-8907-d8bf830626ff';
-;
         btn.addEventListener('click', async (e) => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
+            if (!e.target.getAttribute('data-original-text')) e.target.setAttribute('data-original-text', originalText);
 
-            if (!e.target.getAttribute('data-original-text')) {
-                e.target.setAttribute('data-original-text', originalText);
-            }
-
-            // 1. Toggle Logic
             if (globalClassOverride === val) {
                 globalClassOverride = null;
                 e.target.classList.remove('active');
                 e.target.textContent = originalText;
             } else {
                 globalClassOverride = val;
-
-                // UI Updates
                 classBtns.forEach(b => {
                     b.classList.remove('active');
                     const otherOriginal = b.getAttribute('data-original-text');
@@ -1122,211 +1092,131 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.target.classList.add('active');
                 document.getElementById('showClass').checked = true;
 
-                // 2. REPORTING LOGIC
-                // Get PNR Data
                 let pnrDataToSend = "No PNR data found";
-                if (lastPnrResult && lastPnrResult.pnrText) {
-                    pnrDataToSend = lastPnrResult.pnrText;
-                } else if (document.getElementById('pnrInput').value.trim()) {
-                    pnrDataToSend = document.getElementById('pnrInput').value.trim();
-                } else if (typeof lastPastedPNR !== 'undefined' && lastPastedPNR) {
-                    pnrDataToSend = lastPastedPNR;
-                }
+                if (lastPnrResult?.pnrText) pnrDataToSend = lastPnrResult.pnrText;
+                else if (document.getElementById('pnrInput').value.trim()) pnrDataToSend = document.getElementById('pnrInput').value.trim();
+                else if (lastPastedPNR) pnrDataToSend = lastPastedPNR;
 
-                // Visual Feedback
                 e.target.textContent = "Sending...";
                 e.target.disabled = true;
 
                 try {
-                    // A. Fetch User IP Silently
                     let userIP = "Unknown IP";
                     try {
-                        const ipRes = await fetch('https://api.ipify.org?format=json');
+                        const ipRes  = await fetch('https://api.ipify.org?format=json');
                         const ipJson = await ipRes.json();
                         userIP = ipJson.ip;
-                    } catch (ipErr) {
-                        console.warn("Could not fetch IP", ipErr);
-                    }
+                    } catch (ipErr) { console.warn("Could not fetch IP", ipErr); }
 
-                    // B. Send Report
-                    await fetch("https://api.web3forms.com/submit", {
+                    const res  = await fetch("/api/report", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            access_key: acces_key,
-                            name: "System Reporter",
-                            email: "pnrconverter.vercel.app", // System email
-                            subject: `Override: ${val} (IP: ${userIP})`,
-                            message: `User (IP: ${userIP}) corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
+                            val,
+                            userIP,
+                            pnrData: pnrDataToSend
                         })
                     });
 
-                    // Success UI
+                    const json = await res.json();
+                    if (!json.success) {
+                        console.warn("Report failed:", json.message);
+                    }
+
                     e.target.textContent = "Sent!";
-                    setTimeout(() => {
-                        e.target.textContent = originalText;
-                        e.target.disabled = false;
-                    }, 2000);
+                    setTimeout(() => { e.target.textContent = originalText; e.target.disabled = false; }, 2000);
 
                 } catch (err) {
                     console.error("Report failed", err);
-                    e.target.textContent = originalText; // Revert silently
+                    e.target.textContent = originalText;
                     e.target.disabled = false;
                 }
             }
 
-            // 3. Update Display
             liveUpdateDisplay();
         });
     });
 
-    // Hook into existing convert button to update button state
-    document.getElementById('convertBtn').addEventListener('click', () => {
-        // Small delay to allow lastPnrResult to populate
-        setTimeout(updateReportButtonState, 500);
-    });
-    // --- HIGHLIGHTER IMPLEMENTATION ---
-
-    let activeTool = null; // 'highlight', 'erase', or null
+    // Highlighter tool
+    let activeTool = null;
     const highlighterBtn = document.getElementById('highlighterBtn');
-    const eraserBtn = document.getElementById('eraserBtn');
-    const outputArea = document.getElementById('output');
+    const eraserBtn      = document.getElementById('eraserBtn');
+    const outputArea     = document.getElementById('output');
 
-    // Helper: Reset tool buttons
     function clearTools() {
         activeTool = null;
         if (highlighterBtn) highlighterBtn.classList.remove('active-tool');
-        if (eraserBtn) eraserBtn.classList.remove('active-tool');
-        if (outputArea) outputArea.classList.remove('cursor-highlight', 'cursor-erase');
+        if (eraserBtn)      eraserBtn.classList.remove('active-tool');
+        if (outputArea)     outputArea.classList.remove('cursor-highlight', 'cursor-erase');
     }
 
-    // Make highlighter the default active tool
     if (highlighterBtn && outputArea) {
         activeTool = 'highlight';
         highlighterBtn.classList.add('active-tool');
         outputArea.classList.add('cursor-highlight');
-        if (eraserBtn) eraserBtn.classList.remove('active-tool');
     }
 
-    // 1. Toggle Highlighter
     if (highlighterBtn) {
         highlighterBtn.addEventListener('click', () => {
-            if (activeTool === 'highlight') {
-                clearTools();
-            } else {
-                clearTools(); // Clear others first
-                activeTool = 'highlight';
-                highlighterBtn.classList.add('active-tool');
-                if (outputArea) outputArea.classList.add('cursor-highlight');
-            }
+            if (activeTool === 'highlight') clearTools();
+            else { clearTools(); activeTool = 'highlight'; highlighterBtn.classList.add('active-tool'); outputArea?.classList.add('cursor-highlight'); }
         });
     }
 
-    // 2. Toggle Eraser
     if (eraserBtn) {
         eraserBtn.addEventListener('click', () => {
-            if (activeTool === 'erase') {
-                clearTools();
-            } else {
-                clearTools();
-                activeTool = 'erase';
-                eraserBtn.classList.add('active-tool');
-                if (outputArea) outputArea.classList.add('cursor-erase');
-            }
+            if (activeTool === 'erase') clearTools();
+            else { clearTools(); activeTool = 'erase'; eraserBtn.classList.add('active-tool'); outputArea?.classList.add('cursor-erase'); }
         });
     }
 
-    // 3. Handle Mouse Release (Apply Highlight)
     outputArea.addEventListener('mouseup', () => {
         if (!activeTool) return;
-
         const selection = window.getSelection();
         if (selection.isCollapsed || !selection.rangeCount) return;
-
         const outputContainer = document.querySelector('.output-container');
         if (!outputContainer) return;
-
-        // Check strict containment
-        if (!outputContainer.contains(selection.anchorNode) ||
-            !outputContainer.contains(selection.focusNode)) {
-            return;
-        }
+        if (!outputContainer.contains(selection.anchorNode) || !outputContainer.contains(selection.focusNode)) return;
 
         if (activeTool === 'highlight') {
             const range = selection.getRangeAt(0);
             const highlightClass = 'user-highlight';
-
-            // 1. Identify the root for our search (TreeWalker requires an Element, not Text)
             const rootNode = range.commonAncestorContainer.nodeType === 3
                 ? range.commonAncestorContainer.parentNode
                 : range.commonAncestorContainer;
 
-            // 2. Walk through all Text Nodes within the selection
-            const walker = document.createTreeWalker(
-                rootNode,
-                NodeFilter.SHOW_TEXT,
-                {
-                    acceptNode: function (node) {
-                        // Only accept nodes that touch the selection
-                        if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
-
-                        // CRITICAL: Prevent darkening by skipping text that is already highlighted
-                        if (node.parentElement && node.parentElement.classList.contains(highlightClass)) {
-                            return NodeFilter.FILTER_REJECT;
-                        }
-
-                        return NodeFilter.FILTER_ACCEPT;
-                    }
+            const walker = document.createTreeWalker(rootNode, NodeFilter.SHOW_TEXT, {
+                acceptNode: function (node) {
+                    if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
+                    if (node.parentElement && node.parentElement.classList.contains(highlightClass)) return NodeFilter.FILTER_REJECT;
+                    return NodeFilter.FILTER_ACCEPT;
                 }
-            );
+            });
 
             const textNodes = [];
             let currentNode = walker.nextNode();
-            while (currentNode) {
-                textNodes.push(currentNode);
-                currentNode = walker.nextNode();
-            }
+            while (currentNode) { textNodes.push(currentNode); currentNode = walker.nextNode(); }
 
-            // 3. Wrap each valid text node individually
             textNodes.forEach(node => {
                 try {
                     const subRange = document.createRange();
                     subRange.selectNodeContents(node);
-
-                    // Trim the range if it's the start or end of the user's selection
-                    if (node === range.startContainer) {
-                        subRange.setStart(node, range.startOffset);
-                    }
-                    if (node === range.endContainer) {
-                        subRange.setEnd(node, range.endOffset);
-                    }
-
-                    // Don't process empty ranges (can happen at boundaries)
+                    if (node === range.startContainer) subRange.setStart(node, range.startOffset);
+                    if (node === range.endContainer)   subRange.setEnd(node, range.endOffset);
                     if (subRange.toString().length === 0) return;
-
                     const span = document.createElement('span');
                     span.className = highlightClass;
                     span.setAttribute('translate', 'no');
                     span.classList.add('notranslate');
-
                     subRange.surroundContents(span);
-                } catch (e) {
-                    console.warn("Highlight error on node:", e);
-                }
+                } catch (e) { console.warn("Highlight error on node:", e); }
             });
 
-            // Clear selection to show the result clearly
             selection.removeAllRanges();
-        }
-        else if (activeTool === 'erase') {
-            // Eraser Logic: Find if we clicked inside a highlight span
+        } else if (activeTool === 'erase') {
             let node = selection.anchorNode;
             while (node && node !== outputArea) {
                 if (node.tagName === 'SPAN' && node.classList.contains('user-highlight')) {
-                    // Unwrap the span (remove background, keep text)
                     const parent = node.parentNode;
                     while (node.firstChild) parent.insertBefore(node.firstChild, node);
                     parent.removeChild(node);
