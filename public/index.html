@@ -261,6 +261,13 @@
             border-top: 0.5px solid var(--border-main);
         }
 
+        .input-actions-group {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 15px;
+        }
+
         button {
             padding: 10px 18px;
             color: white;
@@ -2044,63 +2051,6 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
             margin-top: -20px;
             display: none;
         }
-
-        /* Auto Convert Button */
-label[for="autoConvertToggle"] {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 14px 6px 10px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    white-space: nowrap;
-    user-select: none;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
-
-    /* OFF state */
-    background-color: rgba(229, 115, 115, 0.15);
-    color: var(--danger-red);
-    border: 1.5px solid var(--danger-red);
-    box-shadow: 0 0 0 rgba(229,115,115,0);
-}
-
-label[for="autoConvertToggle"]:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(229,115,115,0.3);
-}
-
-label[for="autoConvertToggle"]:active {
-    transform: scale(0.96);
-}
-
-/* ON state — triggered when checkbox is checked */
-#autoConvertToggle:checked + label[for="autoConvertToggle"] {
-    background-color: rgba(46, 204, 113, 0.15);
-    color: var(--success-green);
-    border-color: var(--success-green);
-    box-shadow: 0 0 0 rgba(46,204,113,0);
-}
-
-#autoConvertToggle:checked + label[for="autoConvertToggle"]:hover {
-    box-shadow: 0 4px 12px rgba(46,204,113,0.3);
-}
-
-/* Dot indicator */
-.ac-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: var(--danger-red);
-    transition: background-color 0.3s ease;
-    flex-shrink: 0;
-}
-
-#autoConvertToggle:checked + label[for="autoConvertToggle"] .ac-dot {
-    background-color: var(--success-green);
-}
     </style>
     <meta name="google-site-verification" content="l90XKNLj69K53KLIliTB2e4t0fk5MJUlAZkplc9pRKM" />
 </head>
@@ -2193,6 +2143,19 @@ label[for="autoConvertToggle"]:active {
                     </div>
                 </div>
 
+                <div class="input-actions-group">
+                    <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
+                        <span class="toggle-switch-label">
+                            <span class="toggle-text">
+                                Auto
+                                Convert
+                            </span>
+                        </span>
+                        <input type="checkbox" id="autoConvertToggle">
+                        <span class="switch-body"></span>
+                    </label>
+                </div>
+
                 <div class="fare-options-grid">
                     <div class="fare-group">
                         <label for="adultCountInput">ADLT</label>
@@ -2252,7 +2215,14 @@ label[for="autoConvertToggle"]:active {
                     <label for="baggageParticular">Baggage:</label>
                     <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked hidden>
                     <label for="baggageParticular" hidden>Per segment</label>
-                    <input type="text" inputmode="decimal" id="baggageAmountInput" placeholder="23">
+
+                    <div class="combobox-container" id="baggageCombobox">
+                        <label for="baggageAmountInput"></label>
+                        <input type="text" inputmode="decimal" class="combobox-input" id="baggageAmountInput"
+                               placeholder="23">
+
+                        <!-- Quick-Select Baggage Buttons -->
+                    </div>
                     <div class="c-unit-toggle">
                         <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
                         <label class="c-unit-toggle__label" for="unit-selector-checkbox">
@@ -2476,15 +2446,7 @@ label[for="autoConvertToggle"]:active {
 
         <div class="sidebar card">
             <div class="options">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-                    <h3 style="margin:0;">Display Options</h3>
-
-                    <input type="checkbox" id="autoConvertToggle" style="display:none;">
-                    <label for="autoConvertToggle" id="autoConvertLabel">
-                        <span class="ac-dot"></span>
-                        <span class="ac-text">Auto Convert OFF</span>
-                    </label>
-                </div>
+                <h3>Display Options</h3>
                 <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
                 <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
                 <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
@@ -2583,15 +2545,23 @@ label[for="autoConvertToggle"]:active {
 
             <!-- NEW Split Container -->
             <div class="history-split-container">
-                
+
+                <!-- Left Side: List -->
+                <div id="historyList" class="history-list">
+                    <div class="blur-bottom" id="blurSection"></div>
+                    <!-- Items will be injected here by JS -->
+                </div>
+
                 <!-- Right Side: Preview -->
                 <div id="historyPreviewPanel" class="hidden">
                     <div class="preview-header">
                         <h3>Preview</h3>
                         <button id="closePreviewBtn" class="close-btn">×</button>
                     </div>
-                    <!-- ✅ Use classes instead -->
-                    <div class="blur-bottom blur-section-local"></div>
+                    <div id="previewContent" class="preview-content">
+                        <!-- Preview details injected here -->
+                        <div class="blur-bottom" id="blurSection"></div>
+                    </div>
                 </div>
 
             </div>
@@ -2988,9 +2958,7 @@ label[for="autoConvertToggle"]:active {
 
         setTimeout(() => {
             const refreshNotice = document.getElementById("refreshNotice");
-            if (refreshNotice) {
-                refreshNotice.textContent = "⚠ It's been 2 hours. Please refresh!";
-            }
+            refreshNotice.textContent = "⚠ It's been 2 hours. Please refresh the page to get the latest updates!";
 
             // Optional: Auto refresh after 10 seconds of showing the message
             // setTimeout(() => location.reload(), 10000);
@@ -3122,99 +3090,7 @@ label[for="autoConvertToggle"]:active {
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
-    <script>
-  (function () {
-    const calcInputIds = [
-      'adultFareInput', 'childFareInput', 'infantFareInput',
-      'taxInput', 'feeInput'
-    ];
 
-    function safeCalc(expr) {
-      const sanitized = expr.replace(/\s+/g, '');
-      if (!/^[\d+\-*/().]+$/.test(sanitized)) return null;
-      try {
-        const result = Function('"use strict"; return (' + sanitized + ')')();
-        if (!isFinite(result) || isNaN(result)) return null;
-        return Math.round(result * 100) / 100;
-      } catch {
-        return null;
-      }
-    }
-
-    function attachCalc(input) {
-      if (!input) return;
-
-      // Style the input while typing an expression
-      input.addEventListener('input', () => {
-        const hasOp = /[+\-*/]/.test(input.value);
-        input.style.fontStyle  = hasOp ? 'italic' : '';
-        input.style.color      = hasOp ? 'var(--primary-blue)' : '';
-        input.style.fontWeight = hasOp ? '700' : '';
-      });
-
-      function tryEval() {
-        const raw = input.value.trim();
-        if (!raw || !/[+\-*/]/.test(raw)) return;
-        const result = safeCalc(raw);
-        if (result !== null) {
-          input.value = result;
-          // Reset styles
-          input.style.fontStyle  = '';
-          input.style.color      = '';
-          input.style.fontWeight = '';
-          // Flash green to confirm
-          input.style.borderColor = 'var(--success-green)';
-          input.style.boxShadow   = '0 0 0 3px rgba(46,204,113,0.25)';
-          setTimeout(() => {
-            input.style.borderColor = '';
-            input.style.boxShadow   = '';
-          }, 800);
-          // Fire input event so fare totals update
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-        } else {
-          // Flash red to signal bad expression
-          input.style.color       = 'var(--danger-red)';
-          input.style.borderColor = 'var(--danger-red)';
-          input.style.boxShadow   = '0 0 0 3px rgba(229,115,115,0.25)';
-          setTimeout(() => {
-            input.style.color       = '';
-            input.style.borderColor = '';
-            input.style.boxShadow   = '';
-          }, 1000);
-        }
-      }
-
-      input.addEventListener('blur',    tryEval);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); tryEval(); input.blur(); }
-      });
-
-      // Tooltip hint on focus
-      input.addEventListener('focus', () => {
-        input.title = 'You can type math: e.g. 100+50, 200*1.5, (300-25)/2';
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      calcInputIds.forEach(id => attachCalc(document.getElementById(id)));
-    });
-  })();
-</script>
-
-<script>
-  (function () {
-    const cb  = document.getElementById('autoConvertToggle');
-    const lbl = document.querySelector('label[for="autoConvertToggle"] .ac-text');
-    if (!cb || !lbl) return;
-
-    const update = () => {
-      lbl.textContent = cb.checked ? 'Auto Convert ON' : 'Auto Convert OFF';
-    };
-
-    cb.addEventListener('change', update);
-    update(); // set correct text on load
-  })();
-</script>
 </body>
 
 </html>
