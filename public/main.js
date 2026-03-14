@@ -1073,7 +1073,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Class override buttons
     const classBtns = document.querySelectorAll('.class-override-btn');
     classBtns.forEach(btn => {
-        const acces_key = '8e411ec7-fb3e-48fc-8907-d8bf830626ff';
         btn.addEventListener('click', async (e) => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
@@ -1109,17 +1108,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         userIP = ipJson.ip;
                     } catch (ipErr) { console.warn("Could not fetch IP", ipErr); }
 
-                    await fetch("https://api.web3forms.com/submit", {
+                    const res  = await fetch("/api/report", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            access_key: acces_key,
-                            name: "System Reporter",
-                            email: "pnrconverter.vercel.app",
-                            subject: `Override: ${val} (IP: ${userIP})`,
-                            message: `User (IP: ${userIP}) corrected class to: ${val}\n\n--- PNR DATA ---\n${pnrDataToSend}`
+                            val,
+                            userIP,
+                            pnrData: pnrDataToSend
                         })
                     });
+
+                    const json = await res.json();
+                    if (!json.success) {
+                        console.warn("Report failed:", json.message);
+                    }
 
                     e.target.textContent = "Sent!";
                     setTimeout(() => { e.target.textContent = originalText; e.target.disabled = false; }, 2000);
