@@ -2,8 +2,16 @@ const OPTIONS_STORAGE_KEY = 'pnrConverterOptions';
 const CUSTOM_LOGO_KEY = 'pnrConverterCustomLogo';
 const CUSTOM_TEXT_KEY = 'pnrConverterCustomText';
 const HISTORY_STORAGE_KEY = 'pnrConversionHistory';
-let segmentBaggageMap = {};
 
+// FIX #14: Moved from inline HTML scripts into main.js to avoid implicit global coupling
+let lastPastedPNR = "";
+const PRESET_LOGOS = [
+    { name: "Default",   url: "/simbavoyages.png" },
+    { name: "Christmas", url: "/branding_logos/christmas-logo.jpg" },
+    { name: "Face",      url: "/branding_logos/logo-face.jpg" }
+];
+
+let segmentBaggageMap = {};
 let lastPnrResult = null;
 let globalClassOverride = null;
 
@@ -20,16 +28,13 @@ const MORSE_CODE_DICT = {
 function formatCurrency(amount) {
     const num = parseFloat(amount);
     if (isNaN(num)) return "0";
-
     const currency = document.getElementById('currencySelect').value;
-
     if (currency === 'RWF') {
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
         }).format(Math.round(num));
     }
-
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
@@ -58,6 +63,17 @@ function debounce(func, wait) {
     };
 }
 
+// FIX #13: Helper to escape user-supplied strings before injecting into innerHTML
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function resetFareAndBaggageInputs() {
     document.getElementById('adultFareInput').value = '';
     document.getElementById('childFareInput').value = '';
@@ -67,14 +83,13 @@ function resetFareAndBaggageInputs() {
     document.getElementById('adultCountInput').value = '1';
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
-    document.getElementById('currencySelect').value = 'USD';
-    // FIX #1: Removed references to non-existent 'baggageParticular' radio element.
-    // The baggage option radio group was removed from the HTML; baggage is now
-    // controlled directly via #baggageAmountInput, so no reset is needed here.
+    // FIX #11: Do NOT reset currencySelect here — currency preference is persisted by
+    // saveOptions() and should survive between conversions.
     globalClassOverride = null;
     document.querySelectorAll('.class-override-btn').forEach(btn => btn.classList.remove('active'));
     segmentBaggageMap = {};
-    if (lastPnrResult) liveUpdateDisplay();
+    // FIX #2: Removed the liveUpdateDisplay() call that was here. It caused a double-render
+    // because lastPnrResult is already set before this function is called from handleConvertClick.
 }
 
 function reverseString(str) {
@@ -84,24 +99,19 @@ function reverseString(str) {
 
 async function generateItineraryCanvasDoc(element, customScale = 2) {
     if (!element) throw new Error("Element for canvas generation not found.");
-
     const contentWidth = element.scrollWidth;
-
     const options = {
         scale: customScale,
         backgroundColor: '#ffffff',
         useCORS: true,
         allowTaint: true,
-
         onclone: (clonedDoc) => {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
-
             clonedBody.style.width = 'auto';
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0 0 10px 0';
-
             if (clonedElement) {
                 clonedElement.style.width = 'fit-content';
                 clonedElement.style.minWidth = contentWidth + 'px';
@@ -111,7 +121,6 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
             }
         }
     };
-
     return await html2canvas(element, options);
 }
 
@@ -186,7 +195,8 @@ function saveOptions() {
             currency: document.getElementById('currencySelect').value,
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
-            baggageUnit: getSelectedUnit()
+            // FIX #5: Lowercase the unit so load comparison works correctly
+            baggageUnit: getSelectedUnit().toLowerCase()
         };
         localStorage.setItem(OPTIONS_STORAGE_KEY, JSON.stringify(optionsToSave));
     } catch (e) { console.error("Failed to save options:", e); }
@@ -223,7 +233,10 @@ function loadOptions() {
         });
 
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
+        // FIX #5: Compare against lowercase 'pcs' to match the lowercased save value
+        if (savedOptions.baggageUnit) {
+            document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
+        }
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
         const customLogoData = localStorage.getItem(CUSTOM_LOGO_KEY);
@@ -304,9 +317,11 @@ async function handleConvertClick() {
         if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
 
         lastPnrResult = { ...data.result, pnrText: currentPnr };
+        // FIX #2: Call reset first (before lastPnrResult is set) to avoid double render.
+        // resetFareAndBaggageInputs no longer calls liveUpdateDisplay internally.
         resetFareAndBaggageInputs();
         if (pnrText.trim()) document.getElementById('pnrInput').value = '';
-        liveUpdateDisplay(true);
+        liveUpdateDisplay(true); // single render here
 
         if (data.success && data.result?.flights?.length > 0 && pnrText.trim()) {
             historyManager.add({ ...data, pnrText: currentPnr });
@@ -359,8 +374,6 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showFees: document.getElementById('showFees').checked,
     };
 
-    // FIX #2: The 'baggageOption' radio group no longer exists in the HTML.
-    // Baggage is always sourced directly from #baggageAmountInput.
     const baggageDetails = {
         option: 'particular',
         amount: document.getElementById('baggageAmountInput').value,
@@ -426,20 +439,17 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     if (passengers.length > 0) {
         const headerDiv = document.createElement('div');
         headerDiv.className = 'itinerary-header';
-
         let headerHTML = `<div style="display:flex; justify-content:space-between; align-items:flex-end;">`;
         headerHTML += `<div>`;
         headerHTML += `<h4 style="margin:0 0 5px 0;">Itinerary For:</h4>`;
-        headerHTML += `<p style="margin:0;">${passengers.join('<br>')}</p>`;
+        headerHTML += `<p style="margin:0;">${passengers.map(escapeHtml).join('<br>')}</p>`;
         headerHTML += `</div>`;
-
         if (recordLocator) {
             headerHTML += `<div style="text-align:right;">`;
             headerHTML += `<h4 style="margin:0 0 5px 0;">Booking Ref:</h4>`;
-            headerHTML += `<p style="margin:0; font-family:monospace; font-size:16px;">${recordLocator}</p>`;
+            headerHTML += `<p style="margin:0; font-family:monospace; font-size:16px;">${escapeHtml(recordLocator)}</p>`;
             headerHTML += `</div>`;
         }
-
         headerHTML += `</div>`;
         headerDiv.innerHTML = headerHTML;
         outputContainer.appendChild(headerDiv);
@@ -448,52 +458,66 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
     const itineraryBlock = document.createElement('div');
     itineraryBlock.className = 'itinerary-block';
 
-    flights.forEach((flight, i) => {
-        let currentHeadingDisplayed = null;
+    // FIX #10: Track last displayed heading to prevent duplicate OUTBOUND/INBOUND headers
+    let currentHeadingDisplayed = null;
 
-        if (flight.direction && flight.direction.toUpperCase() === 'OUTBOUND') {
-            const iconSrc = '/icons/takeoff.png';
+    flights.forEach((flight, i) => {
+        // FIX #1 + #9: Determine direction for heading WITHOUT mutating the original flight object.
+        // Also render the INBOUND heading even when showTransit is false.
+        let resolvedDirection = flight.direction ? flight.direction.toUpperCase() : null;
+
+        // Check if this segment starts a new leg (transit > 1440 min = overnight/next day)
+        if (i > 0 && flight.transitDurationMinutes !== undefined && flight.transitDurationMinutes >= 1440) {
+            resolvedDirection = 'INBOUND';
+        }
+
+        // Render OUTBOUND heading
+        if (resolvedDirection === 'OUTBOUND' && currentHeadingDisplayed !== 'OUTBOUND') {
             const headingDiv = document.createElement('div');
             headingDiv.className = 'itinerary-leg-header';
             headingDiv.innerHTML = `
-                <span>${flight.direction.toUpperCase()}</span>
-                <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
+                <span>OUTBOUND</span>
+                <img src="/icons/takeoff.png" alt="OUTBOUND" class="leg-header-icon">
             `;
             itineraryBlock.appendChild(headingDiv);
-            currentHeadingDisplayed = flight.direction.toUpperCase();
+            currentHeadingDisplayed = 'OUTBOUND';
         }
 
-        if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes) {
-            const transitDiv = document.createElement('div');
-            const minutes = flight.transitDurationMinutes;
-            const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
-            const startSeparator = rawSymbol.replace(/ /g, ' ');
-            const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
-            const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
+        // FIX #9: Render INBOUND heading regardless of showTransit setting
+        if (resolvedDirection === 'INBOUND' && currentHeadingDisplayed !== 'INBOUND') {
+            const headingDiv = document.createElement('div');
+            headingDiv.className = 'itinerary-leg-header';
+            headingDiv.innerHTML = `
+                <span>INBOUND</span>
+                <img src="/icons/landing.png" alt="INBOUND" class="leg-header-icon">
+            `;
+            itineraryBlock.appendChild(headingDiv);
+            currentHeadingDisplayed = 'INBOUND';
+        }
 
-            let transitLabel, transitClassName;
-            if (minutes <= 120 && minutes >= 0) {
-                transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                transitClassName = 'transit-short';
-            } else if (minutes > 300 && minutes < 1440) {
-                transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                transitClassName = 'transit-long';
-            } else if (minutes <= 300 && minutes >= 121) {
-                transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
-                transitClassName = 'transit-minimum';
-            } else {
-                flight.direction = 'INBOUND';
-                const iconSrc = '/icons/landing.png';
-                const headingDiv = document.createElement('div');
-                headingDiv.className = 'itinerary-leg-header';
-                headingDiv.innerHTML = `
-                    <span>${flight.direction.toUpperCase()}</span>
-                    <img src="${iconSrc}" alt="${flight.direction}" class="leg-header-icon">
-                `;
-                itineraryBlock.appendChild(headingDiv);
-                currentHeadingDisplayed = flight.direction.toUpperCase();
-            }
-            if (minutes <= 1440) {
+        // Render transit row (only when showTransit is enabled and transit is within the same day)
+        if (displayPnrOptions.showTransit && i > 0 && flight.transitTime && flight.transitDurationMinutes !== undefined) {
+            const minutes = flight.transitDurationMinutes;
+
+            if (minutes < 1440) {
+                const transitDiv = document.createElement('div');
+                const rawSymbol = displayPnrOptions.transitSymbol || ':::::::';
+                const startSeparator = rawSymbol.replace(/ /g, ' ');
+                const endSeparator = reverseString(rawSymbol).replace(/ /g, ' ');
+                const transitLocationInfo = `at ${flights[i - 1].arrival?.city || ''} (${flights[i - 1].arrival?.airport || ''})`;
+
+                let transitLabel, transitClassName;
+                if (minutes <= 120) {
+                    transitLabel = `Short Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-short';
+                } else if (minutes > 300) {
+                    transitLabel = `Long Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-long';
+                } else {
+                    transitLabel = `Transit Time ${flight.transitTime} ${transitLocationInfo}`;
+                    transitClassName = 'transit-minimum';
+                }
+
                 transitDiv.className = `transit-item ${transitClassName}`;
                 transitDiv.innerHTML = `${startSeparator} ${transitLabel.trim()} ${endSeparator}`;
                 itineraryBlock.appendChild(transitDiv);
@@ -527,7 +551,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             { label: 'Arriving \u00A0\u00A0\u00A0', value: arrivalString },
             {
                 label: 'Baggage \u00A0\u00A0',
-                value: `<span id="${baggageSpanId}">${currentBaggageValue}</span>`,
+                value: `<span id="${baggageSpanId}">${escapeHtml(currentBaggageValue)}</span>`,
                 isHtml: true,
                 rowId: baggageRowId,
                 customStyle: baggageRowDisplay
@@ -539,7 +563,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         detailRows.forEach(({ label, value, isNote, isHtml, rowId, customStyle }) => {
             if (value) {
-                const valContent = isHtml ? value : `<span>${value}</span>`;
+                const valContent = isHtml ? value : `<span>${escapeHtml(value)}</span>`;
                 const idAttr = rowId ? `id="${rowId}"` : '';
                 const styleAttr = customStyle ? `style="${customStyle}"` : '';
                 detailsHtml += `<div ${idAttr} ${styleAttr} class="flight-detail ${isNote ? 'notes-detail' : ''}"><strong>${label}:</strong> ${valContent}</div>`;
@@ -573,7 +597,7 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                 ${displayPnrOptions.showAirline ? `<img src="/logos/${(flight.airline.code || 'xx').toLowerCase()}.png" class="airline-logo" onerror="this.onerror=null; this.src='/logos/default-airline.svg';">` : ''}
                 <div>
                     <div class="flight-header">
-                        ${headerText}
+                        ${escapeHtml(headerText)}
                         <span style="${morseStyle}">${morseClass}</span>
                     </div>
                     ${detailsHtml}
@@ -581,34 +605,45 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             </div>
         `;
 
+        // FIX #15: Replaced inline onclick strings with proper addEventListener calls.
+        // This avoids quote-escaping bugs, is lint-friendly, and survives bundlers.
         const floatingPanel = document.createElement('div');
         floatingPanel.className = 'floating-baggage-panel';
         floatingPanel.setAttribute('data-html2canvas-ignore', 'true');
 
-        const updateJs = `
-            var val = this.value || this.innerText;
-            segmentBaggageMap[${i}] = val;
-            document.getElementById('${baggageSpanId}').innerText = val;
-            var row = document.getElementById('${baggageRowId}');
-            if(row) row.style.display = (val && val.trim() !== '') ? '' : 'none';
-            if(this.tagName === 'BUTTON') this.parentElement.previousElementSibling.value = val;
-        `;
+        const baggageInput = document.createElement('input');
+        baggageInput.type = 'text';
+        baggageInput.placeholder = 'Baggage...';
+        baggageInput.name = 'baggageInput';
+        baggageInput.value = currentBaggageValue;
 
-        floatingPanel.innerHTML = `
-            <input type="text" placeholder="Baggage..."
-                   name="baggageInput"
-                   value="${currentBaggageValue}"
-                   oninput="${updateJs.replace(/this.innerText/g, 'this.value')}">
-            <div class="float-btn-grid">
-                <button class="float-btn" onclick="${updateJs}">15 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">23 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">30 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">40 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">1 Pcs</button>
-                <button class="float-btn" onclick="${updateJs}">2 Pcs</button>
-                <button class="float-btn" onclick="${updateJs}">3 Pcs</button>
-            </div>
-        `;
+        function applyBaggageValue(val) {
+            segmentBaggageMap[i] = val;
+            const spanEl = document.getElementById(baggageSpanId);
+            if (spanEl) spanEl.textContent = val;
+            const rowEl = document.getElementById(baggageRowId);
+            if (rowEl) rowEl.style.display = (val && val.trim() !== '') ? '' : 'none';
+        }
+
+        baggageInput.addEventListener('input', () => applyBaggageValue(baggageInput.value));
+
+        const quickValues = ['15 Kgs', '23 Kgs', '30 Kgs', '40 Kgs', '1 Pcs', '2 Pcs', '3 Pcs'];
+        const btnGrid = document.createElement('div');
+        btnGrid.className = 'float-btn-grid';
+
+        quickValues.forEach(val => {
+            const btn = document.createElement('button');
+            btn.className = 'float-btn';
+            btn.textContent = val;
+            btn.addEventListener('click', () => {
+                baggageInput.value = val;
+                applyBaggageValue(val);
+            });
+            btnGrid.appendChild(btn);
+        });
+
+        floatingPanel.appendChild(baggageInput);
+        floatingPanel.appendChild(btnGrid);
 
         flightItem.appendChild(floatingPanel);
         itineraryBlock.appendChild(flightItem);
@@ -664,14 +699,15 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
 // --- HELPER FOR NOTES ---
 function getCheckboxNotesHtml(checkboxOutputs) {
+    // FIX #12: Added semicolons to all &#9830 numeric HTML entities
     let notesHtml = '';
-    if (checkboxOutputs.showCovidNotice)          notesHtml += `<p> <strong>&#9830</strong> Date Change Allowed With Applicable Penalties.</p>`;
-    if (checkboxOutputs.showTravelInsurance)      notesHtml += `<p> <strong>&#9830</strong> Before Departure Changes Are Allowed With Applicable Penalty.</p>`;
-    if (checkboxOutputs.showVisaInfo)             notesHtml += `<p> <strong>&#9830</strong> Before Departure Refundable With Applicable Penalties.</p>`;
-    if (checkboxOutputs.dontShowTravelInsurance)  notesHtml += `<p> <strong>&#9830</strong> After Departure Non Refundable.</p>`;
-    if (checkboxOutputs.noShowRefundPolicy)       notesHtml += `<p> <strong>&#9830</strong> Refundable With Applicable Penalties.</p>`;
-    if (checkboxOutputs.showHealthDocs)           notesHtml += `<p> <strong>&#9830</strong> Non Refundable.</p>`;
-    if (checkboxOutputs.noShow)                   notesHtml += `<p> <strong>&#9830</strong> No Show Fee Where Applicable.</p>`;
+    if (checkboxOutputs.showCovidNotice)          notesHtml += `<p> <strong>&#9830;</strong> Date Change Allowed With Applicable Penalties.</p>`;
+    if (checkboxOutputs.showTravelInsurance)      notesHtml += `<p> <strong>&#9830;</strong> Before Departure Changes Are Allowed With Applicable Penalty.</p>`;
+    if (checkboxOutputs.showVisaInfo)             notesHtml += `<p> <strong>&#9830;</strong> Before Departure Refundable With Applicable Penalties.</p>`;
+    if (checkboxOutputs.dontShowTravelInsurance)  notesHtml += `<p> <strong>&#9830;</strong> After Departure Non Refundable.</p>`;
+    if (checkboxOutputs.noShowRefundPolicy)       notesHtml += `<p> <strong>&#9830;</strong> Refundable With Applicable Penalties.</p>`;
+    if (checkboxOutputs.showHealthDocs)           notesHtml += `<p> <strong>&#9830;</strong> Non Refundable.</p>`;
+    if (checkboxOutputs.noShow)                   notesHtml += `<p> <strong>&#9830;</strong> No Show Fee Where Applicable.</p>`;
     return notesHtml;
 }
 
@@ -731,12 +767,13 @@ const historyManager = {
             listEl.innerHTML = '<div class="info" style="margin: 10px;">No history found.</div>';
             return;
         }
+        // FIX #13: Escape pax and route before injecting into innerHTML to prevent stored XSS
         listEl.innerHTML = history.map(item => `
             <div class="history-item" data-id="${item.id}">
                 <div class="history-item-info">
-                    <div class="history-item-pax">${item.pax}</div>
+                    <div class="history-item-pax">${escapeHtml(item.pax)}</div>
                     <div class="history-item-details">
-                        <span style="font-weight:bold;">${item.route}</span><br>
+                        <span style="font-weight:bold;">${escapeHtml(item.route)}</span><br>
                         <span>${new Date(item.date).toLocaleString()}</span>
                     </div>
                 </div>
@@ -782,20 +819,17 @@ const historyManager = {
                 document.getElementById('pnrInput').value = entry.pnrText;
                 historyModal.classList.add('hidden');
             } else {
-                // FIX #3: 'previewContent' div was missing from the HTML.
-                // It has been added to index.html; this reference is now safe.
                 const previewContent = document.getElementById('previewContent');
-                if (!previewContent) return; // guard just in case
+                if (!previewContent) return;
                 previewContent.innerHTML = `
                     <h4>Screenshot</h4>
                     <img src="${entry.screenshot}" alt="Itinerary Screenshot">
                     <hr>
                     <button class="copy-btn" data-copy-target=".text2" style="color:black">Click to Copy Raw PNR Data</button>
-                    <pre class="text2">${entry.pnrText}</pre>
+                    <pre class="text2">${escapeHtml(entry.pnrText)}</pre>
                 `;
                 document.getElementById('historyPreviewPanel').classList.remove('hidden');
 
-                // Use a named handler so we don't stack duplicate listeners on repeat clicks
                 if (!document._copyBtnHandlerAttached) {
                     document.addEventListener('click', function (e) {
                         if (e.target.matches('.copy-btn')) {
@@ -831,8 +865,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedValue = e.target.value;
         transitRadios.forEach(radio => { if (radio.value === selectedValue) radio.checked = true; });
         saveOptions();
-        if (lastPnrResult) handleConvertClick();
-        else liveUpdateDisplay();
+        // FIX #3: Was calling handleConvertClick() which hits the API unnecessarily.
+        // The time format only affects display — liveUpdateDisplay() is sufficient.
+        liveUpdateDisplay();
     }
 
     transitRadios.forEach(radio => radio.addEventListener('change', syncTransitTimeFormats));
@@ -866,6 +901,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) { showPopup("Clipboard access blocked!"); }
     });
 
+    // Track last pasted PNR for error reporting (moved from inline HTML script into main.js)
+    document.getElementById('pnrInput').addEventListener('paste', (e) => {
+        const pastedText = (e.clipboardData || window.clipboardData).getData("text").trim();
+        if (pastedText) lastPastedPNR = pastedText;
+    });
+
     document.getElementById('editableToggle').addEventListener('change', () => { updateEditableState(); saveOptions(); });
     document.getElementById('autoConvertToggle').addEventListener('change', saveOptions);
 
@@ -876,6 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveOptions();
             if (el.id === 'showTaxes' || el.id === 'showFees') toggleFareInputsVisibility();
             if (el.id === 'showTransit') toggleTransitSymbolInputVisibility();
+            // FIX #3 (carried): segmentTimeFormat still needs a fresh API call (server parses time format)
             if (el.name === 'segmentTimeFormat' && lastPnrResult) handleConvertClick();
             else liveUpdateDisplay();
         });
@@ -920,7 +962,7 @@ document.addEventListener('DOMContentLoaded', () => {
         liveUpdateDisplay();
     });
 
-    // Screenshot (HQ)
+    // Screenshot HQ
     const screenshotBtn = document.getElementById('screenshotBtn');
     if (screenshotBtn) {
         screenshotBtn.addEventListener('click', async () => {
@@ -943,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Screenshot (SD)
+    // Screenshot SD
     const stdResBtn = document.getElementById('copyTextBtn');
     if (stdResBtn) {
         stdResBtn.innerText = "📧 Screenshot";
@@ -967,7 +1009,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Email display (element may not be in HTML, guarded with ?.) ---
+    // Email display
     function getStoredUserEmail() { return localStorage.getItem('pnrConverterUserEmail'); }
     function setStoredUserEmail(email) {
         if (email && email.includes('@')) {
@@ -986,11 +1028,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newEmail !== null) setStoredUserEmail(newEmail);
     });
 
-    // --- Report button / class override state ---
+    // Report button & class override state
     function updateReportButtonState() {
         const hasPnrMemory = lastPnrResult && lastPnrResult.flights && lastPnrResult.flights.length > 0;
         const hasPnrInput  = document.getElementById('pnrInput').value.trim().length > 0;
-        const hasPasted    = typeof lastPastedPNR !== 'undefined' && lastPastedPNR.length > 0;
+        const hasPasted    = lastPastedPNR.length > 0;
         const isEnabled    = hasPnrMemory || hasPnrInput || hasPasted;
 
         document.querySelectorAll('.class-override-btn').forEach(btn => {
@@ -1009,10 +1051,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('pnrInput').addEventListener('input', updateReportButtonState);
+    // FIX #4: Only one listener on convertBtn for updateReportButtonState (the duplicate was removed)
     document.getElementById('convertBtn').addEventListener('click', () => setTimeout(updateReportButtonState, 500));
     updateReportButtonState();
 
-    // --- Class Override & IP Report ---
+    // Error report button (wired here since lastPastedPNR is now in main.js scope)
+    const reportBtn = document.getElementById('reportErrorBtn');
+    const pnrHidden = document.getElementById('pnrHidden');
+    if (reportBtn && pnrHidden) {
+        reportBtn.addEventListener('click', () => {
+            if (!lastPastedPNR) { alert("No PNR pasted yet!"); return; }
+            pnrHidden.value = lastPastedPNR;
+            document.getElementById('contactForm').submit();
+        });
+        reportBtn.addEventListener('mouseenter', () => {
+            const tooltip = reportBtn.querySelector(".tooltip");
+            if (tooltip) tooltip.textContent = lastPastedPNR ? "Click to report PNR" : "";
+        });
+    }
+
+    // Class override buttons
     const classBtns = document.querySelectorAll('.class-override-btn');
     classBtns.forEach(btn => {
         const acces_key = '8e411ec7-fb3e-48fc-8907-d8bf830626ff';
@@ -1038,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let pnrDataToSend = "No PNR data found";
                 if (lastPnrResult?.pnrText) pnrDataToSend = lastPnrResult.pnrText;
                 else if (document.getElementById('pnrInput').value.trim()) pnrDataToSend = document.getElementById('pnrInput').value.trim();
-                else if (typeof lastPastedPNR !== 'undefined' && lastPastedPNR) pnrDataToSend = lastPastedPNR;
+                else if (lastPastedPNR) pnrDataToSend = lastPastedPNR;
 
                 e.target.textContent = "Sending...";
                 e.target.disabled = true;
@@ -1077,11 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('convertBtn').addEventListener('click', () => {
-        setTimeout(updateReportButtonState, 500);
-    });
-
-    // --- Highlighter ---
+    // Highlighter tool
     let activeTool = null;
     const highlighterBtn = document.getElementById('highlighterBtn');
     const eraserBtn      = document.getElementById('eraserBtn');
