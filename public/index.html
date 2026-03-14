@@ -6,17 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PNR Converter | Create Human-Readable Flight Itineraries</title>
-    <!-- FIX #1: Removed duplicate favicon tag; also removed invalid 'alt' attribute (only valid on <img>) -->
     <link rel="shortcut icon" href="pass.jpeg" type="image/x-icon">
     <meta name="description" content="Instantly convert airline PNR data into clear, human-readable itineraries. Customize baggage, logos, and fares for your clients. Try our free PNR decoder today!">
-    <!-- FIX #6: Canonical URL and OG image URL now consistently use pnrconverter.vercel.app -->
     <link rel="canonical" href="https://pnrconverter.vercel.app/">
     <meta property="og:title" content="PNR Converter - Convert Flight PNR to Readable Itinerary">
     <meta property="og:description" content="Easily convert airline PNR data into a clear, human-readable itinerary format.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://pnrconverter.vercel.app/pass.jpeg">
-    <link rel="preload" href="/main.js" as="script">
+    <!-- FIX #16: html2canvas loaded BEFORE main.js so it is available when main.js executes -->
     <link rel="preload" href="/js/html2canvas.min.js" as="script">
+    <link rel="preload" href="/main.js" as="script">
     <style>
         /* --- THEME VARIABLES --- */
         :root {
@@ -31,17 +30,21 @@
             --history-purple: #D4AF37;
             --history-purple-hover: #BC9B31;
             --transit-long-yellow: #f39c12;
-            /* Light Theme (Default) */
+            /* Light Theme */
             --bg-main: #F5F7FA;
             --bg-card: #FFFFFF;
-            --bg-input: var(--light-bg);
+            /* FIX #6: --bg-input was referencing the undefined variable --light-bg.
+               Now correctly points to a real value. */
+            --bg-input: #FFFFFF;
             --bg-hover: #e9ecef;
             --text-main: #34495E;
             --text-secondary: Gray;
             --border-main: #E0E6EC;
+            /* FIX #7: --bg-footer was undefined. Added explicit values for both themes. */
+            --bg-footer: #EEF1F5;
         }
 
-        /* Dark Theme Definition */
+        /* Dark Theme */
         [data-theme='dark'] {
             --bg-main: #2c3e50;
             --bg-card: #34495e;
@@ -50,6 +53,8 @@
             --text-main: #ecf0f1;
             --text-secondary: white;
             --border-main: #4a69bd;
+            /* FIX #7 dark: bg-footer dark variant */
+            --bg-footer: #243342;
         }
 
         /* --- BASE STYLES --- */
@@ -63,16 +68,8 @@
             margin-bottom: 50px;
         }
 
-        h1,
-        h2,
-        h3 {
-            color: var(--text-main);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+        h1, h2, h3 { color: var(--text-main); }
+        h1 { text-align: center; margin-bottom: 30px; }
 
         hr {
             border: 0;
@@ -95,9 +92,7 @@
             min-width: 0;
         }
 
-        .input-area,
-        .output-area,
-        .sidebar {
+        .input-area, .output-area, .sidebar {
             background: var(--bg-card);
             padding: 25px;
             border-radius: 12px;
@@ -111,10 +106,7 @@
             align-items: center;
             margin-bottom: 20px;
         }
-
-            .card-header h3 {
-                margin: 0;
-            }
+        .card-header h3 { margin: 0; }
 
         .header-actions {
             display: flex;
@@ -137,44 +129,25 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-
-            .header-btn:hover {
-                background-color: var(--bg-hover);
-                color: var(--text-main);
-                border-color: #d1d9e0;
-            }
-
-            .header-btn svg {
-                width: 18px;
-                height: 18px;
-                stroke: currentColor;
-            }
-
-        #themeToggleBtn .moon-icon {
-            display: none;
+        .header-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-main);
+            border-color: #d1d9e0;
+        }
+        .header-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
         }
 
-        #themeToggleBtn .sun-icon {
-            display: block;
-        }
+        #themeToggleBtn .moon-icon { display: none; }
+        #themeToggleBtn .sun-icon  { display: block; }
+        [data-theme='dark'] #themeToggleBtn .moon-icon { display: block; }
+        [data-theme='dark'] #themeToggleBtn .sun-icon  { display: none; }
 
-        [data-theme='dark'] #themeToggleBtn .moon-icon {
-            display: block;
-        }
+        #mobileMenuBtn { display: none; }
 
-        [data-theme='dark'] #themeToggleBtn .sun-icon {
-            display: none;
-        }
-
-
-        #mobileMenuBtn {
-            display: none;
-        }
-
-        #inputControls {
-            display: flex;
-            align-items: stretch;
-        }
+        #inputControls { display: flex; align-items: stretch; }
 
         textarea#pnrInput {
             flex-grow: 1;
@@ -190,14 +163,13 @@
             background-color: var(--bg-main);
             color: var(--text-main);
         }
-
-            textarea#pnrInput:focus {
-                outline: none;
-                border-color: var(--primary-blue);
-                box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
-                position: relative;
-                z-index: 2;
-            }
+        textarea#pnrInput:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+            position: relative;
+            z-index: 2;
+        }
 
         #baggageAmountInput {
             height: 30px;
@@ -217,10 +189,7 @@
             padding: 10px 18px;
             cursor: pointer;
         }
-
-            #convertBtn:hover {
-                background-color: var(--primary-blue-hover);
-            }
+        #convertBtn:hover { background-color: var(--primary-blue-hover); }
 
         .vertical-icon-group {
             display: flex;
@@ -241,18 +210,16 @@
             transition: background-color 0.2s ease;
             flex: 1;
         }
-
-            .control-icon-btn:hover {
-                background-color: var(--bg-hover);
-                color: var(--text-main);
-                z-index: 1;
-            }
+        .control-icon-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-main);
+            z-index: 1;
+        }
 
         #pasteBtn {
             border-radius: 0 6px 0 0;
             border-bottom: 0.5px solid var(--border-main);
         }
-
         #clearBtn {
             border-radius: 0 0 6px 0;
             border-top: 0.5px solid var(--border-main);
@@ -273,9 +240,7 @@
             gap: 8px;
         }
 
-        #adultCountInput,
-        #childCountInput,
-        #infantCountInput {
+        #adultCountInput, #childCountInput, #infantCountInput {
             width: 50px;
             text-align: center;
         }
@@ -301,20 +266,17 @@
             align-items: center;
             gap: 10px;
         }
-
         .toggle-switch-label {
             font-size: 14px;
             font-weight: 500;
             color: var(--text-secondary);
             cursor: pointer;
         }
-
         .toggle-switch input[type="checkbox"] {
             height: 0;
             width: 0;
             visibility: hidden;
         }
-
         .toggle-switch .switch-body {
             cursor: pointer;
             width: 48px;
@@ -325,11 +287,7 @@
             position: relative;
             transition: background-color 0.2s;
         }
-
-        [data-theme='dark'] .toggle-switch .switch-body {
-            background: var(--secondary-dark);
-        }
-
+        [data-theme='dark'] .toggle-switch .switch-body { background: var(--secondary-dark); }
         .toggle-switch .switch-body::after {
             content: '';
             position: absolute;
@@ -341,15 +299,11 @@
             border-radius: 20px;
             transition: 0.2s;
         }
-
-        .toggle-switch input:checked + .switch-body {
-            background: var(--success-green);
+        .toggle-switch input:checked + .switch-body { background: var(--success-green); }
+        .toggle-switch input:checked + .switch-body::after {
+            left: calc(100% - 2px);
+            transform: translateX(-100%);
         }
-
-            .toggle-switch input:checked + .switch-body::after {
-                left: calc(100% - 2px);
-                transform: translateX(-100%);
-            }
 
         .c-unit-toggle {
             position: relative;
@@ -357,37 +311,26 @@
             width: 48px;
             height: 24px;
         }
-
-        .c-unit-toggle__input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
+        .c-unit-toggle__input { opacity: 0; width: 0; height: 0; }
         .c-unit-toggle__label {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: var(--primary-blue);
             border-radius: 40px;
             transition: background-color 0.3s;
         }
-
-            .c-unit-toggle__label::before {
-                position: absolute;
-                content: "";
-                height: 19px;
-                width: 20px;
-                top: 3px;
-                left: 4px;
-                background-color: white;
-                border-radius: 50%;
-                transition: transform 0.3s;
-            }
-
+        .c-unit-toggle__label::before {
+            position: absolute;
+            content: "";
+            height: 19px;
+            width: 20px;
+            top: 3px;
+            left: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
         .c-unit-toggle__options {
             display: flex;
             justify-content: space-around;
@@ -398,14 +341,8 @@
             font-weight: bold;
             font-size: 10px;
         }
-
-        .c-unit-toggle__input:checked + .c-unit-toggle__label {
-            background-color: var(--success-green);
-        }
-
-            .c-unit-toggle__input:checked + .c-unit-toggle__label::before {
-                transform: translateX(21px);
-            }
+        .c-unit-toggle__input:checked + .c-unit-toggle__label { background-color: var(--success-green); }
+        .c-unit-toggle__input:checked + .c-unit-toggle__label::before { transform: translateX(21px); }
 
         .fare-options-grid {
             display: grid;
@@ -419,35 +356,23 @@
             flex-direction: column;
             gap: 5px;
         }
-
-            .fare-group.hidden {
-                display: none;
-            }
-
-            .fare-group label {
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--text-secondary);
-            }
-
-            .fare-group input,
-            .fare-group select {
-                padding: 8px;
-                border: 1px solid var(--border-main);
-                border-radius: 4px;
-                width: 100%;
-                box-sizing: border-box;
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
-
-            .fare-group .count-fare-wrapper {
-                display: flex;
-            }
-
-                .fare-group .count-fare-wrapper > div {
-                    flex: 0.4;
-                }
+        .fare-group.hidden { display: none; }
+        .fare-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .fare-group input, .fare-group select {
+            padding: 8px;
+            border: 1px solid var(--border-main);
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+        .fare-group .count-fare-wrapper { display: flex; }
+        .fare-group .count-fare-wrapper > div { flex: 0.4; }
 
         .baggage-options {
             margin-top: 20px;
@@ -457,9 +382,8 @@
             gap: 10px 20px;
         }
 
-        .toggle-text {
-            color: var(--text-secondary);
-        }
+        .toggle-text { color: var(--text-secondary); }
+
         #baggageAmountInput {
             width: 60px;
             padding: 6px 8px;
@@ -471,15 +395,9 @@
             background-color: var(--bg-card);
             color: var(--text-main);
         }
-        #allTheWayInputs {
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
 
-            #allTheWayInputs.visible {
-                display: flex;
-            }
+        #allTheWayInputs { display: none; align-items: center; gap: 10px; }
+        #allTheWayInputs.visible { display: flex; }
 
         .output-area .output-actions {
             display: flex;
@@ -495,13 +413,12 @@
             overflow-x: auto;
             margin: 15px 0 200px 0;
         }
-
-            #output[contenteditable="true"] {
-                border: 2px dashed #3498db;
-                padding: 10px;
-                border-radius: 8px;
-                background-color: #fafdff;
-            }
+        #output[contenteditable="true"] {
+            border: 2px dashed #3498db;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #fafdff;
+        }
 
         .info {
             color: #fff;
@@ -510,7 +427,6 @@
             border: 1px solid #2980b9;
             border-radius: 8px;
         }
-
         .error {
             color: #e74c3c;
             padding: 15px;
@@ -519,7 +435,7 @@
             border-radius: 8px;
         }
 
-        /* === FULLY CORRECTED AND ISOLATED ITINERARY STYLES === */
+        /* === ITINERARY STYLES === */
         #output .output-container {
             border: 1px solid #e0e6ec !important;
             background: #ffffff !important;
@@ -527,10 +443,7 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-
-            #output .output-container * {
-                color: #000000;
-            }
+        #output .output-container * { color: #000000; }
 
         #output .itinerary-main-logo-container {
             display: flex;
@@ -539,13 +452,11 @@
             padding: 5px 10px;
             border-bottom: 1px solid #eee !important;
         }
-
         #output .itinerary-main-logo {
             max-width: 150px;
             max-height: 45px;
             object-fit: contain;
         }
-
         #output .itinerary-logo-text {
             font-size: .8em;
             text-align: right;
@@ -558,11 +469,7 @@
             padding: 15px;
             border-bottom: 1px solid #eee !important;
         }
-
-            #output .itinerary-header p {
-                margin: 0;
-                font-size: 14px;
-            }
+        #output .itinerary-header p { margin: 0; font-size: 14px; }
 
         #output .itinerary-leg-header {
             text-align: center;
@@ -575,18 +482,12 @@
             text-transform: uppercase;
             color: #3498db !important;
         }
-
-            #output .itinerary-leg-header:first-of-type {
-                margin-top: 10px;
-            }
+        #output .itinerary-leg-header:first-of-type { margin-top: 10px; }
 
         #output .flight-item {
             padding: 7px 15px 0px;
         }
-
-            #output .flight-item:last-child {
-                border-bottom: none !important;
-            }
+        #output .flight-item:last-child { border-bottom: none !important; }
 
         #output .transit-item {
             font-style: italic;
@@ -597,18 +498,9 @@
             font-size: 15px;
             font-weight: bold;
         }
-
-            #output .transit-item.transit-short {
-                color: #e74c3c !important;
-            }
-
-            #output .transit-item.transit-minimum {
-                color: #27ae60 !important;
-            }
-
-            #output .transit-item.transit-long {
-                color: #f39c12 !important;
-            }
+        #output .transit-item.transit-short    { color: #e74c3c !important; }
+        #output .transit-item.transit-minimum  { color: #27ae60 !important; }
+        #output .transit-item.transit-long     { color: #f39c12 !important; }
 
         #output .airline-logo {
             width: 95px;
@@ -628,16 +520,14 @@
             margin-bottom: 5px;
             color: #34495e !important;
         }
-
-            #output .flight-detail.notes-detail {
-                white-space: pre-wrap;
-                word-break: break-word;
-            }
-
-            #output .flight-detail strong {
-                margin-right: 5px;
-                color: #5f6c7b !important;
-            }
+        #output .flight-detail.notes-detail {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        #output .flight-detail strong {
+            margin-right: 5px;
+            color: #5f6c7b !important;
+        }
 
         #output .flight-content {
             display: flex;
@@ -653,45 +543,22 @@
             font-size: 14px;
             white-space: pre-line;
         }
+        #output .fare-summary strong { font-size: 1.1em; }
 
-            #output .fare-summary strong {
-                font-size: 1.1em;
-            }
-
-        /* --- sidebar scroll bar styling --- */
+        /* Scrollbars */
         body::-webkit-scrollbar,
         .history-list::-webkit-scrollbar,
-        .preview-content::-webkit-scrollbar {
-            width: 1px;
-            max-height: 10px;
-        }
-
+        .preview-content::-webkit-scrollbar { width: 1px; max-height: 10px; }
         body::-webkit-scrollbar-thumb {
             background-color: blue;
             top: 50px;
             border-radius: 20px;
         }
+        body::-webkit-scrollbar-thumb:hover { background-color: white; }
+        .sidebar::-webkit-scrollbar { width: 0px; max-height: 10px; }
+        .sidebar::-webkit-scrollbar-thumb { background-color: white; top: 50px; border-radius: 20px; }
 
-            body::-webkit-scrollbar-thumb:hover {
-                background-color: white;
-            }
-
-        .sidebar::-webkit-scrollbar {
-            width: 0px;
-            max-height: 10px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background-color: white;
-            top: 50px;
-            border-radius: 20px;
-        }
-
-            .sidebar::-webkit-scrollbar-thumb:hover {
-                background-color: white;
-            }
-
-        /* --- Sidebar & Modal Styles --- */
+        /* Sidebar */
         .sidebar {
             position: sticky;
             top: 20px;
@@ -699,23 +566,10 @@
             overflow-y: auto;
             font-family: monospace;
         }
+        .sidebar h3 { margin-top: 0; font-size: x-large; }
+        .sidebar h4 { margin: 20px 0 10px; color: var(--text-main); }
 
-            .sidebar h3 {
-                margin-top: 0;
-                font-size: x-large;
-            }
-
-            .sidebar h4 {
-                margin: 20px 0 10px;
-                color: var(--text-main);
-            }
-
-        .options label {
-            display: block;
-            margin: 10px 0;
-            cursor: pointer;
-            font-size: 15px
-        }
+        .options label { display: block; margin: 10px 0; cursor: pointer; font-size: 15px; }
 
         .time-format-group label {
             display: inline-flex;
@@ -729,48 +583,30 @@
             margin-top: 8px;
             display: flex;
             align-items: center;
-            gap: 8px
+            gap: 8px;
         }
-
-            .custom-transit-input.hidden {
-                display: none
-            }
-
-            .custom-transit-input label {
-                margin: 0;
-                font-size: 14px
-            }
+        .custom-transit-input.hidden { display: none; }
+        .custom-transit-input label { margin: 0; font-size: 14px; }
 
         #customBrandingSection {
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid var(--border-main)
+            border-top: 1px solid var(--border-main);
         }
+        #customBrandingSection.hidden { display: none; }
 
-            #customBrandingSection.hidden {
-                display: none
-            }
-
-        .custom-branding-input {
-            margin-bottom: 15px
+        .custom-branding-input { margin-bottom: 15px; }
+        .custom-branding-input label { font-weight: 500; margin-bottom: 8px; display: block; }
+        .custom-branding-input input[type=file],
+        .custom-branding-input textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-main);
+            background-color: var(--bg-card);
+            color: var(--text-main);
         }
-
-            .custom-branding-input label {
-                font-weight: 500;
-                margin-bottom: 8px;
-                display: block
-            }
-
-            .custom-branding-input input[type=file],
-            .custom-branding-input textarea {
-                width: 100%;
-                box-sizing: border-box;
-                padding: 8px;
-                border-radius: 4px;
-                border: 1px solid var(--border-main);
-                background-color: var(--bg-card);
-                color: var(--text-main);
-            }
 
         .clear-btn {
             background-color: white;
@@ -786,15 +622,14 @@
             display: none;
             border: 1px solid #ddd;
             padding: 3px;
-            border-radius: 4px
+            border-radius: 4px;
         }
 
+        /* Modals */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background-color: rgba(0, 0, 0, .6);
             display: flex;
             justify-content: center;
@@ -802,13 +637,9 @@
             z-index: 2000;
             opacity: 0;
             visibility: hidden;
-            transition: opacity .3s, visibility .3s
+            transition: opacity .3s, visibility .3s;
         }
-
-            .modal-overlay:not(.hidden) {
-                opacity: 1;
-                visibility: visible
-            }
+        .modal-overlay:not(.hidden) { opacity: 1; visibility: visible; }
 
         .modal-content {
             background: var(--bg-card);
@@ -833,9 +664,7 @@
             border-top: 1px solid var(--border-main);
         }
 
-        .modal-overlay:not(.hidden) .modal-content {
-            transform: scale(1)
-        }
+        .modal-overlay:not(.hidden) .modal-content { transform: scale(1); }
 
         .modal-header {
             display: flex;
@@ -843,73 +672,43 @@
             align-items: center;
             border-bottom: 1px solid var(--border-main);
             padding-bottom: 15px;
-            margin-bottom: 15px
+            margin-bottom: 15px;
+        }
+        .modal-header .close-btn {
+            background: 0 0;
+            border: none;
+            font-size: 2.5rem;
+            line-height: 1;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0; margin: 0;
         }
 
-            .modal-header .close-btn {
-                background: 0 0;
-                border: none;
-                font-size: 2.5rem;
-                line-height: 1;
-                color: var(--text-secondary);
-                cursor: pointer;
-                padding: 0;
-                margin: 0
-            }
+        .history-controls { display: flex; gap: 10px; margin-bottom: 15px; }
 
-        .history-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px
-        }
-
-        #screenshotBtn,
-        #copyTextBtn {
-            display: none;
-        }
-
-        #showNotesLabel {
-            display: none;
-        }
-
-        #showTransitLabel {
-            display: none;
-        }
+        #screenshotBtn, #copyTextBtn { display: none; }
+        #showNotesLabel   { display: none; }
+        #showTransitLabel { display: none; }
 
         #transitSymbolInput {
             width: 120px;
             padding: 5px;
-            background-color: #cbcbcb;
+            /* FIX #8: Was background:#cbcbcb + color:white (contrast ~1.5:1, fails WCAG AA).
+               Now uses dark text on the same gray for ~8:1 contrast. */
+            background-color: #d0d0d0;
             border: 1px solid var(--border-main);
-            color: white;
+            color: #2c3e50;
             border-radius: 4px;
         }
 
-        #formatTransitTime {
-            display: none;
-        }
+        #formatTransitTime { display: none; }
+        #showNotes         { display: none; }
 
-        #showNotes {
-            display: none;
-        }
+        #screenshotBtn, #copyTextBtn, .use-history-btn { background: var(--secondary-dark); }
+        #screenshotBtn:hover { background: green; }
+        #copyTextBtn:hover, .use-history-btn:hover { background: var(--secondary-dark-hover); }
 
-        #screenshotBtn,
-        #copyTextBtn,
-        .use-history-btn {
-            background: var(--secondary-dark);
-        }
-
-            #screenshotBtn:hover {
-                background: green;
-            }
-
-            #copyTextBtn:hover,
-            .use-history-btn:hover {
-                background: var(--secondary-dark-hover);
-            }
-
-        #historySearchInput,
-        #historySortSelect {
+        #historySearchInput, #historySortSelect {
             padding: 8px;
             border: 1px solid var(--border-main);
             border-radius: 4px;
@@ -931,61 +730,41 @@
             align-items: center;
             padding: 15px;
             border-bottom: 1px solid var(--border-main);
-            transition: background-color .2s, transform .2s
+            transition: background-color .2s, transform .2s;
         }
-
-            .history-item:hover {
-                background-color: var(--bg-hover);
-                transform: translateX(5px)
-            }
-
-            .history-item:active {
-                background-color: var(--bg-hover);
-                transform: translateX(5px)
-            }
-
-            .history-item.selected {
-                background-color: var(--bg-hover) !important;
-                border-left: 4px solid var(--primary-blue);
-                transform: translateX(5px);
-            }
-
-        [data-theme='dark'] .history-item.selected {
-            background-color: var(--primary-blue-hover) !important;
+        .history-item:hover  { background-color: var(--bg-hover); transform: translateX(5px); }
+        .history-item:active { background-color: var(--bg-hover); transform: translateX(5px); }
+        .history-item.selected {
+            background-color: var(--bg-hover) !important;
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(5px);
         }
+        [data-theme='dark'] .history-item.selected { background-color: var(--primary-blue-hover) !important; }
 
-        .history-item-pax {
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 5px
-        }
-
-        .history-item-details {
-            font-size: .9em;
-            color: var(--text-secondary);
-        }
+        .history-item-pax { font-weight: 700; color: var(--text-main); margin-bottom: 5px; }
+        .history-item-details { font-size: .9em; color: var(--text-secondary); }
 
         #historyPreviewPanel {
             position: relative;
-            top: auto;
-            left: auto;
-            width: auto;
-            /* FIX: use min-height so flex children get real space */
-            height: 0;
-            min-height: 100%;
+            top: auto; left: auto;
+            width: auto; height: auto;
             background: var(--bg-card);
             transform: none !important;
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             padding: 0 0 0 10px;
             z-index: 1;
         }
-
-            #historyPreviewPanel .preview-header #closePreviewBtn {
-                display: none;
-            }
+        #historyPreviewPanel:not(.hidden) { transform: translateX(0%) !important; }
+        #historyPreviewPanel .preview-header #closePreviewBtn { display: none; }
+        #historyPreviewPanel:empty::before {
+            content: "Select an item from the list to view details.";
+            display: block;
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-secondary);
+        }
 
         .preview-header {
             display: flex;
@@ -993,41 +772,26 @@
             align-items: center;
             padding: 15px 25px;
             border-bottom: 1px solid var(--border-main);
-            flex-shrink: 0
+            flex-shrink: 0;
         }
 
         .preview-content {
             padding: 20px;
             overflow: auto;
-            flex-grow: 1
+            flex-grow: 1;
         }
+        .preview-content img { max-width: 100%; height: auto; display: block; margin: 0 auto; border: 1px solid #ddd; }
+        .preview-content pre { white-space: pre-wrap; word-wrap: break-word; background: var(--bg-main); padding: 15px; border-radius: 4px; }
 
-            .preview-content img {
-                max-width: 100%;
-                height: auto;
-                display: block;
-                margin: 0 auto;
-                border: 1px solid #ddd
-            }
-
-            .preview-content pre {
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                background: var(--bg-main);
-                padding: 15px;
-                border-radius: 4px
-            }
-
+        /* Popups */
         .popup-notification-container {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             z-index: 2050;
             display: flex;
             flex-direction: column;
-            gap: 10px
+            gap: 10px;
         }
-
         .popup-notification {
             background-color: var(--secondary-dark);
             color: #fff;
@@ -1036,63 +800,46 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
             opacity: 0;
             transform: translateX(100%);
-            transition: all .5s cubic-bezier(.68, -.55, .27, 1.55)
+            transition: all .5s cubic-bezier(.68, -.55, .27, 1.55);
         }
+        .popup-notification.show { opacity: 1; transform: translateX(0); }
 
-            .popup-notification.show {
-                opacity: 1;
-                transform: translateX(0)
-            }
-
+        /* Spinner */
         .loading-spinner {
             display: none;
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             margin: 20px auto;
             border: 4px solid var(--bg-hover);
             border-top: 4px solid var(--primary-blue);
             border-radius: 50%;
-            animation: spin 1s linear infinite
+            animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
-            0% { transform: rotate(0) }
-            100% { transform: rotate(360deg) }
+            0%   { transform: rotate(0); }
+            100% { transform: rotate(360deg); }
         }
 
-        @media (max-width:1200px) {
-            body { padding: 10px }
-
-            .body-no-scroll {
-                overflow: hidden !important;
-                height: 100vh;
-            }
-
-            .container { gap: 20px }
-
+        /* Mobile */
+        @media (max-width: 1200px) {
+            body { padding: 10px; }
+            .body-no-scroll { overflow: hidden !important; height: 100vh; }
+            .container { gap: 20px; }
             #mobileMenuBtn { display: flex; }
-
             .sidebar {
                 position: fixed;
-                top: 0;
-                right: 0;
+                top: 0; right: 0;
                 height: 100%;
                 z-index: 1020;
                 width: 300px;
                 max-width: 80vw;
                 box-shadow: -5px 0 15px rgba(0, 0, 0, .2);
                 transform: translateX(100%);
-                transition: transform .7s ease-in-out
+                transition: transform .7s ease-in-out;
             }
-
-                .sidebar.is-open { transform: translateX(0) }
+            .sidebar.is-open { transform: translateX(0); }
         }
 
-        #notes-header {
-            padding-left: 15px;
-            color: red !important;
-        }
-
+        #notes-header { padding-left: 15px; color: red !important; }
         .itinerary-notes { padding-left: 15px; }
 
         #refreshBtn {
@@ -1100,15 +847,10 @@
             background-color: transparent;
             cursor: pointer;
             display: none;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             animation: pulse 1s infinite;
         }
-
-        #span-pc {
-            padding-right: 4px;
-            padding-left: -5px;
-        }
+        #span-pc { padding-right: 4px; padding-left: -5px; }
 
         footer {
             height: 200px;
@@ -1136,15 +878,9 @@
             z-index: 0;
         }
 
-        .footer-content {
-            color: var(--text-secondary);
-            max-width: 400px;
-            display: inline-block;
-        }
+        .footer-content { color: var(--text-secondary); max-width: 400px; display: inline-block; }
 
-        .about-me,
-        .contact-form,
-        .footer-content {
+        .about-me, .contact-form, .footer-content {
             border: 1px solid var(--border-main);
             gap: 10px;
             height: 100%;
@@ -1164,26 +900,15 @@
             max-width: 400px;
             height: auto;
         }
-
-            .about-me a {
-                color: var(--primary-blue);
-                text-decoration: none;
-            }
-
-                .about-me a:hover { text-decoration: underline; }
-
-            .about-me img { width: 40px; height: 40px; margin-left: 5px; }
-
-                .about-me img:hover {
-                    transform: scale(1.1);
-                    transition: transform 0.2s;
-                }
+        .about-me a { color: var(--primary-blue); text-decoration: none; }
+        .about-me a:hover { text-decoration: underline; }
+        .about-me img { width: 40px; height: 40px; margin-left: 5px; }
+        .about-me img:hover { transform: scale(1.1); transition: transform 0.2s; }
 
         #copyRight { top: 50px; }
 
         .myLogo {
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             position: sticky;
             margin-top: 15px;
             left: 100%;
@@ -1195,25 +920,21 @@
 
         .box {
             display: inline-block;
-            width: 3px;
-            height: 3px;
+            width: 3px; height: 3px;
             background: white;
             margin: 0px;
             border-radius: 50%;
             grid-template-columns: 5fr 1fr;
         }
-
         .boxScale { animation: boxScale 2s infinite; }
-
         @keyframes boxScale {
-            0% { transform: scale(1); }
-            33% { transform: scale(0.2); }
-            66% { transform: scale(1); background-color: black; }
+            0%   { transform: scale(1); }
+            33%  { transform: scale(0.2); }
+            66%  { transform: scale(1); background-color: black; }
             100% { transform: scale(1); background-color: white; }
         }
 
         #aboutDeveloper { font-size: large; margin-top: 15px; font-family: sans-serif; }
-
         #developerName {
             font-size: x-large;
             font-weight: bold;
@@ -1222,14 +943,12 @@
             font-family: cursive;
             box-shadow: 0px 2px 50px 5px rgba(0, 127, 255, 0.6);
         }
-
-            #developerName:hover { animation: nameColor 2s infinite; }
-
+        #developerName:hover { animation: nameColor 2s infinite; }
         @keyframes nameColor {
-            0% { color: var(--primary-blue); }
-            25% { color: rgb(0, 0, 0); }
-            50% { color: rgb(80, 65, 52); }
-            75% { color: rgb(252, 144, 149); }
+            0%   { color: var(--primary-blue); }
+            25%  { color: rgb(0, 0, 0); }
+            50%  { color: rgb(80, 65, 52); }
+            75%  { color: rgb(252, 144, 149); }
             100% { color: var(--primary-blue); }
         }
 
@@ -1250,16 +969,13 @@
             50%  { background-color: rgb(255, 2, 14); }
             100% { background-color: white; }
         }
-
         @keyframes moveBoxesColor {
             0%   { background: white; }
             50%  { background: rgb(255, 123, 0); }
             100% { background: white; }
         }
 
-        #nameInput,
-        #emailInput,
-        #messageInput {
+        #nameInput, #emailInput, #messageInput {
             padding: 8px;
             border: 1px solid var(--border-main);
             border-radius: 4px;
@@ -1271,9 +987,8 @@
 
         button#submitBtn { background-color: var(--primary-blue); }
 
-        .halts-direct { color: green; font-weight: bold; }
-
-        .halts-with-stop { color: orange; }
+        .halts-direct      { color: green; font-weight: bold; }
+        .halts-with-stop   { color: orange; }
 
         #baggageQuickButtons {
             display: grid;
@@ -1291,40 +1006,15 @@
             color: var(--text-main, #000);
             transition: 0.2s;
         }
+        .bag-btn:hover { background: var(--text-secondary, #e0e0e0); color: var(--text-main, #000); }
+        .bag-btn.active { background: var(--accent-color, #00aaff); color: #fff; }
 
-            .bag-btn:hover {
-                background: var(--text-secondary, #e0e0e0);
-                color: var(--text-main, #000);
-            }
-
-            .bag-btn.active {
-                background: var(--accent-color, #00aaff);
-                color: #fff;
-            }
-
-        [data-theme="dark"] .bag-btn {
-            background: white;
-            color: var(--text-main-dark, #000);
-            border-color: var(--primary-blue-dark, #4a69bd);
-        }
-
-            [data-theme="dark"] .bag-btn:hover {
-                background: var(--text-secondary-dark, #555);
-                color: var(--text-main-dark, #fff);
-            }
-
-            [data-theme="dark"] .bag-btn.active {
-                background: var(--accent-color-dark, #00ccff);
-                color: #000;
-            }
+        [data-theme="dark"] .bag-btn { background: white; color: var(--text-main-dark, #000); border-color: var(--primary-blue-dark, #4a69bd); }
+        [data-theme="dark"] .bag-btn:hover { background: var(--text-secondary-dark, #555); color: var(--text-main-dark, #fff); }
+        [data-theme="dark"] .bag-btn.active { background: var(--accent-color-dark, #00ccff); color: #000; }
 
         .btn-pcs { background-color: var(--primary-blue-hover); color: white; }
-
-        [data-theme="dark"] .btn-pcs {
-            background-color: transparent;
-            color: white;
-            border-color: white;
-        }
+        [data-theme="dark"] .btn-pcs { background-color: transparent; color: white; border-color: white; }
 
         #reportErrorBtn {
             position: relative;
@@ -1337,55 +1027,42 @@
             font-weight: bold;
             font-size: 16px;
         }
-
-            #reportErrorBtn:hover { background-color: #a00405; }
-
-            #reportErrorBtn .tooltip {
-                visibility: hidden;
-                width: 220px;
-                background-color: #333;
-                color: #fff;
-                text-align: center;
-                border-radius: 5px;
-                padding: 6px;
-                position: absolute;
-                bottom: 125%;
-                left: 50%;
-                transform: translateX(-50%);
-                opacity: 0;
-                transition: opacity 0.3s;
-                z-index: 1000;
-                pointer-events: none;
-            }
-
-            #reportErrorBtn:hover .tooltip { visibility: visible; opacity: 1; }
+        #reportErrorBtn:hover { background-color: #a00405; }
+        #reportErrorBtn .tooltip {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 6px;
+            position: absolute;
+            bottom: 125%; left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        #reportErrorBtn:hover .tooltip { visibility: visible; opacity: 1; }
 
         @media (max-width: 768px) {
-            .history-split-container {
-                display: block;
-                position: relative;
-            }
-
+            .history-split-container { display: block; position: relative; }
             .history-list { width: 100%; border-right: none; }
-
             #historyPreviewPanel {
                 position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
                 transform: translateX(100%) !important;
                 transition: transform 0.3s ease;
                 background: var(--bg-card);
                 padding: 0;
             }
-
-                #historyPreviewPanel:not(.hidden) { transform: translateX(0) !important; }
-
-                #historyPreviewPanel .preview-header #closePreviewBtn { display: block; }
+            #historyPreviewPanel:not(.hidden) { transform: translateX(0) !important; }
+            #historyPreviewPanel .preview-header #closePreviewBtn { display: block; }
         }
 
-        /* Settings Modal Specific Styles */
+        /* Settings Modal */
         .settings-modal {
             max-width: 800px;
             height: 600px;
@@ -1393,18 +1070,9 @@
             display: flex;
             flex-direction: column;
         }
+        .settings-modal .modal-header { padding: 20px; margin: 0; border-bottom: 1px solid var(--border-main); }
 
-            .settings-modal .modal-header {
-                padding: 20px;
-                margin: 0;
-                border-bottom: 1px solid var(--border-main);
-            }
-
-        .settings-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
+        .settings-container { display: flex; flex: 1; overflow: hidden; }
 
         .settings-tabs {
             width: 200px;
@@ -1427,48 +1095,23 @@
             border-radius: 0;
             justify-content: flex-start;
         }
+        .tab-btn:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        .tab-btn.active { background-color: var(--bg-card); color: var(--primary-blue); border-left-color: var(--primary-blue); }
 
-            .tab-btn:hover { background-color: var(--bg-hover); color: var(--text-main); }
-
-            .tab-btn.active {
-                background-color: var(--bg-card);
-                color: var(--primary-blue);
-                border-left-color: var(--primary-blue);
-            }
-
-        .settings-content {
-            flex: 1;
-            padding: 25px;
-            overflow-y: auto;
-            background-color: var(--bg-card);
-        }
+        .settings-content { flex: 1; padding: 25px; overflow-y: auto; background-color: var(--bg-card); }
 
         .tab-pane { display: none; }
-
-            .tab-pane.active {
-                display: block;
-                animation: fadeIn 0.3s ease;
-            }
+        .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        .checkbox-grid-settings {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+        .checkbox-grid-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        .setting-group {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid var(--border-main);
-            border-radius: 6px;
-        }
-
-            .setting-group h4 { margin-top: 0; color: var(--primary-blue); }
+        .setting-group { margin-bottom: 20px; padding: 15px; border: 1px solid var(--border-main); border-radius: 6px; }
+        .setting-group h4 { margin-top: 0; color: var(--primary-blue); }
 
         .refreshBtn { border: 1px solid white; }
 
@@ -1478,54 +1121,33 @@
         }
 
         .old-version {
-            font-size: 15px;
-            font-weight: bold;
-            font-family: monospace;
+            font-size: 15px; font-weight: bold; font-family: monospace;
             background-color: var(--text-main);
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: var(--bg-main);
+            padding: 5px 10px; border-radius: 4px; color: var(--bg-main);
         }
-
         .active-version {
-            font-size: 15px;
-            font-weight: bold;
-            font-family: monospace;
+            font-size: 15px; font-weight: bold; font-family: monospace;
             background-color: var(--primary-blue);
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: white;
+            padding: 5px 10px; border-radius: 4px; color: white;
         }
-
         .non-active-version {
-            font-size: 15px;
-            font-weight: bold;
-            font-family: monospace;
+            font-size: 15px; font-weight: bold; font-family: monospace;
             background-color: var(--bg-main);
-            padding: 5px 10px;
-            border-radius: 4px;
-            color: var(--text-secondary);
+            padding: 5px 10px; border-radius: 4px; color: var(--text-secondary);
             border: 1px dotted var(--border-main);
         }
-
-            .non-active-version:hover {
-                cursor: pointer;
-                background-color: var(--primary-blue);
-                color: white;
-                border: 1px solid white;
-            }
-
-            .non-active-version a {
-                text-decoration: none;
-                color: inherit;
-            }
+        .non-active-version:hover {
+            cursor: pointer;
+            background-color: var(--primary-blue);
+            color: white;
+            border: 1px solid white;
+        }
+        .non-active-version a { text-decoration: none; color: inherit; }
 
         .blur-bottom {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 8vh;
+            bottom: 0; left: 0;
+            width: 100%; height: 8vh;
             background: linear-gradient(to top, rgba(255, 255, 255, 0.18) 0%, transparent 100%);
             backdrop-filter: blur(16px) saturate(180%);
             -webkit-backdrop-filter: blur(16px) saturate(180%);
@@ -1536,37 +1158,18 @@
             transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
         }
 
-        .logo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-            gap: 12px;
-            margin-top: 10px;
-        }
+        .logo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 12px; margin-top: 10px; }
 
         .logo-option {
             border: 2px solid transparent;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 8px; border-radius: 6px;
             background: var(--bg-main);
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
+            cursor: pointer; transition: 0.2s; text-align: center;
         }
+        .logo-option img { max-width: 70px; max-height: 40px; object-fit: contain; }
+        .logo-option.selected { border-color: var(--primary-blue); background: var(--bg-card); box-shadow: 0px 0px 6px rgba(0, 0, 255, 0.3); }
 
-            .logo-option img { max-width: 70px; max-height: 40px; object-fit: contain; }
-
-            .logo-option.selected {
-                border-color: var(--primary-blue);
-                background: var(--bg-card);
-                box-shadow: 0px 0px 6px rgba(0, 0, 255, 0.3);
-            }
-
-        .leg-wrapper {
-            display: flex;
-            gap: 10px;
-            align-items: stretch;
-            margin-bottom: 5px;
-        }
+        .leg-wrapper { display: flex; gap: 10px; align-items: stretch; margin-bottom: 5px; }
 
         .side-input-panel {
             width: 160px;
@@ -1574,104 +1177,65 @@
             border: 1px dashed #ccc;
             border-radius: 6px;
             padding: 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 5px;
+            display: flex; flex-direction: column; justify-content: center; gap: 5px;
         }
-
-            .side-input-panel input {
-                width: 100%;
-                box-sizing: border-box;
-                padding: 5px;
-                font-size: 13px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                text-align: center;
-                font-weight: bold;
-            }
+        .side-input-panel input {
+            width: 100%; box-sizing: border-box;
+            padding: 5px; font-size: 13px;
+            border: 1px solid #ddd; border-radius: 4px;
+            text-align: center; font-weight: bold;
+        }
 
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
 
         .mini-btn {
-            font-size: 10px;
-            padding: 4px 0;
-            cursor: pointer;
-            background: #fff;
-            border: 1px solid #4a69bd;
-            color: #4a69bd;
-            border-radius: 3px;
-            transition: 0.2s;
+            font-size: 10px; padding: 4px 0; cursor: pointer;
+            background: #fff; border: 1px solid #4a69bd; color: #4a69bd;
+            border-radius: 3px; transition: 0.2s;
         }
-
-            .mini-btn:hover { background: #4a69bd; color: white; }
+        .mini-btn:hover { background: #4a69bd; color: white; }
 
         .floating-baggage-panel input {
-            width: 20%;
-            box-sizing: border-box;
-            padding: 8px;
-            margin-bottom: 8px;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 13px;
-            color: #2c3e50;
+            width: 20%; box-sizing: border-box;
+            padding: 8px; margin-bottom: 8px;
+            border: 1px solid #bdc3c7; border-radius: 4px;
+            text-align: center; font-weight: bold;
+            font-size: 13px; color: #2c3e50;
         }
 
         .float-btn {
-            background-color: skyblue;
-            color: white;
-            border: none;
-            padding: 6px 4px;
-            font-size: 11px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
+            background-color: skyblue; color: white;
+            border: none; padding: 6px 4px; font-size: 11px;
+            border-radius: 4px; cursor: pointer; font-weight: 600;
             transition: background-color 0.2s, transform 0.1s;
             box-shadow: 0 2px 4px rgba(74, 105, 189, 0.2);
             margin: 0 2px;
         }
-
-            .float-btn:hover { background-color: #324b8f; transform: translateY(-1px); }
-            .float-btn:active { background-color: #324b8f; }
+        .float-btn:hover  { background-color: #324b8f; transform: translateY(-1px); }
+        .float-btn:active { background-color: #324b8f; }
 
         .bag-btn.btn-disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-            filter: grayscale(100%);
+            opacity: 0.4; cursor: not-allowed;
+            pointer-events: none; filter: grayscale(100%);
         }
 
-        .user-email-badge {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-top: 5px;
-            font-style: italic;
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        .user-email-badge { font-size: 11px; color: var(--text-secondary); margin-top: 5px; font-style: italic; cursor: pointer; text-decoration: underline; }
 
         #highlighterBtn.active-tool { background-color: #f1c40f !important; color: #000 !important; }
-
-        #eraserBtn.active-tool { background-color: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
+        #eraserBtn.active-tool      { background-color: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
 
         .cursor-highlight { cursor: pointer; }
-        .cursor-erase { cursor: cell; }
+        .cursor-erase     { cursor: cell; }
 
         .user-highlight {
-            background-color: #ffff00;
-            color: #000 !important;
-            padding-top: 3px;
-            padding-bottom: 3px;
-            padding-left: 0px;
-            padding-right: 0px;
-            box-shadow: 0 0 0 1px #ffff00;
-            border-radius: 2px;
+            background-color: #ffff00; color: #000 !important;
+            padding-top: 3px; padding-bottom: 3px;
+            padding-left: 0px; padding-right: 0px;
+            box-shadow: 0 0 0 1px #ffff00; border-radius: 2px;
         }
 
         #highlighterBtn { color: black; padding: 0; width: 30px; height: 30px; }
-        #eraserBtn { color: red; padding: 0; width: 30px; height: 30px; }
+        #eraserBtn      { color: red;   padding: 0; width: 30px; height: 30px; }
 
         #ActionToolBtn { float: right; margin-top: -20px; display: none; }
 
@@ -1683,19 +1247,15 @@
             padding: 6px 14px 6px 10px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.4px;
-            white-space: nowrap;
-            user-select: none;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.4px;
+            white-space: nowrap; user-select: none;
             transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
             background-color: rgba(229, 115, 115, 0.15);
             color: var(--danger-red);
             border: 1.5px solid var(--danger-red);
             box-shadow: 0 0 0 rgba(229,115,115,0);
         }
-
-        label[for="autoConvertToggle"]:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229,115,115,0.3); }
+        label[for="autoConvertToggle"]:hover  { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229,115,115,0.3); }
         label[for="autoConvertToggle"]:active { transform: scale(0.96); }
 
         #autoConvertToggle:checked + label[for="autoConvertToggle"] {
@@ -1704,18 +1264,13 @@
             border-color: var(--success-green);
             box-shadow: 0 0 0 rgba(46,204,113,0);
         }
-
         #autoConvertToggle:checked + label[for="autoConvertToggle"]:hover { box-shadow: 0 4px 12px rgba(46,204,113,0.3); }
 
         .ac-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
+            width: 7px; height: 7px; border-radius: 50%;
             background-color: var(--danger-red);
-            transition: background-color 0.3s ease;
-            flex-shrink: 0;
+            transition: background-color 0.3s ease; flex-shrink: 0;
         }
-
         #autoConvertToggle:checked + label[for="autoConvertToggle"] .ac-dot { background-color: var(--success-green); }
     </style>
     <meta name="google-site-verification" content="l90XKNLj69K53KLIliTB2e4t0fk5MJUlAZkplc9pRKM" />
@@ -1727,57 +1282,43 @@
     <div class="container" role="main">
         <div class="main-content">
             <div class="input-area card">
-
                 <div class="card-header">
                     <h3>Input PNR Data</h3>
                     <div id="refreshTimer" class="popup-notification-refresh header-btn">
                         <span id="timer">02:00:00</span>
                         <button id="refreshBtn" onclick="refreshPage()">Refresh Now</button>
                     </div>
-
                     <div class="header-actions">
                         <button id="advancedSettingsBtn" class="header-btn" title="Advanced Settings">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                                </path>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                             </svg>
                             Settings
                         </button>
                         <button id="historyBtn" class="header-btn" title="View history">
-                            <!-- FIX #2: Added missing stroke="currentColor" to History SVG -->
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                 stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
                             </svg>
                             History
                         </button>
                         <button id="themeToggleBtn" class="header-btn" title="Toggle Theme">
-                            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="5"></circle>
-                                <line x1="12" y1="1" x2="12" y2="3"></line>
-                                <line x1="12" y1="21" x2="12" y2="23"></line>
-                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                <line x1="1" y1="12" x2="3" y2="12"></line>
-                                <line x1="21" y1="12" x2="23" y2="12"></line>
-                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                             </svg>
-                            <!-- FIX #2: Added missing stroke="currentColor" to moon SVG -->
-                            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                             </svg>
                         </button>
                         <button id="mobileMenuBtn" class="header-btn" title="Open Menu">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                 stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="6"  x2="21" y2="6"></line>
                                 <line x1="3" y1="18" x2="21" y2="18"></line>
                             </svg>
                         </button>
@@ -1789,17 +1330,13 @@
                     <button id="convertBtn">Convert PNR</button>
                     <div class="vertical-icon-group">
                         <button id="pasteBtn" class="control-icon-btn" title="Paste from clipboard">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                 stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                             </svg>
                         </button>
                         <button id="clearBtn" class="control-icon-btn" title="Clear input">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                 fill="none" stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round"
-                                 stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger-red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
@@ -1851,7 +1388,6 @@
                 <div class="baggage-options">
                     <label for="baggageAmountInput">Baggage:</label>
                     <input type="text" inputmode="decimal" id="baggageAmountInput" placeholder="23">
-                    <label for="baggageParticular" hidden>Per segment</label>
                     <div class="c-unit-toggle">
                         <input type="checkbox" id="unit-selector-checkbox" class="c-unit-toggle__input" />
                         <label class="c-unit-toggle__label" for="unit-selector-checkbox">
@@ -1870,15 +1406,12 @@
                         <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
                         <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
                     </div>
-                    <div class="class-overwrite-options"
-                         style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
+                    <div class="class-overwrite-options" style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                            <!-- FIX #8: Removed hidden input from inside label; label no longer needs a 'for' attribute -->
                             <label style="font-weight: bold; display: block; margin:0;">Force Cabin Class:</label>
                             <span style="font-size: 10px; color: var(--text-secondary); font-style: italic;">System Report Active</span>
                         </div>
-                        <div id="classQuickButtons"
-                             style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                        <div id="classQuickButtons" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
                             <button class="bag-btn class-override-btn btn-disabled" data-value="Economy">Economy</button>
                             <button class="bag-btn class-override-btn btn-disabled" data-value="Business">Business</button>
                             <button class="bag-btn class-override-btn btn-disabled" data-value="First">First</button>
@@ -1887,15 +1420,14 @@
                     </div>
                     <div class="loading-spinner" id="loadingSpinner"></div>
                 </div>
-
             </div>
+
             <div class="output-area card" role="contentinfo">
                 <div class="output-actions">
                     <div>
                         <h3>Converted Itinerary</h3>
                         <button id="screenshotBtn">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="#00ff00" width="15px" height="15px"
-                                 viewBox="0 0 32 32" version="1.1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="#00ff00" width="15px" height="15px" viewBox="0 0 32 32" version="1.1">
                                 <title>whatsapp</title>
                                 <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z" />
                             </svg> Copy Screenshot
@@ -1927,32 +1459,29 @@
                         </svg>
                     </button>
                 </div>
-
                 <div id="output">
                     <div class="info">Enter PNR data and click Convert to begin.</div>
                 </div>
             </div>
         </div>
 
+        <!-- Advanced Settings Modal -->
         <div id="advancedSettingsModal" class="modal-overlay hidden">
             <div class="modal-content settings-modal">
                 <div class="modal-header">
                     <h2>Advanced Settings</h2>
-                    <!-- FIX #7: Fixed invalid onclick; now uses window.location.href -->
                     <div class="old-version non-active-version" onclick="window.location.href='https://pnrconverter-sv.vercel.app/'">
                         <a href="https://pnrconverter-sv.vercel.app">Old Version 1.0</a>
                     </div>
                     <div class="new-version active-version">New Version 1.2.5</div>
                     <button id="closeSettingsBtn" class="close-btn">×</button>
                 </div>
-
                 <div class="settings-container">
                     <div class="settings-tabs">
                         <button class="tab-btn active" data-tab="general">General Display</button>
                         <button class="tab-btn" data-tab="formats">Time &amp; Formats</button>
                         <button class="tab-btn" data-tab="branding">Branding &amp; Logo</button>
                     </div>
-
                     <div class="settings-content">
                         <div id="tab-general" class="tab-pane active">
                             <h3>Fare Details</h3>
@@ -1961,7 +1490,6 @@
                                 <label><input type="checkbox" id="showFees"> Display Fee Input Block</label>
                             </div>
                         </div>
-
                         <div id="tab-formats" class="tab-pane">
                             <h3>Time Format</h3>
                             <div class="setting-group">
@@ -1988,7 +1516,6 @@
                                 <input type="text" id="transitSymbolInput" placeholder=":::::::">
                             </div>
                         </div>
-
                         <div id="tab-branding" class="tab-pane">
                             <h3>Custom Branding</h3>
                             <label><input type="checkbox" id="showItineraryLogo" checked> Enable Main Itinerary Logo</label>
@@ -2037,46 +1564,25 @@
                     <h3>Additional Information to Display</h3>
                     <div class="checkbox-grid">
                         <div class="checkbox-container">
-                            <label for="showCovidNotice">
-                                <input type="checkbox" id="showCovidNotice" name="itineraryNotes" value="covid">
-                                Date Change Allowed With Applicable<br>Penalties.
-                            </label>
+                            <label for="showCovidNotice"><input type="checkbox" id="showCovidNotice" name="itineraryNotes" value="covid">Date Change Allowed With Applicable Penalties.</label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="showTravelInsurance">
-                                <input type="checkbox" id="showTravelInsurance" name="itineraryNotes" value="insurance">
-                                Before Departure Changes Are Allowed<br>With Applicable Penalty.
-                            </label>
+                            <label for="showTravelInsurance"><input type="checkbox" id="showTravelInsurance" name="itineraryNotes" value="insurance">Before Departure Changes Are Allowed With Applicable Penalty.</label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="showVisaInfo">
-                                <input type="checkbox" id="showVisaInfo" name="itineraryNotes" value="visa">
-                                Before Departure Refundable With<br>Applicable Penalties.
-                            </label>
+                            <label for="showVisaInfo"><input type="checkbox" id="showVisaInfo" name="itineraryNotes" value="visa">Before Departure Refundable With Applicable Penalties.</label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="dontShowTravelInsurance">
-                                <input type="checkbox" id="dontShowTravelInsurance" name="itineraryNotes" value="insurance">
-                                After Departure, Non Refundable.
-                            </label>
+                            <label for="dontShowTravelInsurance"><input type="checkbox" id="dontShowTravelInsurance" name="itineraryNotes" value="insurance">After Departure, Non Refundable.</label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="noShowRefundPolicy">
-                                <input type="checkbox" id="noShowRefundPolicy" name="itineraryNotes" value="visa">
-                                Refundable With Applicable Penalties.
-                            </label>
+                            <label for="noShowRefundPolicy"><input type="checkbox" id="noShowRefundPolicy" name="itineraryNotes" value="visa">Refundable With Applicable Penalties.</label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="showHealthDocs">
-                                <input type="checkbox" id="showHealthDocs" name="itineraryNotes" value="health">
-                                Non Refundable.
-                            </label>
+                            <label for="showHealthDocs"><input type="checkbox" id="showHealthDocs" name="itineraryNotes" value="health">Non Refundable.</label>
                         </div>
                         <div class="checkbox-container">
-                            <label for="noShow">
-                                <input type="checkbox" id="noShow" name="itineraryNotes" value="health">
-                                No Show Fee Where Applicable
-                            </label>
+                            <label for="noShow"><input type="checkbox" id="noShow" name="itineraryNotes" value="health">No Show Fee Where Applicable</label>
                         </div>
                     </div>
                 </div>
@@ -2091,6 +1597,7 @@
         </div>
     </div>
 
+    <!-- History Modal -->
     <div id="historyModal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -2106,25 +1613,19 @@
             </div>
             <div class="history-split-container">
                 <div id="historyList" class="history-list"></div>
-                <!-- Preview panel: always visible on desktop, slides in on mobile -->
-                <div id="historyPreviewPanel">
+                <div id="historyPreviewPanel" class="hidden">
                     <div class="preview-header">
                         <h3>Preview</h3>
                         <button id="closePreviewBtn" class="close-btn">×</button>
                     </div>
-                    <div id="previewContent" class="preview-content">
-                        <!-- Placeholder shown until an item is selected -->
-                        <p id="previewPlaceholder" style="text-align:center; margin-top:50px; color:var(--text-secondary);">
-                            Select an item from the list to view details.
-                        </p>
-                    </div>
+                    <div id="previewContent" class="preview-content"></div>
+                    <div class="blur-bottom blur-section-local"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="popupContainer" class="popup-notification-container"></div>
-
     <hr>
 
     <footer>
@@ -2132,7 +1633,6 @@
             <div class="about-me-text">
                 <p id="aboutDeveloper">About Developer</p>
                 <p id="developerName">FAIZAAN BHATI</p>
-                <!-- FIX #9: Added rel="noopener noreferrer" to external links -->
                 <a href="/cdn-cgi/l/email-protection#0b6d6a62716a6a6569636a7f62323e3c3a324b6c666a626725686466" aria-label="send email">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 430 430">
                         <circle cx="215" cy="215" r="167.5" fill="#ebe6ef" />
@@ -2145,29 +1645,15 @@
                 <a href="https://github.com/FAIZAAN01/" aria-label="github" rel="noopener noreferrer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 430 430">
                         <path fill="#3a3347" d="M215 47.5c-92.508 0-167.5 74.992-167.5 167.5 0 80.061 56.169 147.002 131.25 163.567v-3.081h75.826v2.311C327.984 360.015 382.5 293.874 382.5 215c0-92.508-74.992-167.5-167.5-167.5" />
-                        <path fill="#3a3347" d="M298.007 360.519c-15.208 4.542-31.323 6.981-48.007 6.981-92.508 0-167.5-74.992-167.5-167.5 0-62.305 34.018-116.664 84.493-145.519C97.881 75.121 47.5 139.177 47.5 215c0 92.508 74.992 167.5 167.5 167.5 30.203 0 58.538-7.993 83.007-21.981" opacity=".5" style="mix-blend-mode:multiply" />
                         <path fill="#ebe6ef" d="M130.765 326.308c15.356 12.285 35.166 7.666 46.5 3.5h2.993v-33h-2.993c-13.667 4.5-32.5 11-45.5-5-4.665-5.741-11.293-16.978-19.5-21.5-13.797-7.602-23 8-15.5 15.5 9 9 14.25 12.5 19 22 4.609 9.219 10 14.5 15 18.5" />
-                        <mask id="f8WU-N9dVva" width="336" height="336" x="47" y="47" maskUnits="userSpaceOnUse" style="mask-type:alpha">
-                            <circle cx="215" cy="215" r="167.5" fill="#ebe6ef" />
-                        </mask>
-                        <g fill="#ebe6ef" mask="url(#f8WU-N9dVva)">
-                            <path d="M263.202 130.986c3.212-4.142 16.54-19.712 34.615-18.619a2.72 2.72 0 0 1 2.098 1.212c10.859 16.431 1.838 37.854.787 40.216 8.199 10.842 12.678 25.5 12.678 45.021 0 47.676-20.609 66.346-66.022 71.262 5.613 4.584 9.197 11.56 9.197 19.373v107.862h-79.29V289.451c0-7.811 3.582-14.786 9.194-19.37C140.923 265.17 120 246.502 120 198.816c0-19.681 4.605-34.42 13.001-45.288-1.463-3.39-9.625-24.017.905-39.949a2.72 2.72 0 0 1 2.097-1.212c18.046-1.091 31.36 14.426 34.6 18.599 13.389-3.457 29.003-4.832 46.307-4.832 17.339 0 32.94 1.381 46.292 4.852" />
-                            <path d="M207.265 397.313V289.451c0-7.811 3.582-14.786 9.194-19.37C170.923 265.17 150 246.502 150 198.816c0-19.681 4.605-34.42 13.001-45.288-1.248-2.893-7.372-18.33-2.605-32.695-6.157-4.737-14.575-9.06-24.395-8.466a2.72 2.72 0 0 0-2.095 1.212c-10.53 15.932-2.368 36.559-.905 39.949C124.605 164.396 120 179.135 120 198.816c0 47.686 20.923 66.354 66.459 71.265-5.612 4.584-9.194 11.559-9.194 19.37v107.862z" opacity=".5" style="mix-blend-mode:multiply" />
-                        </g>
-                        <path fill="#ebe6ef" d="M130.765 326.308c15.356 12.285 35.166 7.666 46.5 3.5v-33c-13.667 4.5-32.5 11-45.5-5-4.665-5.741-11.293-16.978-19.5-21.5-13.797-7.602-23 8-15.5 15.5 9 9 14.25 12.5 19 22 4.609 9.219 10 14.5 15 18.5" opacity=".5" style="mix-blend-mode:multiply" />
-                        <path fill="#ebe6ef" d="M177.265 316.47c-11.58 3.44-28.208 5.47-41.5-5.163-5-4-10.391-9.281-15-18.5-3.657-7.314-7.611-11.072-13.343-16.521-1.714-1.629-3.586-3.408-5.657-5.479a9.2 9.2 0 0 1-1.254-1.556c-6.306 2.897-8.763 11.539-3.746 16.556a299 299 0 0 0 5.657 5.48c5.732 5.449 9.686 9.206 13.343 16.52 4.609 9.22 10 14.5 15 18.5 15.356 12.286 35.166 7.667 46.5 3.5z" opacity=".5" style="mix-blend-mode:multiply" />
                     </svg>
                 </a>
                 <a href="https://www.linkedin.com/in/faizaan-bhati-5905b1248/" aria-label="linkedin" rel="noopener noreferrer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 430 430">
                         <circle cx="215" cy="215" r="167.5" fill="#4bb3fd" />
-                        <path fill="#4bb3fd" d="M298.007 360.518c-15.208 4.542-31.323 6.981-48.007 6.981-92.508 0-167.5-74.992-167.5-167.5 0-62.305 34.018-116.664 84.493-145.518C97.881 75.12 47.5 139.176 47.5 214.999c0 92.508 74.992 167.5 167.5 167.5 30.203 0 58.538-7.993 83.007-21.981" opacity=".5" style="mix-blend-mode:multiply" />
                         <path fill="#ebe6ef" d="M125 183a3 3 0 0 1 3-3h34a3 3 0 0 1 3 3v114a3 3 0 0 1-3 3h-34a3 3 0 0 1-3-3z" />
-                        <path fill="#ebe6ef" d="M125 183v114a3 3 0 0 0 3 3h17V180h-17a3 3 0 0 0-3 3" opacity=".5" style="mix-blend-mode:multiply" />
                         <path fill="#ebe6ef" d="M315 218.173V297a3 3 0 0 1-3 3h-34a3 3 0 0 1-3-3v-64.5c0-12.426-10.074-22.5-22.5-22.5S230 220.074 230 232.5V297a3 3 0 0 1-3 3h-34a3 3 0 0 1-3-3V183a3 3 0 0 1 3-3h34a3 3 0 0 1 3 3v12l11.86-9.488A47.97 47.97 0 0 1 271.827 175C295.671 175 315 194.329 315 218.173" />
-                        <path fill="#ebe6ef" d="M295 300v-67.5c0-12.426-10.074-22.5-22.5-22.5-3.592 0-6.988.842-10 2.339 7.409 3.682 12.5 11.327 12.5 20.161V297a3 3 0 0 0 3 3zm-85-120h-17a3 3 0 0 0-3 3v114a3 3 0 0 0 3 3h17z" opacity=".5" style="mix-blend-mode:multiply" />
                         <circle cx="144.5" cy="132.5" r="22.5" fill="#ebe6ef" />
-                        <path fill="#ebe6ef" d="M145.338 110.015q-.417-.015-.838-.015c-12.426 0-22.5 10.074-22.5 22.5s10.074 22.5 22.5 22.5a22.4 22.4 0 0 0 14.162-5.015C146.624 149.544 137 139.646 137 127.5c0-7.059 3.251-13.36 8.338-17.485" opacity=".5" style="mix-blend-mode:multiply" />
                     </svg>
                 </a>
                 <p id="copyRight">&copy; 2025, Faizaan Bhati</p>
@@ -2198,80 +1684,31 @@
         </div>
     </footer>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/main.js" defer></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <!-- FIX #16: html2canvas must load before main.js to avoid undefined reference on first call -->
     <script src="/js/html2canvas.min.js" defer></script>
+    <script src="/main.js" defer></script>
+
+    <!-- FIX #14: lastPastedPNR and PRESET_LOGOS globals moved into main.js.
+         The reportErrorBtn wiring is also now inside main.js DOMContentLoaded. -->
 
     <script>
-        let lastPastedPNR = "";
+        // --- Theme toggle (kept inline since it must run before main.js to avoid FOUC) ---
+        (function () {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
 
-        const pnrInput = document.getElementById("pnrInput");
-        const pnrHidden = document.getElementById("pnrHidden");
-        const reportBtn = document.getElementById("reportErrorBtn");
-
-        pnrInput.addEventListener("paste", (e) => {
-            const pastedText = (e.clipboardData || window.clipboardData).getData("text").trim();
-            if (pastedText) lastPastedPNR = pastedText;
-        });
-
-        reportBtn.addEventListener("click", () => {
-            if (!lastPastedPNR) { alert("No PNR pasted yet!"); return; }
-            pnrHidden.value = lastPastedPNR;
-            document.getElementById("contactForm").submit();
-        });
-
-        reportBtn.addEventListener("mouseenter", () => {
-            const tooltip = reportBtn.querySelector(".tooltip");
-            tooltip.textContent = lastPastedPNR ? "Click to report PNR" : "";
-        });
-    </script>
-
-    <script>
-        function startRefreshTimer(hours = 2) {
-            const timerEl = document.getElementById("timer");
-            const refreshBtn = document.getElementById("refreshBtn");
-            if (!timerEl || !refreshBtn) return;
-
-            let totalSeconds = Math.floor(hours * 3600);
-            if (window.refreshInterval) clearInterval(window.refreshInterval);
-
-            window.refreshInterval = setInterval(() => {
-                const hoursLeft   = Math.floor(totalSeconds / 3600);
-                const minutesLeft = Math.floor((totalSeconds % 3600) / 60);
-                const secondsLeft = totalSeconds % 60;
-
-                timerEl.textContent =
-                    `${hoursLeft.toString().padStart(2, "0")}:` +
-                    `${minutesLeft.toString().padStart(2, "0")}:` +
-                    `${secondsLeft.toString().padStart(2, "0")}`;
-
-                totalSeconds--;
-
-                if (totalSeconds < 0) {
-                    clearInterval(window.refreshInterval);
-                    timerEl.textContent = "";
-                    timerEl.style.color = "#00ff80";
-                    refreshBtn.style.display = "flex";
-                }
-            }, 1000);
-        }
-
-        window.addEventListener("DOMContentLoaded", () => { startRefreshTimer(2); });
-    </script>
-
-    <script>
+        // --- Mobile sidebar ---
         document.addEventListener('DOMContentLoaded', () => {
-            // FIX #3 & #5: Declare shared variables at top to prevent ReferenceErrors.
-            // FIX #4: Removed references to non-existent baggageDropdown / comboboxContainer.
             const unitToggle = document.getElementById('unit-selector-checkbox');
             const bagInput   = document.getElementById('baggageAmountInput');
             const bagButtons = document.querySelectorAll('.bag-btn');
 
-            // FIX #5: Define triggerUpdate — dispatches an input event so main.js listeners fire.
             function triggerUpdate() {
                 if (bagInput) bagInput.dispatchEvent(new Event('input', { bubbles: true }));
             }
 
-            // --- Mobile sidebar ---
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.createElement('div');
@@ -2297,7 +1734,6 @@
                 overlay.addEventListener('click', closeSidebar);
             }
 
-            // When unit toggle changes → reset button highlights and clear input
             if (unitToggle) {
                 unitToggle.addEventListener('change', () => {
                     bagButtons.forEach(b => b.classList.remove('active'));
@@ -2306,38 +1742,28 @@
                 });
             }
 
-            // --- Baggage Quick Buttons ---
             const baggageQuickButtons = document.getElementById('baggageQuickButtons');
-
             if (unitToggle && bagInput && baggageQuickButtons) {
                 baggageQuickButtons.addEventListener('click', (e) => {
                     const btn = e.target.closest('.bag-btn');
                     if (!btn) return;
-
                     const value = btn.dataset.value;
                     const unit  = btn.dataset.unit;
-
-                    bagInput.value        = value;
-                    unitToggle.checked    = (unit === 'PC');
-
+                    bagInput.value     = value;
+                    unitToggle.checked = (unit === 'PC');
                     bagButtons.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-
                     triggerUpdate();
                 });
             }
 
-            // --- Dark Mode ---
+            // Dark mode toggle
             const themeToggleBtn = document.getElementById('themeToggleBtn');
             const docElement     = document.documentElement;
-
             const applyTheme = (theme) => {
                 docElement.setAttribute('data-theme', theme);
                 localStorage.setItem('theme', theme);
             };
-
-            applyTheme(localStorage.getItem('theme') || 'light');
-
             themeToggleBtn.addEventListener('click', () => {
                 const current = docElement.getAttribute('data-theme');
                 applyTheme(current === 'dark' ? 'light' : 'dark');
@@ -2345,30 +1771,46 @@
         });
     </script>
 
-    <!-- FIX #10: Consolidated refreshPage here; removed duplicate redundant setTimeout that
-         referenced non-existent #refreshNotice element. startRefreshTimer already handles all
-         countdown and button-reveal logic. -->
+    <!-- FIX #18: Refresh timer now uses timestamp-based countdown and pauses when tab is hidden -->
     <script>
         function refreshPage() { location.reload(); }
+
+        function startRefreshTimer(hours = 2) {
+            const timerEl   = document.getElementById("timer");
+            const refreshBtn = document.getElementById("refreshBtn");
+            if (!timerEl || !refreshBtn) return;
+
+            const endTime = Date.now() + hours * 3600 * 1000;
+            if (window.refreshInterval) clearInterval(window.refreshInterval);
+
+            function tick() {
+                // FIX #18: Skip ticking when tab is hidden (saves CPU and avoids drift)
+                if (document.hidden) return;
+
+                const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+                const h = Math.floor(remaining / 3600);
+                const m = Math.floor((remaining % 3600) / 60);
+                const s = remaining % 60;
+
+                timerEl.textContent =
+                    `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+                if (remaining <= 0) {
+                    clearInterval(window.refreshInterval);
+                    timerEl.textContent = '';
+                    timerEl.style.color = '#00ff80';
+                    refreshBtn.style.display = 'flex';
+                }
+            }
+
+            window.refreshInterval = setInterval(tick, 1000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => startRefreshTimer(2));
     </script>
 
     <script>
-        const PRESET_LOGOS = [
-            { name: "Default",   url: "/simbavoyages.png" },
-            { name: "Christmas", url: "/branding_logos/christmas-logo.jpg" },
-            { name: "Face",      url: "/branding_logos/logo-face.jpg" }
-        ];
-
-        const blurEl = document.getElementById('blurSection');
-        window.addEventListener('scroll', () => {
-            const scrollPos  = window.innerHeight + window.scrollY;
-            const pageHeight = document.documentElement.scrollHeight;
-            blurEl.style.opacity = scrollPos >= pageHeight ? "0" : "1";
-        });
-    </script>
-
-    <script>
-        // --- Advanced Settings Modal Logic ---
+        // Advanced Settings Modal
         const settingsModal    = document.getElementById('advancedSettingsModal');
         const settingsBtn      = document.getElementById('advancedSettingsBtn');
         const closeSettingsBtn = document.getElementById('closeSettingsBtn');
@@ -2386,7 +1828,6 @@
                 if (e.target === settingsModal) settingsModal.classList.add('hidden');
             });
         }
-
         settingsTabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 settingsTabs.forEach(t => t.classList.remove('active'));
@@ -2399,18 +1840,16 @@
     </script>
 
     <script>
+        // Contact form
         const form      = document.getElementById('contactForm');
         const submitBtn = document.getElementById('submitBtn');
-
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            submitBtn.disabled     = true;
-            submitBtn.textContent  = "Sending...";
-
+            submitBtn.disabled    = true;
+            submitBtn.textContent = "Sending...";
             try {
                 const response = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: new FormData(form) });
                 const result   = await response.json();
-
                 if (result.success) {
                     submitBtn.textContent = "Query Sent";
                     form.reset();
@@ -2421,7 +1860,6 @@
                 console.error(error);
                 submitBtn.textContent = "Error. Try Again";
             }
-
             setTimeout(() => { submitBtn.textContent = "Send Query"; submitBtn.disabled = false; }, 3000);
         });
     </script>
@@ -2432,6 +1870,7 @@
     <script defer src="/_vercel/speed-insights/script.js"></script>
 
     <script>
+        // Inline math evaluator for fare inputs
         (function () {
             const calcInputIds = ['adultFareInput', 'childFareInput', 'infantFareInput', 'taxInput', 'feeInput'];
 
@@ -2447,14 +1886,12 @@
 
             function attachCalc(input) {
                 if (!input) return;
-
                 input.addEventListener('input', () => {
                     const hasOp = /[+\-*/]/.test(input.value);
                     input.style.fontStyle  = hasOp ? 'italic' : '';
                     input.style.color      = hasOp ? 'var(--primary-blue)' : '';
                     input.style.fontWeight = hasOp ? '700' : '';
                 });
-
                 function tryEval() {
                     const raw = input.value.trim();
                     if (!raw || !/[+\-*/]/.test(raw)) return;
@@ -2473,7 +1910,6 @@
                         setTimeout(() => { input.style.color = input.style.borderColor = input.style.boxShadow = ''; }, 1000);
                     }
                 }
-
                 input.addEventListener('blur',    tryEval);
                 input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); tryEval(); input.blur(); } });
                 input.addEventListener('focus',   () => { input.title = 'You can type math: e.g. 100+50, 200*1.5, (300-25)/2'; });
@@ -2486,17 +1922,25 @@
     </script>
 
     <script>
+        // Scroll blur effect
+        const blurEl = document.getElementById('blurSection');
+        window.addEventListener('scroll', () => {
+            const scrollPos  = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+            blurEl.style.opacity = scrollPos >= pageHeight ? "0" : "1";
+        });
+    </script>
+
+    <script>
+        // Auto Convert label sync
         (function () {
             const cb  = document.getElementById('autoConvertToggle');
             const lbl = document.querySelector('label[for="autoConvertToggle"] .ac-text');
             if (!cb || !lbl) return;
-            const update = () => { lbl.textContent = cb.checked ? 'Auto Convert ON' : 'Auto Convert OFF';
-    };
-
-    cb.addEventListener('change', update);
-    update(); // set correct text on load
-  })();
-</script>
+            const update = () => { lbl.textContent = cb.checked ? 'Auto Convert ON' : 'Auto Convert OFF'; };
+            cb.addEventListener('change', update);
+            update();
+        })();
+    </script>
 </body>
-
 </html>
