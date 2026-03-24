@@ -45,8 +45,6 @@ const AIRLINES_FILE = path.join(DATA_DIR, 'airlines.json');
 const AIRCRAFT_TYPES_FILE = path.join(DATA_DIR, 'aircraftTypes.json');
 const AIRPORT_DATABASE_FILE = path.join(DATA_DIR, 'airportDatabase.json');
 
-app.use(express.json());
-
 let airlineDatabase = {};
 let aircraftTypes = {};
 let airportDatabase = {};
@@ -418,11 +416,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 if (arrDateStrOrNextDayIndicator.startsWith('+')) {
                     // +1 or +n day logic
                     const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
-                    arrivalMoment = departureMoment.clone().add(daysToAdd, 'days')
-                        .set({
-                            hour: parseInt(arrTimeStr.substring(0, 2)),
-                            minute: parseInt(arrTimeStr.substring(2, 4))
-                        });
+                    const arrDate = departureMoment.clone().add(daysToAdd, 'days').format('DDMMMYYYY');
+                    arrivalMoment = moment.tz(`${arrDate} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 } else {
                     // Explicit arrival date
                     const arrDateMoment = moment.utc(arrDateStrOrNextDayIndicator, "DDMMM");
@@ -440,7 +435,7 @@ function parseGalileoEnhanced(pnrText, options) {
                 const transitDuration = moment.duration(departureMoment.diff(previousArrivalMoment));
                 const transitMinutes = transitDuration.asMinutes();
 
-                if (transitMinutes > 30) { // filter very short/long
+                if (transitMinutes > 30 && transitMinutes < 1440) { // filter very short/long
                     const hours = Math.floor(transitMinutes / 60);
                     const minutes = Math.floor(transitMinutes % 60);
                     precedingTransitTimeForThisSegment = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m`;
@@ -448,7 +443,7 @@ function parseGalileoEnhanced(pnrText, options) {
                     formattedNextDepartureTime = formatMomentTime(departureMoment, use24hTransit);
                 }
             }
-            previousArrivalMoment = arrivalMoment.clone();
+            // previousArrivalMoment = arrivalMoment.clone();
 
             let arrivalDateString = null;
             if (arrivalMoment.isValid() && departureMoment.isValid()) {
@@ -493,20 +488,20 @@ function parseGalileoEnhanced(pnrText, options) {
                 aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
                 meal: getMealDescription(mealCode),//-------edit
                 notes: [],
-                operatedBy: null,
+                // operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
                 transitDurationMinutes: transitDurationInMinutes,
                 formattedNextDepartureTime: formattedNextDepartureTime
             };
         const haltsMatch = line.match(/\bE\s*(\d{1,2})\b(?![A-Z])/i);
-if (haltsMatch) {
-    currentFlight.halts = haltsMatch[1].trim();
-    if (currentFlight.halts === '0'){
-        currentFlight.halts = "DIRECT";
-    }
-} else {
-    currentFlight.halts = "0"; // default if not found
-}
+        if (haltsMatch) {
+            currentFlight.halts = haltsMatch[1].trim();
+            if (currentFlight.halts === '0'){
+                currentFlight.halts = "DIRECT";
+            }
+        } else {
+            currentFlight.halts = "0"; // default if not found
+        }
         previousArrivalMoment = arrivalMoment.clone();
         } else if (currentFlight && operatedByMatch) {
             const textOpBy = operatedByMatch[1].trim();
@@ -564,7 +559,7 @@ if (haltsMatch) {
             if (arrivalOfPreviousFlight.isValid() && departureOfCurrentFlight.isValid()) {
                 const stopoverMinutes = departureOfCurrentFlight.diff(arrivalOfPreviousFlight, 'minutes');
             
-                if ( stopoverMinutes > 1440 ) {
+                if ( stopoverMinutes > STOPOVER_THRESHOLD_MINUTES ) {
                     currentFlight.direction = 'INBOUND';
             }
             } else {
