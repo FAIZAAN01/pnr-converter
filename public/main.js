@@ -1096,7 +1096,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     classBtns.forEach(btn => {
         const acces_key = '8e411ec7-fb3e-48fc-8907-d8bf830626ff';
-;
         btn.addEventListener('click', async (e) => {
             const val = e.target.getAttribute('data-value');
             const originalText = e.target.getAttribute('data-original-text') || e.target.textContent;
@@ -1334,6 +1333,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 node = node.parentNode;
+            }
+        }
+    });
+    // --- CTRL+C+C SHORTCUT: Trigger HQ Screenshot ---
+    let lastCtrlC = 0;
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'c') {
+            const now = Date.now();
+            if (now - lastCtrlC < 500) {
+                // Double Ctrl+C detected
+                e.preventDefault();
+                document.getElementById('screenshotBtn')?.click();
+                lastCtrlC = 0; // Reset so triple-press doesn't re-fire
+            } else {
+                lastCtrlC = now;
             }
         }
     });
