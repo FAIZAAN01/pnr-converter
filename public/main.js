@@ -83,40 +83,71 @@ function reverseString(str) {
     return str.split('').reverse().join('');
 }
 
-async function generateItineraryCanvasDoc(element, customScale = 2) { 
-    if (!element) throw new Error("Element for canvas generation not found."); 
-    
-    // 1. Calculate dynamic width based on the content + buffer
-    const contentWidth = element.scrollWidth; 
-    
-    const options = { 
-        scale: customScale, // Uses the passed argument (1 or 2)
-        backgroundColor: '#ffffff', 
-        useCORS: true, 
+async function generateItineraryCanvasDoc(element, customScale = 2) {
+    if (!element) throw new Error("Element for canvas generation not found.");
+
+    // 1. Wait for ALL images in the element to fully load before capturing
+    const images = Array.from(element.querySelectorAll('img'));
+    await Promise.all(images.map(img => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve; // Don't hang if image fails
+        });
+    }));
+
+    const contentWidth = element.scrollWidth;
+
+    const options = {
+        scale: customScale,
+        backgroundColor: '#ffffff',
+        useCORS: true,
         allowTaint: true,
-        
+        imageTimeout: 0, // Disable html2canvas image timeout
+
         onclone: (clonedDoc) => {
             const clonedBody = clonedDoc.body;
             const clonedElement = clonedDoc.querySelector('.output-container');
 
-            // 2. Set the body to fit the content width
-            clonedBody.style.width = 'auto'; 
+            clonedBody.style.width = 'auto';
             clonedBody.style.minWidth = contentWidth + 'px';
             clonedBody.style.margin = '0';
             clonedBody.style.padding = '0 0 10px 0';
-            
+
             if (clonedElement) {
-                // 3. Force the specific element to maintain its full content width
-                clonedElement.style.width = 'fit-content'; 
-                clonedElement.style.minWidth = contentWidth + 'px'; 
-                clonedElement.style.margin = '0'; 
+                clonedElement.style.width = 'fit-content';
+                clonedElement.style.minWidth = contentWidth + 'px';
+                clonedElement.style.margin = '0';
                 clonedElement.style.boxSizing = 'border-box';
-                clonedElement.style.position = 'static'; 
+                clonedElement.style.position = 'static';
+
+                // 2. Lock every image to its exact rendered size — prevents resize artifacts
+                const originalImages = element.querySelectorAll('img');
+                const clonedImages = clonedElement.querySelectorAll('img');
+
+                clonedImages.forEach((clonedImg, i) => {
+                    const original = originalImages[i];
+                    if (!original) return;
+
+                    const rect = original.getBoundingClientRect();
+                    if (rect.width === 0 || rect.height === 0) return;
+
+                    clonedImg.style.cssText += `
+                        width: ${rect.width}px !important;
+                        height: ${rect.height}px !important;
+                        min-width: ${rect.width}px !important;
+                        min-height: ${rect.height}px !important;
+                        max-width: ${rect.width}px !important;
+                        max-height: ${rect.height}px !important;
+                        object-fit: contain !important;
+                        flex-shrink: 0 !important;
+                    `;
+                });
             }
         }
-    }; 
+    };
 
-    return await html2canvas(element, options); 
+    return await html2canvas(element, options);
 }
 function getSelectedUnit() {
     const unitToggle = document.getElementById('unit-selector-checkbox');
