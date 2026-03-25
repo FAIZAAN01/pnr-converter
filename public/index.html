@@ -925,16 +925,16 @@
             margin-bottom: 15px
         }
 
-            .modal-header .close-btn {
-                background: 0 0;
-                border: none;
-                font-size: 2.5rem;
-                line-height: 1;
-                color: var(--text-secondary);
-                cursor: pointer;
-                padding: 0;
-                margin: 0
-            }
+        .modal-header .close-btn {
+            background: 0 0;
+            border: none;
+            font-size: 2.5rem;
+            line-height: 1;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            margin: 0
+        }
 
         .history-controls {
             display: flex;
@@ -1016,22 +1016,22 @@
             transition: background-color .2s, transform .2s
         }
 
-            .history-item:hover {
-                background-color: var(--bg-hover);
-                transform: translateX(5px)
-            }
+        .history-item:hover {
+            background-color: var(--bg-hover);
+            transform: translateX(5px)
+        }
 
-            .history-item:active {
-                background-color: var(--bg-hover);
-                transform: translateX(5px)
-            }
+        .history-item:active {
+            background-color: var(--bg-hover);
+            transform: translateX(5px)
+        }
 
-            /* Style for the selected history item */
-            .history-item.selected {
-                background-color: var(--bg-hover) !important;
-                border-left: 4px solid var(--primary-blue);
-                transform: translateX(5px);
-            }
+        /* Style for the selected history item */
+        .history-item.selected {
+            background-color: var(--bg-hover) !important;
+            border-left: 4px solid var(--primary-blue);
+            transform: translateX(5px);
+        }
 
         /* Ensure text stays visible in dark mode when selected */
         [data-theme='dark'] .history-item.selected {
@@ -1164,6 +1164,10 @@
             inset: 0;
             background: rgba(255, 255, 255, 0.7);
             animation: layerTr 1s linear infinite alternate;
+        }
+
+        [data-theme='dark'] .loading-spinner {
+            background: #00ffff;
         }
 
         @keyframes layers1 {
