@@ -2349,7 +2349,7 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
             <div class="modal-content settings-modal">
                 <div class="modal-header">
                     <h2>Advanced Settings</h2>
-                    <div class="old-version non-active-version" onclick="https://pnrconverter-sv.vercel.app/">
+                    <div class="old-version non-active-version" onclick="location.href='https://pnrconverter-sv.vercel.app/'">
                         <a href="https://pnrconverter-sv.vercel.app">Old Version 1.0</a>
                     </div>
                     <div class="new-version active-version">New Version 1.2.5</div>
@@ -3105,6 +3105,35 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
+
+    <script>
+        /**
+         * Smoothly scrolls the window by a specific amount.
+         * @param {string} triggerId - The ID of the element that starts the scroll.
+         * @param {number} scrollAmount - How many pixels to scroll down (positive) or up (negative).
+         */
+        const attachAutoScroll = (triggerId, scrollAmount) => {
+        const triggerElement = document.getElementById(triggerId);
+
+        if (!triggerElement) {
+            console.warn(`Element with ID "${triggerId}" not found.`);
+            return;
+        }
+
+        triggerElement.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevents default link behavior if trigger is an <a> tag
+            
+            window.scrollBy({
+            top: scrollAmount,
+            left: 0,
+            behavior: 'smooth'
+            });
+        });
+        };
+
+        // --- HOW TO USE ---
+        // attachAutoScroll('myButton', 500); // Scrolls down 500px when 'myButton' is clicked
+    </script>
 
 </body>
 
