@@ -1369,14 +1369,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // --- CTRL+C+C SHORTCUT: Trigger HQ Screenshot ---
     let lastCtrlC = 0;
+
     document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'c') {
+        // 1. Use .toLowerCase() to handle Caps Lock
+        // 2. Use .metaKey to support Mac users (Command key)
+        const isCmdOrCtrl = e.ctrlKey || e.metaKey;
+        
+        if (isCmdOrCtrl && e.key.toLowerCase() === 'c') {
             const now = Date.now();
-            if (now - lastCtrlC < 500) {
-                // Double Ctrl+C detected
+            const delta = now - lastCtrlC;
+
+            if (delta > 0 && delta < 500) {
+                // Double press detected
                 e.preventDefault();
-                document.getElementById('screenshotBtn')?.click();
-                lastCtrlC = 0; // Reset so triple-press doesn't re-fire
+                
+                const btn = document.getElementById('screenshotBtn');
+                if (btn) {
+                    btn.click();
+                }
+                
+                lastCtrlC = 0; 
             } else {
                 lastCtrlC = now;
             }
