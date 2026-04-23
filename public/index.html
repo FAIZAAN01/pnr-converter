@@ -2720,37 +2720,73 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
     <!-- Put this script at the very bottom of your body, after all elements -->
 
     <script>
-        let lastPastedPNR = ""; // Always preserve latest pasted value
-
+        // --- Report Error Logic with LocalStorage ---
+        let lastPastedPNR = ""; 
         const pnrInput = document.getElementById("pnrInput");
         const pnrHidden = document.getElementById("pnrHidden");
         const reportBtn = document.getElementById("reportErrorBtn");
+        const reportModal = document.getElementById("reportModal");
+        const confirmReportBtn = document.getElementById("confirmReportBtn");
 
-        // Track only paste event
+        // Track pastes
         pnrInput.addEventListener("paste", (e) => {
             const pastedText = (e.clipboardData || window.clipboardData).getData("text").trim();
-            if (pastedText) {
-                lastPastedPNR = pastedText; // Store permanently until new paste
-            }
+            if (pastedText) { lastPastedPNR = pastedText; }
         });
 
-        // Button click: use last pasted PNR only
+        // Helper to close modal
+        window.closeReportModal = () => reportModal.classList.add('hidden');
+
+        // MAIN BUTTON CLICK
         reportBtn.addEventListener("click", () => {
             if (!lastPastedPNR) {
                 alert("No PNR pasted yet!");
                 return;
             }
-            pnrHidden.value = lastPastedPNR;
-            document.getElementById("contactForm").submit();
+
+            const savedName = localStorage.getItem('report_user_name');
+            const savedEmail = localStorage.getItem('report_user_email');
+
+            if (savedName && savedEmail) {
+                // One-Click Mode: We already have their info
+                sendReport(savedName, savedEmail);
+            } else {
+                // Newbie Mode: Show the popup
+                reportModal.classList.remove('hidden');
+            }
         });
 
-        // Tooltip update
-        reportBtn.addEventListener("mouseenter", () => {
-            const tooltip = reportBtn.querySelector(".tooltip");
-            tooltip.textContent = lastPastedPNR
-                ? "Click to report PNR"
-                : "";
+        // MODAL CONFIRM CLICK
+        confirmReportBtn.addEventListener("click", () => {
+            const name = document.getElementById("reportName").value.trim();
+            const email = document.getElementById("reportEmail").value.trim();
+
+            if (!name || !email) {
+                alert("Please enter both Name and Email.");
+                return;
+            }
+
+            // Save for next time
+            localStorage.setItem('report_user_name', name);
+            localStorage.setItem('report_user_email', email);
+            
+            closeReportModal();
+            sendReport(name, email);
         });
+
+        // Function to actually trigger the Web3Forms submission
+        function sendReport(name, email) {
+            // Fill the footer form hiddenly and submit it
+            document.getElementById("nameInput").value = name;
+            document.getElementById("emailInput").value = email;
+            document.getElementById("messageInput").value = "SYSTEM AUTO-REPORT: Error found in PNR: " + lastPastedPNR;
+            document.getElementById("pnrHidden").value = lastPastedPNR;
+
+            // Trigger the actual form submission logic you already have
+            document.getElementById("contactForm").dispatchEvent(new Event('submit'));
+            
+            alert("Report sent! We'll contact you at " + email + " if needed.");
+        }
     </script>
 
 
@@ -3142,7 +3178,22 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
 
         // --- HOW TO USE ---
         // attachAutoScroll('myButton', 500); // Scrolls down 500px when 'myButton' is clicked
+        
     </script>
+    <div id="reportModal" class="modal-overlay hidden" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 400px; height: auto;">
+            <div class="modal-header">
+                <h3>Follow-up Details</h3>
+                <button onclick="closeReportModal()" class="close-btn">×</button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary);">Please provide your contact info so we can update you on this PNR error.</p>
+            <div class="setting-group">
+                <input type="text" id="reportName" placeholder="Your Name" class="combobox-input" style="width:100%; margin-bottom:10px; text-align: left;">
+                <input type="email" id="reportEmail" placeholder="Gmail / Contact ID" class="combobox-input" style="width:100%; text-align: left;">
+            </div>
+            <button id="confirmReportBtn" style="width:100%; background: var(--primary-blue);">Submit & Report</button>
+        </div>
+    </div>
 
 </body>
 
