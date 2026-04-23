@@ -140,6 +140,7 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
                         max-width: ${rect.width}px !important;
                         max-height: ${rect.height}px !important;
                         object-fit: contain !important;
+                        
                         flex-shrink: 0 !important;
 
                     `;
