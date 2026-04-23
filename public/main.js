@@ -135,12 +135,13 @@ async function generateItineraryCanvasDoc(element, customScale = 2) {
                     clonedImg.style.cssText += `
                         width: ${rect.width}px !important;
                         height: ${rect.height}px !important;
-                        /* Use scale-down: it picks the smaller of 'none' or 'contain' */
-                        object-fit: scale-down !important; 
-                        object-position: center !important;
-                        /* Remove min/max constraints that might fight the aspect ratio */
+                        min-width: ${rect.width}px !important;
+                        min-height: ${rect.height}px !important;
+                        max-width: ${rect.width}px !important;
+                        max-height: ${rect.height}px !important;
+                        object-fit: contain !important;
                         flex-shrink: 0 !important;
-                        display: block !important;
+
                     `;
                 });
             }
