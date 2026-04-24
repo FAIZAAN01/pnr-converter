@@ -2238,7 +2238,6 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
                 <div class="baggage-options">
                     <label for="baggageParticular">Baggage:</label>
                     <input type="radio" id="baggageParticular" name="baggageOption" value="particular" checked hidden>
-                    <label for="baggageParticular" hidden>Per segment</label>
 
                     <div class="combobox-container" id="baggageCombobox">
                         <label for="baggageAmountInput"></label>
@@ -2266,35 +2265,7 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
                         <button class="bag-btn btn-pcs" data-value="2" data-unit="PC">2 PC</button>
                         <button class="bag-btn btn-pcs" data-value="3" data-unit="PC">3 PC</button>
                     </div>
-                    <div class="class-overwrite-options"
-                         style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                            <label for="non-visible1" style="font-weight: bold; display: block; margin:0;">
-                                <input id="non-visible1" hidden />
-                                Force Cabin
-                                Class:
-                            </label>
-                            <span style="font-size: 10px; color: var(--text-secondary); font-style: italic;">
-                                System Report Active
-                            </span>
-                        </div>
-
-                        <div id="classQuickButtons"
-                             style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
-                            <button class="bag-btn class-override-btn btn-disabled" data-value="Economy">
-                                Economy
-                            </button>
-                            <button class="bag-btn class-override-btn btn-disabled" data-value="Business">
-                                Business
-                            </button>
-                            <button class="bag-btn class-override-btn btn-disabled" data-value="First">First</button>
-                            <button class="bag-btn class-override-btn btn-disabled" data-value="Premium Economy">
-                                Prem
-                                Eco
-                            </button>
-                        </div>
-                    </div>
-                    <div class="loading-spinner" id="loadingSpinner"></div>
+                    <!-- <div class="loading-spinner" id="loadingSpinner"></div> -->
                 </div>
 
             </div>
@@ -2530,6 +2501,34 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
                                 No Show Fee Where Applicable
                             </label>
                         </div>
+                    </div>
+                </div>
+                <div class="class-overwrite-options"
+                    style="margin-top: 15px; border-top: 1px solid var(--border-main); padding-top: 15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                        <label for="non-visible1" style="font-weight: bold; display: block; margin:0;">
+                            <input id="non-visible1" hidden />
+                            Force Cabin
+                            Class:
+                        </label>
+                        <span style="font-size: 10px; color: var(--text-secondary); font-style: italic;">
+                            System Report Active
+                        </span>
+                    </div>
+
+                    <div id="classQuickButtons"
+                            style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                        <button class="bag-btn class-override-btn btn-disabled" data-value="Economy">
+                            Economy
+                        </button>
+                        <button class="bag-btn class-override-btn btn-disabled" data-value="Business">
+                            Business
+                        </button>
+                        <button class="bag-btn class-override-btn btn-disabled" data-value="First">First</button>
+                        <button class="bag-btn class-override-btn btn-disabled" data-value="Premium Economy">
+                            Prem
+                            Eco
+                        </button>
                     </div>
                 </div>
                 <div id="formatTransitTime">
