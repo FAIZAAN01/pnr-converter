@@ -72,9 +72,28 @@ function resetFareAndBaggageInputs() {
     document.getElementById('currencySelect').value = 'USD';
     document.getElementById('baggageParticular').checked = true;
     document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
-    globalClassOverride = null; 
+    globalClassOverride = null;
     document.querySelectorAll('.class-override-btn').forEach(btn => btn.classList.remove('active'));
     segmentBaggageMap = {};
+
+    // Add visual feedback to baggage section
+    const baggageSection = document.querySelector('.baggage-options');
+    const baggageInput = document.getElementById('baggageAmountInput');
+
+    if (baggageSection) {
+        baggageSection.classList.add('baggage-reset-animation');
+        setTimeout(() => {
+            baggageSection.classList.remove('baggage-reset-animation');
+        }, 1000);
+    }
+
+    if (baggageInput) {
+        baggageInput.classList.add('baggage-input-highlight');
+        setTimeout(() => {
+            baggageInput.classList.remove('baggage-input-highlight');
+        }, 2000);
+    }
+
     if (lastPnrResult) liveUpdateDisplay();
 }
 
@@ -217,6 +236,16 @@ function loadOptions() {
         const savedOptions = JSON.parse(localStorage.getItem(OPTIONS_STORAGE_KEY) || '{}');
 
         document.getElementById('autoConvertToggle').checked = savedOptions.autoConvertOnPaste ?? false;
+        const autoConvertBtn = document.getElementById('autoConvertBtn');
+        if (autoConvertBtn) {
+            if (savedOptions.autoConvertOnPaste ?? false) {
+                autoConvertBtn.classList.add('active');
+                autoConvertBtn.textContent = 'Auto Convert ON';
+            } else {
+                autoConvertBtn.classList.remove('active');
+                autoConvertBtn.textContent = 'Auto Convert OFF';
+            }
+        }
         document.getElementById('editableToggle').checked = savedOptions.isEditable ?? false;
 
         const setRadio = (name, val) => {
