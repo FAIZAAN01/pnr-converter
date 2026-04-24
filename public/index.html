@@ -270,12 +270,12 @@
             border-top: 0.5px solid var(--border-main);
         }
 
-        /* .input-actions-group {
+        .input-actions-group {
             display: flex;
             justify-content: flex-end;
             align-items: center;
             margin-top: 15px;
-        } */
+        }
 
         button {
             padding: 10px 18px;
@@ -370,109 +370,6 @@
                 left: calc(100% - 2px);
                 transform: translateX(-100%);
             }
-
-        /* Antique Button Style */
-        .antique-button {
-            background-color: var(--danger-red);
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            border: 1px solid var(--danger-red);
-            border-radius: 0;
-            padding: 8px 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            animation: buttonGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes buttonGlow {
-            0% {
-                box-shadow: 0 0 5px rgba(220, 38, 38, 0.3);
-            }
-            100% {
-                box-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
-            }
-        }
-
-        .antique-button:hover {
-            background-color: var(--danger-red-hover);
-            border-color: var(--danger-red-hover);
-            animation: none;
-        }
-
-        .antique-button.active {
-            background-color: var(--success-green);
-            border-color: var(--success-green);
-            animation: buttonGlowActive 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes buttonGlowActive {
-            0% {
-                box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
-            }
-            100% {
-                box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
-            }
-        }
-
-        .antique-button.active:hover {
-            background-color: var(--success-green-hover);
-            border-color: var(--success-green-hover);
-            animation: none;
-        }
-
-        /* Baggage section reset animation */
-        .baggage-reset-animation {
-            animation: baggageResetPulse 1s ease-in-out;
-        }
-
-        @keyframes baggageResetPulse {
-            0% {
-                background-color: rgba(16, 185, 129, 0.1);
-                border-left: 4px solid var(--success-green);
-                transform: scale(1);
-            }
-            50% {
-                background-color: rgba(16, 185, 129, 0.2);
-                border-left: 6px solid var(--success-green);
-                transform: scale(1.02);
-            }
-            100% {
-                background-color: transparent;
-                border-left: 0px solid transparent;
-                transform: scale(1);
-            }
-        }
-
-        .baggage-input-highlight {
-            animation: baggageInputGlow 2s ease-in-out;
-        }
-
-        @keyframes baggageInputGlow {
-            0% {
-                box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
-                border-color: var(--success-green);
-            }
-            50% {
-                box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.6);
-                border-color: var(--success-green);
-            }
-            100% {
-                box-shadow: 0 0 0 0px rgba(16, 185, 129, 0);
-                border-color: var(--border-main);
-            }
-        }
-
-        .options-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .options-header h3 {
-            margin: 0;
-        }
 
         .c-unit-toggle {
             position: relative;
@@ -2274,7 +2171,8 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
                     <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
                         <span class="toggle-switch-label">
                             <span class="toggle-text">
-                                Auto Convert
+                                Auto
+                                Convert
                             </span>
                         </span>
                         <input type="checkbox" id="autoConvertToggle">
@@ -2572,15 +2470,7 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
 
         <div class="sidebar card">
             <div class="options">
-                <div class="options-group">
-                    <div class="options-header">
-                        <h3>Display Options</h3>
-                        <button id="autoConvertBtn" class="antique-button" title="If enabled, PNR will be converted automatically after pasting." onclick="toggleAutoConvert()">
-                            Auto Convert OFF
-                        </button>
-                    </div>
-                    <input type="checkbox" id="autoConvertToggle" style="display: none;">
-                </div>
+                <h3>Display Options</h3>
                 <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
                 <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
                 <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
@@ -3100,23 +2990,6 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
 
         function refreshPage() {
             location.reload();
-        }
-
-        function toggleAutoConvert() {
-            const checkbox = document.getElementById('autoConvertToggle');
-            const button = document.getElementById('autoConvertBtn');
-            checkbox.checked = !checkbox.checked;
-            if (checkbox.checked) {
-                button.classList.add('active');
-                button.textContent = 'Auto Convert ON';
-            } else {
-                button.classList.remove('active');
-                button.textContent = 'Auto Convert OFF';
-            }
-            // Trigger save options
-            if (typeof saveOptions === 'function') {
-                saveOptions();
-            }
         }
     </script>
     <script>
