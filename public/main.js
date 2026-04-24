@@ -6,6 +6,7 @@ let segmentBaggageMap = {};
 
 let lastPnrResult = null;
 let globalClassOverride = null;
+let autoConvertEnabled = true;
 
 const MORSE_CODE_DICT = {
     'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
@@ -191,7 +192,7 @@ function updateEditableState() {
 function saveOptions() {
     try {
         const optionsToSave = {
-            autoConvertOnPaste: document.getElementById('autoConvertToggle').checked,
+            autoConvertOnPaste: autoConvertEnabled,
             isEditable: document.getElementById('editableToggle').checked,
             segmentTimeFormat: document.querySelector('input[name="segmentTimeFormat"]:checked').value,
             transitTimeFormat: document.querySelector('input[name="transitTimeFormat_sidebar"]:checked').value,
@@ -217,7 +218,8 @@ function loadOptions() {
     try {
         const savedOptions = JSON.parse(localStorage.getItem(OPTIONS_STORAGE_KEY) || '{}');
 
-        document.getElementById('autoConvertToggle').checked = savedOptions.autoConvertOnPaste ?? false;
+        autoConvertEnabled = savedOptions.autoConvertOnPaste ?? true;
+        updateAutoConvertButton();
         document.getElementById('editableToggle').checked = savedOptions.isEditable ?? false;
 
         const setRadio = (name, val) => {
@@ -265,6 +267,19 @@ function loadOptions() {
         toggleTransitSymbolInputVisibility();
 
     } catch (e) { console.error("Failed to load options:", e); }
+}
+
+function updateAutoConvertButton() {
+    const button = document.getElementById('autoConvertBtn');
+    if (autoConvertEnabled) {
+        button.textContent = 'Auto Convert On';
+        button.classList.remove('auto-convert-off');
+        button.classList.add('auto-convert-on');
+    } else {
+        button.textContent = 'Auto Convert Off';
+        button.classList.remove('auto-convert-on');
+        button.classList.add('auto-convert-off');
+    }
 }
 
 function loadPresetLogoGrid() {
@@ -948,12 +963,16 @@ document.addEventListener('DOMContentLoaded', () => {
             input.dispatchEvent(pasteEvent);
             input.dispatchEvent(new Event("input", { bubbles: true }));
             input.focus();
-            if (document.getElementById('autoConvertToggle')?.checked) handleConvertClick();
+            if (autoConvertEnabled) handleConvertClick();
         } catch (err) { showPopup("Clipboard access blocked!"); }
     });
 
     document.getElementById('editableToggle').addEventListener('change', () => { updateEditableState(); saveOptions(); });
-    document.getElementById('autoConvertToggle').addEventListener('change', saveOptions);
+    document.getElementById('autoConvertBtn').addEventListener('click', () => {
+        autoConvertEnabled = !autoConvertEnabled;
+        updateAutoConvertButton();
+        saveOptions();
+    });
 
     // Note: I removed 'transitTimeFormat' from this generic listener to prevent double-firing, 
     // as it is now handled by the specific sync logic above.

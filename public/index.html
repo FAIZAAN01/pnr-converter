@@ -178,6 +178,28 @@
             display: none;
         }
 
+        .auto-convert-on {
+            background-color: var(--success-green);
+            color: white;
+            border-color: var(--success-green);
+        }
+
+            .auto-convert-on:hover {
+                background-color: var(--success-green-hover);
+                border-color: var(--success-green-hover);
+            }
+
+        .auto-convert-off {
+            background-color: var(--danger-red);
+            color: white;
+            border-color: var(--danger-red);
+        }
+
+            .auto-convert-off:hover {
+                background-color: var(--danger-red-hover);
+                border-color: var(--danger-red-hover);
+            }
+
 
         #mobileMenuBtn {
             display: none;
@@ -2167,19 +2189,6 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
                     </div>
                 </div>
 
-                <div class="input-actions-group">
-                    <label class="toggle-switch" title="If enabled, PNR will be converted automatically after pasting.">
-                        <span class="toggle-switch-label">
-                            <span class="toggle-text">
-                                Auto
-                                Convert
-                            </span>
-                        </span>
-                        <input type="checkbox" id="autoConvertToggle">
-                        <span class="switch-body"></span>
-                    </label>
-                </div>
-
                 <div class="fare-options-grid">
                     <div class="fare-group">
                         <label for="adultCountInput">ADLT</label>
@@ -2440,8 +2449,15 @@ transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
         </div>
 
         <div class="sidebar card">
-            <div class="options">
+            <div class="card-header">
                 <h3>Display Options</h3>
+                <div class="header-actions">
+                    <button id="autoConvertBtn" class="header-btn auto-convert-on" title="Auto Convert PNR">
+                        Auto Convert On
+                    </button>
+                </div>
+            </div>
+            <div class="options">
                 <label><input type="checkbox" id="showAirline" checked> Show Airline</label>
                 <label><input type="checkbox" id="showAircraft" checked> Show Aircraft</label>
                 <label><input type="checkbox" id="showOperatedBy" checked> Show Operated By</label>
