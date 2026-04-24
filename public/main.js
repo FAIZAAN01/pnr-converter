@@ -70,6 +70,7 @@ function resetFareAndBaggageInputs() {
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
     document.getElementById('currencySelect').value = 'USD';
+    document.getElementById('baggageAmountInput').value = '';
     document.getElementById('baggageParticular').checked = true;
     document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
     globalClassOverride = null; 
