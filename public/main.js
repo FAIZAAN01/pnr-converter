@@ -6,7 +6,7 @@ let segmentBaggageMap = {};
 
 let lastPnrResult = null;
 let globalClassOverride = null;
-let autoConvertEnabled = true;
+let autoConvertEnabled = false;
 
 const MORSE_CODE_DICT = {
     'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
@@ -218,7 +218,7 @@ function loadOptions() {
     try {
         const savedOptions = JSON.parse(localStorage.getItem(OPTIONS_STORAGE_KEY) || '{}');
 
-        autoConvertEnabled = savedOptions.autoConvertOnPaste ?? true;
+        autoConvertEnabled = savedOptions.autoConvertOnPaste ?? false;
         updateAutoConvertButton();
         document.getElementById('editableToggle').checked = savedOptions.isEditable ?? false;
 
@@ -244,7 +244,7 @@ function loadOptions() {
         };
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.checked = savedOptions[id] ?? (defaultValues[id] || false);
+            if (el) el.checked = savedOptions[id] ?? (defaultValues[id] || false); 
         });
 
         // Removed: Logic for modernLayoutToggle
