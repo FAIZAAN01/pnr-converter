@@ -78,7 +78,7 @@ function resetFareAndBaggageInputs() {
     if (lastPnrResult) liveUpdateDisplay();
 }
 
-function reverseString(str) {
+function reverseString(str) { 
     if (!str) return '';
     return str.split('').reverse().join('');
 }
