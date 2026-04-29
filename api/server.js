@@ -44,12 +44,14 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const AIRLINES_FILE = path.join(DATA_DIR, 'airlines.json');
 const AIRCRAFT_TYPES_FILE = path.join(DATA_DIR, 'aircraftTypes.json');
 const AIRPORT_DATABASE_FILE = path.join(DATA_DIR, 'airportDatabase.json');
+const STATION_DATABASE_FILE = path.join(DATA_DIR, 'stationdatabase.json');
 
 app.use(express.json());
 
 let airlineDatabase = {};
 let aircraftTypes = {};
 let airportDatabase = {};
+let stationDatabase = {};
 
 function loadDbFromFile(filePath, defaultDb) {
     try {
@@ -66,6 +68,35 @@ function loadAllDatabases() {
     airlineDatabase = loadDbFromFile(AIRLINES_FILE, {});
     aircraftTypes = loadDbFromFile(AIRCRAFT_TYPES_FILE, {});
     airportDatabase = loadDbFromFile(AIRPORT_DATABASE_FILE, {});
+    stationDatabase = loadDbFromFile(STATION_DATABASE_FILE, {});
+}
+
+function lookupLocationData(code, useStationData) {
+    if (useStationData) {
+        const stationRecord = stationDatabase[code];
+        if (stationRecord) return stationRecord;
+
+        return {
+            city: 'Unknown',
+            name: `Station (${code})`,
+            timezone: 'UTC',
+            countryCode: '',
+            country: ''
+        };
+    }
+
+    const record = airportDatabase[code];
+    if (!record) {
+        return {
+            city: 'Unknown',
+            name: `Airport (${code})`,
+            timezone: 'UTC',
+            countryCode: '',
+            country: ''
+        };
+    }
+
+    return record;
 }
 
 loadAllDatabases();
@@ -386,8 +417,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 }
             }
 
-            const depAirportInfo = airportDatabase[depAirport] || { city: `Unknown`, name: `Airport (${depAirport})`, timezone: 'UTC' };
-            const arrAirportInfo = airportDatabase[arrAirport] || { city: `Unknown`, name: `Airport (${arrAirport})`, timezone: 'UTC' };
+            const depAirportInfo = lookupLocationData(depAirport, isTrainSegment);
+            const arrAirportInfo = lookupLocationData(arrAirport, isTrainSegment);
 
             if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
 
@@ -545,10 +576,10 @@ if (haltsMatch) {
             const prevFlight = flights[i - 1];
             const currentFlight = flights[i];
 
-            const prevArrAirportInfo = airportDatabase[prevFlight.arrival.airport] || { timezone: 'UTC' };
+            const prevArrAirportInfo = lookupLocationData(prevFlight.arrival.airport, prevFlight.isTrainSegment);
             if (!moment.tz.zone(prevArrAirportInfo.timezone)) prevArrAirportInfo.timezone = 'UTC';
 
-            const currDepAirportInfo = airportDatabase[currentFlight.departure.airport] || { timezone: 'UTC' };
+            const currDepAirportInfo = lookupLocationData(currentFlight.departure.airport, currentFlight.isTrainSegment);
             if (!moment.tz.zone(currDepAirportInfo.timezone)) currDepAirportInfo.timezone = 'UTC';
 
             // --- Start of the fix ---

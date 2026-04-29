@@ -1,0 +1,198 @@
+{
+  "XPG": {
+    "city": "Paris",
+    "name": "Gare du Nord",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XGB": {
+    "city": "Paris",
+    "name": "Gare Montparnasse",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "ZFQ": {
+    "city": "Bordeaux",
+    "name": "Gare de Bordeaux Saint-Jean",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XYD": {
+    "city": "Lyon",
+    "name": "Gare de la Part-Dieu",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XRF": {
+    "city": "Marseille",
+    "name": "Gare de Marseille-Saint-Charles",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XPJ": {
+    "city": "Montpellier",
+    "name": "Gare de Montpellier-Saint-Roch",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "QJZ": {
+    "city": "Nantes",
+    "name": "Gare de Nantes",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "ZFJ": {
+    "city": "Rennes",
+    "name": "Gare de Rennes",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XWG": {
+    "city": "Strasbourg",
+    "name": "Gare de Strasbourg",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XZN": {
+    "city": "Avignon",
+    "name": "Gare d'Avignon TGV",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XDB": {
+    "city": "Lille",
+    "name": "Gare de Lille Europe",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "ZLN": {
+    "city": "Le Mans",
+    "name": "Gare du Mans",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "QXG": {
+    "city": "Angers",
+    "name": "Gare d'Angers-Saint-Laud",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "QPP": {
+    "city": "Berlin",
+    "name": "Berlin Hauptbahnhof",
+    "timezone": "Europe/Berlin",
+    "countryCode": "DE",
+    "country": "Germany"
+  },
+  "QDU": {
+    "city": "Dusseldorf",
+    "name": "Dusseldorf Hauptbahnhof",
+    "timezone": "Europe/Berlin",
+    "countryCode": "DE",
+    "country": "Germany"
+  },
+  "QKL": {
+    "city": "Cologne",
+    "name": "Cologne Hauptbahnhof",
+    "timezone": "Europe/Berlin",
+    "countryCode": "DE",
+    "country": "Germany"
+  },
+  "QFB": {
+    "city": "Freiburg",
+    "name": "Freiburg Hauptbahnhof",
+    "timezone": "Europe/Berlin",
+    "countryCode": "DE",
+    "country": "Germany"
+  },
+  "ZWS": {
+    "city": "Stuttgart",
+    "name": "Stuttgart Hauptbahnhof",
+    "timezone": "Europe/Berlin",
+    "countryCode": "DE",
+    "country": "Germany"
+  },
+  "ZMU": {
+    "city": "Munich",
+    "name": "Munich Hauptbahnhof",
+    "timezone": "Europe/Berlin",
+    "countryCode": "DE",
+    "country": "Germany"
+  },
+  "ZDH": {
+    "city": "Basel",
+    "name": "Basel SBB",
+    "timezone": "Europe/Zurich",
+    "countryCode": "CH",
+    "country": "Switzerland"
+  },
+  "ZDJ": {
+    "city": "Bern",
+    "name": "Bern Railway Station",
+    "timezone": "Europe/Zurich",
+    "countryCode": "CH",
+    "country": "Switzerland"
+  },
+  "QLS": {
+    "city": "Lausanne",
+    "name": "Lausanne Railway Station",
+    "timezone": "Europe/Zurich",
+    "countryCode": "CH",
+    "country": "Switzerland"
+  },
+  "QLJ": {
+    "city": "Lucerne",
+    "name": "Lucerne Railway Station",
+    "timezone": "Europe/Zurich",
+    "countryCode": "CH",
+    "country": "Switzerland"
+  },
+  "QDL": {
+    "city": "Lugano",
+    "name": "Lugano Railway Station",
+    "timezone": "Europe/Zurich",
+    "countryCode": "CH",
+    "country": "Switzerland"
+  },
+  "LZS": {
+    "city": "Linz",
+    "name": "Linz Hauptbahnhof",
+    "timezone": "Europe/Vienna",
+    "countryCode": "AT",
+    "country": "Austria"
+  },
+  "GGZ": {
+    "city": "Graz",
+    "name": "Graz Hauptbahnhof",
+    "timezone": "Europe/Vienna",
+    "countryCode": "AT",
+    "country": "Austria"
+  },
+  "IOB": {
+    "city": "Innsbruck",
+    "name": "Innsbruck Hauptbahnhof",
+    "timezone": "Europe/Vienna",
+    "countryCode": "AT",
+    "country": "Austria"
+  },
+  "POK": {
+    "city": "St. Polten",
+    "name": "St. Polten Hauptbahnhof",
+    "timezone": "Europe/Vienna",
+    "countryCode": "AT",
+    "country": "Austria"
+  }
+}
