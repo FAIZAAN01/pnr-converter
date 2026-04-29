@@ -13,6 +13,13 @@
     "countryCode": "FR",
     "country": "France"
   },
+  "CDG": {
+    "city": "Paris",
+    "name": "Charles de Gaulle TGV Station",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
   "ZFQ": {
     "city": "Bordeaux",
     "name": "Gare de Bordeaux Saint-Jean",
