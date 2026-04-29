@@ -207,6 +207,7 @@ function saveOptions() {
             currency: document.getElementById('currencySelect').value,
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
+            showBaggagePanel: document.getElementById('showBaggagePanel').checked,
             baggageUnit: getSelectedUnit()
         };
         localStorage.setItem(OPTIONS_STORAGE_KEY, JSON.stringify(optionsToSave));
@@ -235,11 +236,11 @@ function loadOptions() {
 
         const checkboxIds = [
             'showItineraryLogo', 'showAirline', 'showAircraft', 'showOperatedBy',
-            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
+            'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees', 'showBaggagePanel'
         ];
         const defaultValues = {
             showItineraryLogo: false, showAirline: true, showAircraft: true, showOperatedBy: true,
-            showTransit: true, showTaxes: false, showFees: false
+            showTransit: true, showTaxes: false, showFees: false, showBaggagePanel: true
         };
         checkboxIds.forEach(id => {
             const el = document.getElementById(id);
@@ -381,6 +382,7 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         showMeal: document.getElementById('showMeal').checked,
         showNotes: document.getElementById('showNotes').checked,
         showTransit: document.getElementById('showTransit').checked,
+        showBaggagePanel: document.getElementById('showBaggagePanel').checked,
         transitSymbol: document.getElementById('transitSymbolInput').value || ':::::::',
     };
 
@@ -657,40 +659,42 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 `;
 
         // 4. FLOATING INPUT PANEL
-        const floatingPanel = document.createElement('div');
-        floatingPanel.className = 'floating-baggage-panel';
-        floatingPanel.setAttribute('data-html2canvas-ignore', 'true');
+        if (displayPnrOptions.showBaggagePanel) {
+            const floatingPanel = document.createElement('div');
+            floatingPanel.className = 'floating-baggage-panel';
+            floatingPanel.setAttribute('data-html2canvas-ignore', 'true');
 
-        // Helper function (string) to update Baggage Text AND Visibility
-        const updateJs = `
-            var val = this.value || this.innerText;
-            // 1. Update Map
-            segmentBaggageMap[${i}] = val;
-            // 2. Update Span Text
-            document.getElementById('${baggageSpanId}').innerText = val;
-            // 3. Toggle Row Visibility
-            var row = document.getElementById('${baggageRowId}');
-            if(row) row.style.display = (val && val.trim() !== '') ? '' : 'none';
-            // 4. Sync Input box if button clicked
-            if(this.tagName === 'BUTTON') this.parentElement.previousElementSibling.value = val;
-        `;
+            // Helper function (string) to update Baggage Text AND Visibility
+            const updateJs = `
+                var val = this.value || this.innerText;
+                // 1. Update Map
+                segmentBaggageMap[${i}] = val;
+                // 2. Update Span Text
+                document.getElementById('${baggageSpanId}').innerText = val;
+                // 3. Toggle Row Visibility
+                var row = document.getElementById('${baggageRowId}');
+                if(row) row.style.display = (val && val.trim() !== '') ? '' : 'none';
+                // 4. Sync Input box if button clicked
+                if(this.tagName === 'BUTTON') this.parentElement.previousElementSibling.value = val;
+            `;
 
-        floatingPanel.innerHTML = `
-            <input type="text" placeholder="Baggage..."
-                    name = "baggageInput"
-                   value="${currentBaggageValue}" 
-                   oninput="${updateJs.replace(/this.innerText/g, 'this.value')}"> <div class="float-btn-grid">
-                <button class="float-btn" onclick="${updateJs}">15 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">23 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">30 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">40 Kgs</button>
-                <button class="float-btn" onclick="${updateJs}">1 Pcs</button>
-                <button class="float-btn" onclick="${updateJs}">2 Pcs</button>
-                <button class="float-btn" onclick="${updateJs}">3 Pcs</button>
-            </div>
-        `;
+            floatingPanel.innerHTML = `
+                <input type="text" placeholder="Baggage..."
+                        name = "baggageInput"
+                       value="${currentBaggageValue}" 
+                       oninput="${updateJs.replace(/this.innerText/g, 'this.value')}"> <div class="float-btn-grid">
+                    <button class="float-btn" onclick="${updateJs}">15 Kgs</button>
+                    <button class="float-btn" onclick="${updateJs}">23 Kgs</button>
+                    <button class="float-btn" onclick="${updateJs}">30 Kgs</button>
+                    <button class="float-btn" onclick="${updateJs}">40 Kgs</button>
+                    <button class="float-btn" onclick="${updateJs}">1 Pcs</button>
+                    <button class="float-btn" onclick="${updateJs}">2 Pcs</button>
+                    <button class="float-btn" onclick="${updateJs}">3 Pcs</button>
+                </div>
+            `;
 
-        flightItem.appendChild(floatingPanel);
+            flightItem.appendChild(floatingPanel);
+        }
         itineraryBlock.appendChild(flightItem);
     });
 
