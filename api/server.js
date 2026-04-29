@@ -339,17 +339,22 @@ function parseGalileoEnhanced(pnrText, options) {
 
             // --- START OF THE FIX ---
             let aircraftCodeKey = null;
-            // We loop through the leftover parts of the line to find the aircraft code.
-            for (let part of detailsParts) {
-                let potentialCode = part.toUpperCase();
-                // If the part contains a slash (like "E0/7M8"), we isolate the part after the slash.
-                if (potentialCode.includes('/')) {
-                    potentialCode = potentialCode.split('/').pop();
-                }
-                // Now we check if this corrected code ("7M8") is a valid aircraft type.
-                if (potentialCode in aircraftTypes) {
-                    aircraftCodeKey = potentialCode; // We found it!
-                    break; // Stop searching.
+            const isTrainSegment = detailsParts.some(part => part.toUpperCase() === 'TRN' || part.toUpperCase() === 'TRAIN');
+            if (isTrainSegment) {
+                aircraftCodeKey = 'TRAIN';
+            } else {
+                // We loop through the leftover parts of the line to find the aircraft code.
+                for (let part of detailsParts) {
+                    let potentialCode = part.toUpperCase();
+                    // If the part contains a slash (like "E0/7M8"), we isolate the part after the slash.
+                    if (potentialCode.includes('/')) {
+                        potentialCode = potentialCode.split('/').pop();
+                    }
+                    // Now we check if this corrected code ("7M8") is a valid aircraft type.
+                    if (potentialCode in aircraftTypes) {
+                        aircraftCodeKey = potentialCode; // We found it!
+                        break; // Stop searching.
+                    }
                 }
             }
             // --- END OF THE FIX ---
@@ -366,8 +371,10 @@ function parseGalileoEnhanced(pnrText, options) {
                 if (p.includes('/')) continue;
 
                 // If the part is the specific "E" indicator (E-Ticket) often found in Galileo, skip it.
-                // (Your regex list doesn't include 'E', so this is implicitly safe, but good to be explicit)
                 if (p.toUpperCase() === 'E') continue;
+
+                // If the part is the train marker, skip it from meal detection.
+                if (p.toUpperCase() === 'TRN' || p.toUpperCase() === 'TRAIN') continue;
 
                 // 2. CLEAN AND CHECK:
                 const tok = p.replace(/[^A-Za-z]/g, '');
@@ -486,8 +493,10 @@ function parseGalileoEnhanced(pnrText, options) {
                     terminal: normalizeTerminal(arrTerminal)
                 },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
-                // This line now correctly uses the found aircraftCodeKey
-                aircraft: aircraftTypes[aircraftCodeKey] || aircraftCodeKey || '',
+                // Special handling for train segments and normal aircraft lookup.
+                aircraft: aircraftCodeKey === 'TRAIN'
+                    ? 'Train'
+                    : (aircraftTypes[aircraftCodeKey] || aircraftCodeKey || ''),
                 meal: getMealDescription(mealCode),//-------edit
                 notes: [],
                 operatedBy: null,
