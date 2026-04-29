@@ -7905,5 +7905,97 @@
 "TNH":{"city":"Tonghua","name":"Tonghua Sanyuanpu Airport","timezone":"Asia/Shanghai","countryCode":"CN","country":"China"},
 "SHE":{"city":"Shenyang","name":"Taoxian Airport","timezone":"Asia/Shanghai","countryCode":"CN","country":"China"},
 "XEN":{"city":"","name":"Xingcheng Air Base","timezone":"Asia/Shanghai","countryCode":"CN","country":"China"},
-"YNJ":{"city":"Yanji","name":"Yanji Chaoyangchuan Airport","timezone":"Asia/Shanghai","countryCode":"CN","country":"China"}
+"YNJ":{"city":"Yanji","name":"Yanji Chaoyangchuan Airport","timezone":"Asia/Shanghai","countryCode":"CN","country":"China"},
+
+  "XPG": {
+    "city": "Paris",
+    "name": "Gare du Nord",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XGB": {
+    "city": "Paris",
+    "name": "Gare Montparnasse",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "ZFQ": {
+    "city": "Bordeaux",
+    "name": "Gare de Bordeaux Saint-Jean",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XYD": {
+    "city": "Lyon",
+    "name": "Gare de la Part-Dieu",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XRF": {
+    "city": "Marseille",
+    "name": "Gare de Marseille-Saint-Charles",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XPJ": {
+    "city": "Montpellier",
+    "name": "Gare de Montpellier-Saint-Roch",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "QJZ": {
+    "city": "Nantes",
+    "name": "Gare de Nantes",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "ZFJ": {
+    "city": "Rennes",
+    "name": "Gare de Rennes",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XWG": {
+    "city": "Strasbourg",
+    "name": "Gare de Strasbourg",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XZN": {
+    "city": "Avignon",
+    "name": "Gare d'Avignon TGV",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "XDB": {
+    "city": "Lille",
+    "name": "Gare de Lille Europe",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "ZLN": {
+    "city": "Le Mans",
+    "name": "Gare du Mans",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  },
+  "QXG": {
+    "city": "Angers",
+    "name": "Gare d'Angers-Saint-Laud",
+    "timezone": "Europe/Paris",
+    "countryCode": "FR",
+    "country": "France"
+  }
 }
