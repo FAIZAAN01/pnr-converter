@@ -238,7 +238,7 @@ function loadOptions() {
             'showClass', 'showMeal', 'showNotes', 'showTransit', 'showTaxes', 'showFees'
         ];
         const defaultValues = {
-            showItineraryLogo: true, showAirline: true, showAircraft: true, showOperatedBy: true,
+            showItineraryLogo: false, showAirline: true, showAircraft: true, showOperatedBy: true,
             showTransit: true, showTaxes: false, showFees: false
         };
         checkboxIds.forEach(id => {
