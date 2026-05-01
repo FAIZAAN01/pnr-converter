@@ -1,0 +1,51 @@
+{
+  "XNB": {
+    "city": "Abu Dhabi",
+    "name": "Al Ghazal Bus Station",
+    "timezone": "Asia/Dubai",
+    "countryCode": "AE",
+    "country": "United Arab Emirates"
+  },
+  "XBS": {
+    "city": "Abu Dhabi",
+    "name": "Al Wathba Bus Station",
+    "timezone": "Asia/Dubai",
+    "countryCode": "AE",
+    "country": "United Arab Emirates"
+  },
+  "XBB": {
+    "city": "Dubai",
+    "name": "Al Ghubaiba Bus Station",
+    "timezone": "Asia/Dubai",
+    "countryCode": "AE",
+    "country": "United Arab Emirates"
+  },
+  "XBT": {
+    "city": "Riyadh",
+    "name": "Riyadh Central Bus Station",
+    "timezone": "Asia/Riyadh",
+    "countryCode": "SA",
+    "country": "Saudi Arabia"
+  },
+  "XBM": {
+    "city": "Doha",
+    "name": "Doha Mowasalat Bus Station",
+    "timezone": "Asia/Qatar",
+    "countryCode": "QA",
+    "country": "Qatar"
+  },
+  "XBG": {
+    "city": "Kuwait City",
+    "name": "Kuwait City Bus Terminal",
+    "timezone": "Asia/Kuwait",
+    "countryCode": "KW",
+    "country": "Kuwait"
+  },
+  "BUS": {
+    "city": "Generic",
+    "name": "Bus Station",
+    "timezone": "UTC",
+    "countryCode": "",
+    "country": ""
+  }
+}

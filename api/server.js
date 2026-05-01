@@ -45,6 +45,7 @@ const AIRLINES_FILE = path.join(DATA_DIR, 'airlines.json');
 const AIRCRAFT_TYPES_FILE = path.join(DATA_DIR, 'aircraftTypes.json');
 const AIRPORT_DATABASE_FILE = path.join(DATA_DIR, 'airportDatabase.json');
 const STATION_DATABASE_FILE = path.join(DATA_DIR, 'stationdatabase.json');
+const BUS_STATION_DATABASE_FILE = path.join(DATA_DIR, 'busStationData.json');
 
 app.use(express.json());
 
@@ -52,6 +53,7 @@ let airlineDatabase = {};
 let aircraftTypes = {};
 let airportDatabase = {};
 let stationDatabase = {};
+let busStationDatabase = {};
 
 function loadDbFromFile(filePath, defaultDb) {
     try {
@@ -69,9 +71,23 @@ function loadAllDatabases() {
     aircraftTypes = loadDbFromFile(AIRCRAFT_TYPES_FILE, {});
     airportDatabase = loadDbFromFile(AIRPORT_DATABASE_FILE, {});
     stationDatabase = loadDbFromFile(STATION_DATABASE_FILE, {});
+    busStationDatabase = loadDbFromFile(BUS_STATION_DATABASE_FILE, {});
 }
 
-function lookupLocationData(code, useStationData) {
+function lookupLocationData(code, useStationData, useBusStationData) {
+    if (useBusStationData) {
+        const busRecord = busStationDatabase[code];
+        if (busRecord) return busRecord;
+
+        return {
+            city: 'Unknown',
+            name: `Bus Station (${code})`,
+            timezone: 'UTC',
+            countryCode: '',
+            country: ''
+        };
+    }
+
     if (useStationData) {
         const stationRecord = stationDatabase[code];
         if (stationRecord) return stationRecord;
@@ -371,8 +387,12 @@ function parseGalileoEnhanced(pnrText, options) {
             // --- START OF THE FIX ---
             let aircraftCodeKey = null;
             const isTrainSegment = detailsParts.some(part => part.toUpperCase() === 'TRN' || part.toUpperCase() === 'TRAIN');
+            const isBusSegment = !isTrainSegment && detailsParts.some(part => part.toUpperCase() === 'BUS' || part.toUpperCase() === 'BUSS');
+
             if (isTrainSegment) {
                 aircraftCodeKey = 'TRAIN';
+            } else if (isBusSegment) {
+                aircraftCodeKey = 'BUS';
             } else {
                 // We loop through the leftover parts of the line to find the aircraft code.
                 for (let part of detailsParts) {
@@ -417,8 +437,8 @@ function parseGalileoEnhanced(pnrText, options) {
                 }
             }
 
-            const depAirportInfo = lookupLocationData(depAirport, isTrainSegment);
-            const arrAirportInfo = lookupLocationData(arrAirport, isTrainSegment);
+            const depAirportInfo = lookupLocationData(depAirport, isTrainSegment, isBusSegment);
+            const arrAirportInfo = lookupLocationData(arrAirport, isTrainSegment, isBusSegment);
 
             if (!moment.tz.zone(depAirportInfo.timezone)) depAirportInfo.timezone = 'UTC';
 
@@ -525,10 +545,15 @@ function parseGalileoEnhanced(pnrText, options) {
                 },
                 duration: calculateAndFormatDuration(departureMoment, arrivalMoment),
                 // Special handling for train segments and normal aircraft lookup.
+                segmentType: isTrainSegment ? 'Train' : isBusSegment ? 'Bus' : 'Air',
+                isTrainSegment,
+                isBusSegment,
                 aircraft: aircraftCodeKey === 'TRAIN'
                     ? 'Train'
-                    : (aircraftTypes[aircraftCodeKey] || aircraftCodeKey || ''),
-                meal: getMealDescription(mealCode),//-------edit
+                    : aircraftCodeKey === 'BUS'
+                        ? 'Bus'
+                        : (aircraftTypes[aircraftCodeKey] || aircraftCodeKey || ''),
+                meal: getMealDescription(mealCode),
                 notes: [],
                 operatedBy: null,
                 transitTime: precedingTransitTimeForThisSegment,
