@@ -75,6 +75,11 @@ function loadAllDatabases() {
 }
 
 function lookupLocationData(code, useStationData, useBusStationData) {
+    const airportRecord = airportDatabase[code];
+    if (airportRecord) {
+        return airportRecord;
+    }
+
     if (useBusStationData) {
         const busRecord = busStationDatabase[code];
         if (busRecord) return busRecord;
@@ -101,18 +106,13 @@ function lookupLocationData(code, useStationData, useBusStationData) {
         };
     }
 
-    const record = airportDatabase[code];
-    if (!record) {
-        return {
-            city: 'Unknown',
-            name: `Airport (${code})`,
-            timezone: 'UTC',
-            countryCode: '',
-            country: ''
-        };
-    }
-
-    return record;
+    return {
+        city: 'Unknown',
+        name: `Airport (${code})`,
+        timezone: 'UTC',
+        countryCode: '',
+        country: ''
+    };
 }
 
 loadAllDatabases();
