@@ -216,7 +216,9 @@ function saveOptions() {
 
 function loadOptions() {
     try {
-        const savedOptions = JSON.parse(localStorage.getItem(OPTIONS_STORAGE_KEY) || '{}');
+        const storedOptions = localStorage.getItem(OPTIONS_STORAGE_KEY);
+        const savedOptions = JSON.parse(storedOptions || '{}');
+        const hasSavedOptions = Boolean(storedOptions);
 
         autoConvertEnabled = savedOptions.autoConvertOnPaste ?? false;
         updateAutoConvertButton();
@@ -228,10 +230,14 @@ function loadOptions() {
             if (el) el.checked = true;
         };
         setRadio('segmentTimeFormat', savedOptions.segmentTimeFormat || '24h');
-        // --- FIX HERE: Load settings for BOTH names ---
         const savedTransit = savedOptions.transitTimeFormat || '24h';
         setRadio('transitTimeFormat_sidebar', savedTransit);
         setRadio('transitTimeFormat_modal', savedTransit);
+
+        if (!hasSavedOptions) {
+            // Persist the default 24-hour setting for first-time visitors.
+            saveOptions();
+        }
         // ----------------------------------------------
 
         const checkboxIds = [
