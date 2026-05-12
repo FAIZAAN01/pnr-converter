@@ -49,7 +49,7 @@ function convertAmount(amount, currency) {
 }
 
 function getSurchargeAmount(currency) {
-    if (currency === 'USD') return 5;
+    if (currency === 'USD') return 0;
     return 5 * getConversionRate(currency);
 }
 
