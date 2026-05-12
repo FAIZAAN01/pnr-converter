@@ -1046,6 +1046,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    ['conversionRateEURInput', 'conversionRateINRInput', 'conversionRateRWFInput'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', () => {
+            saveOptions();
+            liveUpdateDisplay();
+        });
+    });
+
     document.getElementById('unit-selector-checkbox').addEventListener('change', () => { saveOptions(); liveUpdateDisplay(); });
 
     document.getElementById('customLogoInput').addEventListener('change', (event) => {

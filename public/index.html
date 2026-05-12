@@ -2245,18 +2245,6 @@
                             <option value="RWF">RWF</option>
                         </select>
                     </div>
-                    <div class="fare-group">
-                        <label for="conversionRateEURInput">EUR per USD</label>
-                        <input id="conversionRateEURInput" type="text" inputmode="decimal" placeholder="Example: 0.92" title="Enter the EUR value for 1 USD.">
-                    </div>
-                    <div class="fare-group">
-                        <label for="conversionRateINRInput">INR per USD</label>
-                        <input id="conversionRateINRInput" type="text" inputmode="decimal" placeholder="Example: 84.50" title="Enter the INR value for 1 USD.">
-                    </div>
-                    <div class="fare-group">
-                        <label for="conversionRateRWFInput">RWF per USD</label>
-                        <input id="conversionRateRWFInput" type="text" inputmode="decimal" placeholder="Example: 1200" title="Enter the RWF value for 1 USD.">
-                    </div>
                 </div>
 
                 <div class="baggage-options">
@@ -2378,6 +2366,23 @@
                                 <label><input type="checkbox" id="showTaxes"> Display Tax Input Block</label>
                                 <label><input type="checkbox" id="showFees"> Display Fee Input Block</label>
                             </div>
+                            <hr>
+                            <h3>Currency Rate Settings</h3>
+                            <div class="checkbox-grid-settings">
+                                <div class="fare-group">
+                                    <label for="conversionRateEURInput">EUR per USD</label>
+                                    <input id="conversionRateEURInput" type="text" inputmode="decimal" placeholder="0.92" title="Enter the EUR value for 1 USD.">
+                                </div>
+                                <div class="fare-group">
+                                    <label for="conversionRateINRInput">INR per USD</label>
+                                    <input id="conversionRateINRInput" type="text" inputmode="decimal" placeholder="84.50" title="Enter the INR value for 1 USD.">
+                                </div>
+                                <div class="fare-group">
+                                    <label for="conversionRateRWFInput">RWF per USD</label>
+                                    <input id="conversionRateRWFInput" type="text" inputmode="decimal" placeholder="1200" title="Enter the RWF value for 1 USD.">
+                                </div>
+                            </div>
+                            <p class="settings-note">These rates are saved in browser settings and used only when you select a foreign currency.</p>
                             <hr>
                             <h3>Baggage Panel</h3>
                             <div class="checkbox-grid-settings">
