@@ -53,11 +53,11 @@ function getSurchargeAmount(currency) {
     return 5 * getConversionRate(currency);
 }
 
-function formatCurrency(amount, currency = document.getElementById('currencySelect').value) {
+function formatCurrency(amount, currency = document.getElementById('currencySelect').value, convert = true) {
     const num = parseFloat(amount);
     if (isNaN(num)) return "0";
 
-    const convertedAmount = convertAmount(num, currency);
+    const convertedAmount = convert ? convertAmount(num, currency) : num;
 
     // If RWF, remove all decimals and formatting to 0 places
     if (currency === 'RWF') {
@@ -778,27 +778,23 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
             let fareLines = [];
             // Apply formatCurrency to the individual totals
             if (adultBaseTotal > 0) {
-                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum)}): ${formatCurrency(adultBaseTotal)}`);
+                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum, currency, false)}): ${formatCurrency(adultBaseTotal, currency, false)}`);
             }
             if (childBaseTotal > 0) {
-                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum)}): ${formatCurrency(childBaseTotal)}`);
+                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum, currency, false)}): ${formatCurrency(childBaseTotal, currency, false)}`);
             }
             if (infantBaseTotal > 0) {
-                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum)}): ${formatCurrency(infantBaseTotal)}`);
+                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum, currency, false)}): ${formatCurrency(infantBaseTotal, currency, false)}`);
             }
             if (showTaxes && totalTaxes > 0) {
-                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum)}): ${formatCurrency(totalTaxes)}`);
+                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum, currency, false)}): ${formatCurrency(totalTaxes, currency, false)}`);
             }
             if (showFees && totalFees > 0) {
-                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum, currency)}): ${formatCurrency(totalFees, currency)}`);
-            }
-
-            if (surcharge > 0) {
-                fareLines.push(`Service fee (5 USD equivalent): ${formatCurrency(surcharge, currency)}`);
+                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum, currency, false)}): ${formatCurrency(totalFees, currency, false)}`);
             }
 
             // Format the Grand Total
-            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal, currency)}</strong>`);
+            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal, currency, false)}</strong>`);
 
             const fareDiv = document.createElement('div');
             fareDiv.className = 'fare-summary';
