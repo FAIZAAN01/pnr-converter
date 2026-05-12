@@ -5,6 +5,7 @@ const HISTORY_STORAGE_KEY = 'pnrConversionHistory';
 let segmentBaggageMap = {};
 
 let lastPnrResult = null;
+let lastConvertedPnrText = null;
 let globalClassOverride = null;
 let autoConvertEnabled = false;
 
@@ -18,8 +19,16 @@ const MORSE_CODE_DICT = {
 
 // --- UTILITY FUNCTIONS ---
 
-function getConversionRate() {
-    const rateInput = document.getElementById('conversionRateInput');
+const CURRENCY_RATE_INPUT_IDS = {
+    EUR: 'conversionRateEURInput',
+    INR: 'conversionRateINRInput',
+    RWF: 'conversionRateRWFInput'
+};
+
+function getConversionRate(currency) {
+    if (currency === 'USD') return 1;
+    const inputId = CURRENCY_RATE_INPUT_IDS[currency];
+    const rateInput = inputId ? document.getElementById(inputId) : null;
     if (!rateInput) return 1;
 
     const rawRate = String(rateInput.value).replace(/,/g, '').trim();
@@ -27,22 +36,22 @@ function getConversionRate() {
     return (!isNaN(rate) && rate > 0) ? rate : 1;
 }
 
-function convertAmount(amount) {
+function convertAmount(amount, currency) {
     const num = parseFloat(amount);
     if (isNaN(num)) return 0;
-
-    const currency = document.getElementById('currencySelect').value;
-    if (currency === 'USD') return num;
-
-    return num * getConversionRate();
+    return num * getConversionRate(currency);
 }
 
-function formatCurrency(amount) {
+function getSurchargeAmount(currency) {
+    if (currency === 'USD') return 5;
+    return 5 * getConversionRate(currency);
+}
+
+function formatCurrency(amount, currency = document.getElementById('currencySelect').value) {
     const num = parseFloat(amount);
     if (isNaN(num)) return "0";
 
-    const convertedAmount = convertAmount(num);
-    const currency = document.getElementById('currencySelect').value;
+    const convertedAmount = convertAmount(num, currency);
 
     // If RWF, remove all decimals and formatting to 0 places
     if (currency === 'RWF') {
@@ -91,7 +100,6 @@ function resetFareAndBaggageInputs() {
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
     document.getElementById('currencySelect').value = 'USD';
-    document.getElementById('conversionRateInput').value = '';
     document.getElementById('baggageParticular').checked = true;
     document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
     globalClassOverride = null; 
@@ -226,6 +234,11 @@ function saveOptions() {
             showTransit: document.getElementById('showTransit').checked,
             transitSymbol: document.getElementById('transitSymbolInput').value,
             currency: document.getElementById('currencySelect').value,
+            conversionRates: {
+                EUR: document.getElementById('conversionRateEURInput')?.value || '',
+                INR: document.getElementById('conversionRateINRInput')?.value || '',
+                RWF: document.getElementById('conversionRateRWFInput')?.value || ''
+            },
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
             showBaggagePanel: document.getElementById('showBaggagePanel').checked,
@@ -277,7 +290,11 @@ function loadOptions() {
         // Removed: Logic for modernLayoutToggle
 
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        if (savedOptions.conversionRate) document.getElementById('conversionRateInput').value = savedOptions.conversionRate;
+        if (savedOptions.conversionRates) {
+            if (savedOptions.conversionRates.EUR) document.getElementById('conversionRateEURInput').value = savedOptions.conversionRates.EUR;
+            if (savedOptions.conversionRates.INR) document.getElementById('conversionRateINRInput').value = savedOptions.conversionRates.INR;
+            if (savedOptions.conversionRates.RWF) document.getElementById('conversionRateRWFInput').value = savedOptions.conversionRates.RWF;
+        }
         if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
@@ -372,6 +389,7 @@ async function handleConvertClick() {
         if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
 
         lastPnrResult = { ...data.result, pnrText: currentPnr };
+        lastConvertedPnrText = currentPnr;
         resetFareAndBaggageInputs();
         if (pnrText.trim()) document.getElementById('pnrInput').value = '';
         liveUpdateDisplay(true);
@@ -424,7 +442,6 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         tax: document.getElementById('taxInput').value,
         fee: document.getElementById('feeInput').value,
         currency: document.getElementById('currencySelect').value,
-            conversionRate: document.getElementById('conversionRateInput')?.value || '',
         showFees: document.getElementById('showFees').checked,
     };
 
@@ -749,7 +766,8 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const totalFees = showFees ? totalPax * feeNum : 0;
         const currencySymbol = currency || 'USD';
         
-        const grandTotal = adultBaseTotal + childBaseTotal + infantBaseTotal + totalTaxes + totalFees;
+        const surcharge = (lastConvertedPnrText === lastPnrResult?.pnrText) ? getSurchargeAmount(currency) : 0;
+        const grandTotal = adultBaseTotal + childBaseTotal + infantBaseTotal + totalTaxes + totalFees + surcharge;
 
         if (grandTotal > 0) {
             let fareLines = [];
@@ -767,11 +785,15 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
                 fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum)}): ${formatCurrency(totalTaxes)}`);
             }
             if (showFees && totalFees > 0) {
-                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum)}): ${formatCurrency(totalFees)}`);
+                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum, currency)}): ${formatCurrency(totalFees, currency)}`);
+            }
+
+            if (surcharge > 0) {
+                fareLines.push(`Service fee (5 USD equivalent): ${formatCurrency(surcharge, currency)}`);
             }
 
             // Format the Grand Total
-            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal)}</strong>`);
+            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal, currency)}</strong>`);
 
             const fareDiv = document.createElement('div');
             fareDiv.className = 'fare-summary';
