@@ -5,7 +5,6 @@ const HISTORY_STORAGE_KEY = 'pnrConversionHistory';
 let segmentBaggageMap = {};
 
 let lastPnrResult = null;
-let lastConvertedPnrText = null;
 let globalClassOverride = null;
 let autoConvertEnabled = false;
 
@@ -19,59 +18,25 @@ const MORSE_CODE_DICT = {
 
 // --- UTILITY FUNCTIONS ---
 
-const DEFAULT_CURRENCY_RATES = {
-    EUR: 0.92,
-    INR: 92,
-    RWF: 1470
-};
-
-const CURRENCY_RATE_INPUT_IDS = {
-    EUR: 'conversionRateEURInput',
-    INR: 'conversionRateINRInput',
-    RWF: 'conversionRateRWFInput'
-};
-
-function getConversionRate(currency) {
-    if (currency === 'USD') return 1;
-    const inputId = CURRENCY_RATE_INPUT_IDS[currency];
-    const rateInput = inputId ? document.getElementById(inputId) : null;
-    if (!rateInput) return DEFAULT_CURRENCY_RATES[currency] || 1;
-
-    const rawRate = String(rateInput.value).replace(/,/g, '').trim();
-    const rate = parseFloat(rawRate);
-    return (!isNaN(rate) && rate > 0) ? rate : (DEFAULT_CURRENCY_RATES[currency] || 1);
-}
-
-function convertAmount(amount, currency) {
-    const num = parseFloat(amount);
-    if (isNaN(num)) return 0;
-    return num * getConversionRate(currency);
-}
-
-function getSurchargeAmount(currency) {
-    if (currency === 'USD') return 0;
-    return 5 * getConversionRate(currency);
-}
-
-function formatCurrency(amount, currency = document.getElementById('currencySelect').value, convert = true) {
+function formatCurrency(amount) {
     const num = parseFloat(amount);
     if (isNaN(num)) return "0";
 
-    const convertedAmount = convert ? convertAmount(num, currency) : num;
+    const currency = document.getElementById('currencySelect').value;
 
     // If RWF, remove all decimals and formatting to 0 places
     if (currency === 'RWF') {
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
-        }).format(Math.round(convertedAmount)); // Round to nearest whole number
+        }).format(Math.round(num)); // Round to nearest whole number
     }
 
     // For other currencies (USD, EUR, etc.), keep 2 decimal places
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }).format(convertedAmount);
+    }).format(num);
 }
 
 function showPopup(message, duration = 3000) {
@@ -240,11 +205,6 @@ function saveOptions() {
             showTransit: document.getElementById('showTransit').checked,
             transitSymbol: document.getElementById('transitSymbolInput').value,
             currency: document.getElementById('currencySelect').value,
-            conversionRates: {
-                EUR: document.getElementById('conversionRateEURInput')?.value || '',
-                INR: document.getElementById('conversionRateINRInput')?.value || '',
-                RWF: document.getElementById('conversionRateRWFInput')?.value || ''
-            },
             showTaxes: document.getElementById('showTaxes').checked,
             showFees: document.getElementById('showFees').checked,
             showBaggagePanel: document.getElementById('showBaggagePanel').checked,
@@ -296,10 +256,6 @@ function loadOptions() {
         // Removed: Logic for modernLayoutToggle
 
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        const savedRates = savedOptions.conversionRates || {};
-        document.getElementById('conversionRateEURInput').value = savedRates.EUR || DEFAULT_CURRENCY_RATES.EUR;
-        document.getElementById('conversionRateINRInput').value = savedRates.INR || DEFAULT_CURRENCY_RATES.INR;
-        document.getElementById('conversionRateRWFInput').value = savedRates.RWF || DEFAULT_CURRENCY_RATES.RWF;
         if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
@@ -394,7 +350,6 @@ async function handleConvertClick() {
         if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
 
         lastPnrResult = { ...data.result, pnrText: currentPnr };
-        lastConvertedPnrText = currentPnr;
         resetFareAndBaggageInputs();
         if (pnrText.trim()) document.getElementById('pnrInput').value = '';
         liveUpdateDisplay(true);
@@ -447,6 +402,7 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         tax: document.getElementById('taxInput').value,
         fee: document.getElementById('feeInput').value,
         currency: document.getElementById('currencySelect').value,
+        showTaxes: document.getElementById('showTaxes').checked,
         showFees: document.getElementById('showFees').checked,
     };
 
@@ -771,30 +727,29 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
         const totalFees = showFees ? totalPax * feeNum : 0;
         const currencySymbol = currency || 'USD';
         
-        const surcharge = (lastConvertedPnrText === lastPnrResult?.pnrText) ? getSurchargeAmount(currency) : 0;
-        const grandTotal = adultBaseTotal + childBaseTotal + infantBaseTotal + totalTaxes + totalFees + surcharge;
+        const grandTotal = adultBaseTotal + childBaseTotal + infantBaseTotal + totalTaxes + totalFees;
 
         if (grandTotal > 0) {
             let fareLines = [];
             // Apply formatCurrency to the individual totals
             if (adultBaseTotal > 0) {
-                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum, currency, false)}): ${formatCurrency(adultBaseTotal, currency, false)}`);
+                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum)}): ${formatCurrency(adultBaseTotal)}`);
             }
             if (childBaseTotal > 0) {
-                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum, currency, false)}): ${formatCurrency(childBaseTotal, currency, false)}`);
+                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum)}): ${formatCurrency(childBaseTotal)}`);
             }
             if (infantBaseTotal > 0) {
-                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum, currency, false)}): ${formatCurrency(infantBaseTotal, currency, false)}`);
+                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum)}): ${formatCurrency(infantBaseTotal)}`);
             }
             if (showTaxes && totalTaxes > 0) {
-                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum, currency, false)}): ${formatCurrency(totalTaxes, currency, false)}`);
+                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum)}): ${formatCurrency(totalTaxes)}`);
             }
             if (showFees && totalFees > 0) {
-                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum, currency, false)}): ${formatCurrency(totalFees, currency, false)}`);
+                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum)}): ${formatCurrency(totalFees)}`);
             }
 
             // Format the Grand Total
-            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal, currency, false)}</strong>`);
+            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal)}</strong>`);
 
             const fareDiv = document.createElement('div');
             fareDiv.className = 'fare-summary';
@@ -1044,15 +999,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 liveUpdateDisplay();
             }
-        });
-    });
-
-    ['conversionRateEURInput', 'conversionRateINRInput', 'conversionRateRWFInput'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.addEventListener('input', () => {
-            saveOptions();
-            liveUpdateDisplay();
         });
     });
 
