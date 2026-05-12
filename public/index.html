@@ -2352,6 +2352,7 @@
                     <!-- Sidebar / Tabs for Settings -->
                     <div class="settings-tabs">
                         <button class="tab-btn active" data-tab="general">General Display</button>
+                        <button class="tab-btn" data-tab="currency">Currency</button>
                         <button class="tab-btn" data-tab="formats">Time & Formats</button>
                         <button class="tab-btn" data-tab="branding">Branding & Logo</button>
                     </div>
@@ -2367,7 +2368,16 @@
                                 <label><input type="checkbox" id="showFees"> Display Fee Input Block</label>
                             </div>
                             <hr>
-                            <h3>Currency Rate Settings</h3>
+                            <h3>Baggage Panel</h3>
+                            <div class="checkbox-grid-settings">
+                                <label><input type="checkbox" id="showBaggagePanel" checked>Display Per Leg Baggage</label>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: Currency -->
+                        <div id="tab-currency" class="tab-pane">
+                            <h3>Currency Rates</h3>
+                            <p class="settings-note">Set the USD exchange rates you want to use for foreign currency conversions.</p>
                             <div class="checkbox-grid-settings">
                                 <div class="fare-group">
                                     <label for="conversionRateEURInput">EUR per USD</label>
@@ -2382,15 +2392,9 @@
                                     <input id="conversionRateRWFInput" type="text" inputmode="decimal" placeholder="1200" title="Enter the RWF value for 1 USD.">
                                 </div>
                             </div>
-                            <p class="settings-note">These rates are saved in browser settings and used only when you select a foreign currency.</p>
-                            <hr>
-                            <h3>Baggage Panel</h3>
-                            <div class="checkbox-grid-settings">
-                                <label><input type="checkbox" id="showBaggagePanel" checked>Display Per Leg Baggage</label>
-                            </div>
                         </div>
 
-                        <!-- Tab 2: Time & Formats -->
+                        <!-- Tab 3: Time & Formats -->
                         <div id="tab-formats" class="tab-pane">
                             <h3>Time Format</h3>
                             <div class="setting-group">
