@@ -19,6 +19,12 @@ const MORSE_CODE_DICT = {
 
 // --- UTILITY FUNCTIONS ---
 
+const DEFAULT_CURRENCY_RATES = {
+    EUR: 0.92,
+    INR: 92,
+    RWF: 1470
+};
+
 const CURRENCY_RATE_INPUT_IDS = {
     EUR: 'conversionRateEURInput',
     INR: 'conversionRateINRInput',
@@ -29,11 +35,11 @@ function getConversionRate(currency) {
     if (currency === 'USD') return 1;
     const inputId = CURRENCY_RATE_INPUT_IDS[currency];
     const rateInput = inputId ? document.getElementById(inputId) : null;
-    if (!rateInput) return 1;
+    if (!rateInput) return DEFAULT_CURRENCY_RATES[currency] || 1;
 
     const rawRate = String(rateInput.value).replace(/,/g, '').trim();
     const rate = parseFloat(rawRate);
-    return (!isNaN(rate) && rate > 0) ? rate : 1;
+    return (!isNaN(rate) && rate > 0) ? rate : (DEFAULT_CURRENCY_RATES[currency] || 1);
 }
 
 function convertAmount(amount, currency) {
@@ -290,11 +296,10 @@ function loadOptions() {
         // Removed: Logic for modernLayoutToggle
 
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
-        if (savedOptions.conversionRates) {
-            if (savedOptions.conversionRates.EUR) document.getElementById('conversionRateEURInput').value = savedOptions.conversionRates.EUR;
-            if (savedOptions.conversionRates.INR) document.getElementById('conversionRateINRInput').value = savedOptions.conversionRates.INR;
-            if (savedOptions.conversionRates.RWF) document.getElementById('conversionRateRWFInput').value = savedOptions.conversionRates.RWF;
-        }
+        const savedRates = savedOptions.conversionRates || {};
+        document.getElementById('conversionRateEURInput').value = savedRates.EUR || DEFAULT_CURRENCY_RATES.EUR;
+        document.getElementById('conversionRateINRInput').value = savedRates.INR || DEFAULT_CURRENCY_RATES.INR;
+        document.getElementById('conversionRateRWFInput').value = savedRates.RWF || DEFAULT_CURRENCY_RATES.RWF;
         if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
