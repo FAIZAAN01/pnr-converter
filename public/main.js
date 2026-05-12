@@ -18,10 +18,30 @@ const MORSE_CODE_DICT = {
 
 // --- UTILITY FUNCTIONS ---
 
+function getConversionRate() {
+    const rateInput = document.getElementById('conversionRateInput');
+    if (!rateInput) return 1;
+
+    const rawRate = String(rateInput.value).replace(/,/g, '').trim();
+    const rate = parseFloat(rawRate);
+    return (!isNaN(rate) && rate > 0) ? rate : 1;
+}
+
+function convertAmount(amount) {
+    const num = parseFloat(amount);
+    if (isNaN(num)) return 0;
+
+    const currency = document.getElementById('currencySelect').value;
+    if (currency === 'USD') return num;
+
+    return num * getConversionRate();
+}
+
 function formatCurrency(amount) {
     const num = parseFloat(amount);
     if (isNaN(num)) return "0";
 
+    const convertedAmount = convertAmount(num);
     const currency = document.getElementById('currencySelect').value;
 
     // If RWF, remove all decimals and formatting to 0 places
@@ -29,14 +49,14 @@ function formatCurrency(amount) {
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
-        }).format(Math.round(num)); // Round to nearest whole number
+        }).format(Math.round(convertedAmount)); // Round to nearest whole number
     }
 
     // For other currencies (USD, EUR, etc.), keep 2 decimal places
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }).format(num);
+    }).format(convertedAmount);
 }
 
 function showPopup(message, duration = 3000) {
@@ -71,6 +91,7 @@ function resetFareAndBaggageInputs() {
     document.getElementById('childCountInput').value = '0';
     document.getElementById('infantCountInput').value = '0';
     document.getElementById('currencySelect').value = 'USD';
+    document.getElementById('conversionRateInput').value = '';
     document.getElementById('baggageParticular').checked = true;
     document.getElementById('baggageParticular').dispatchEvent(new Event('change'));
     globalClassOverride = null; 
@@ -256,6 +277,7 @@ function loadOptions() {
         // Removed: Logic for modernLayoutToggle
 
         if (savedOptions.currency) document.getElementById('currencySelect').value = savedOptions.currency;
+        if (savedOptions.conversionRate) document.getElementById('conversionRateInput').value = savedOptions.conversionRate;
         if (savedOptions.baggageUnit) document.getElementById('unit-selector-checkbox').checked = savedOptions.baggageUnit === 'pcs';
         document.getElementById('transitSymbolInput').value = savedOptions.transitSymbol ?? ':::::::';
 
@@ -402,7 +424,7 @@ function liveUpdateDisplay(pnrProcessingAttempted = false) {
         tax: document.getElementById('taxInput').value,
         fee: document.getElementById('feeInput').value,
         currency: document.getElementById('currencySelect').value,
-        showTaxes: document.getElementById('showTaxes').checked,
+            conversionRate: document.getElementById('conversionRateInput')?.value || '',
         showFees: document.getElementById('showFees').checked,
     };
 
