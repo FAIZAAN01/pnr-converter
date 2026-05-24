@@ -318,6 +318,7 @@ function parseGalileoEnhanced(pnrText, options) {
     //const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
     const flightSegmentRegexFlexible = /^\s*(?:(\d+)\s+)?(?:([A-Z0-9]{2}):)?([A-Z0-9]{2})\s*(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})\s*([\dA-Z]*)?\s+([A-Z]{3})\s*([\dA-Z]*)?\s+(\d{4})\s+(\d{4})(?:\s*([0-3]\d[A-Z]{3}|\+\d))?/;
     const flightSegmentRegexSabre = /^\s*(?:(\d+)\s*\.?\s*)?([A-Z0-9]{2})\s+(\d{1,4}[A-Z]?)\s+([A-Z])\s+([0-3]\d[A-Z]{3})\s+([A-Z]{3})([A-Z]{3})\s+(?:\S+\s+)?(\d{4})\s+([#\+\-]?\d{4})/;
+    const flightSegmentRegexType3 = /^\s*(?:(\d+)\s*\.?\s*)?([A-Z0-9]{2})\s*(\d{1,4})\s*([A-Z])\s+([0-3]\d[A-Z]{3})\s+(?:\d\s+)?([A-Z]{3})([A-Z]{3})\s+(?:\S+\s+)?(\d{4})\s+(\d{4})(?:\s+([0-3]\d[A-Z]{3}))?/;
     const halts = /\bE\s*(\d{1,2})\b(?![A-Z])/i;
     const operatedByRegex = /OPERATED BY\s+(.+)/i;
     const passengerLineIdentifierRegex = /^\s*\d+\.\s*[A-Z/]/;
@@ -354,6 +355,14 @@ function parseGalileoEnhanced(pnrText, options) {
                     } else if (arrTimeStr.startsWith('-')) {
                         arrDateStrOrNextDayIndicator = '-1';
                         arrTimeStr = arrTimeStr.substring(1);
+                    }
+                } else {
+                    flightMatch = line.match(flightSegmentRegexType3);
+                    if (flightMatch) {
+                        [, segmentNumStr, airlineCode, flightNumRaw, travelClass, depDateStr, depAirport, arrAirport, depTimeStr, arrTimeStr, arrDateStrOrNextDayIndicator] = flightMatch;
+                        prefixOperatingCode = null;
+                        depTerminal = null;
+                        arrTerminal = null;
                     }
                 }
             }
