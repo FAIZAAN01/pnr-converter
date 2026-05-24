@@ -491,9 +491,9 @@ function parseGalileoEnhanced(pnrText, options) {
             let arrivalMoment;
 
             if (arrDateStrOrNextDayIndicator) {
-                if (arrDateStrOrNextDayIndicator.startsWith('+')) {
-                    // +1 or +n day logic
-                    const daysToAdd = parseInt(arrDateStrOrNextDayIndicator.substring(1), 10);
+                if (arrDateStrOrNextDayIndicator.startsWith('+') || arrDateStrOrNextDayIndicator.startsWith('-')) {
+                    // +1 or +n or -1 day logic
+                    const daysToAdd = parseInt(arrDateStrOrNextDayIndicator, 10);
                     const arrDate = departureMoment.clone().add(daysToAdd, 'days').format('DDMMMYYYY');
                     arrivalMoment = moment.tz(`${arrDate} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
                 } else {
