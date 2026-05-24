@@ -506,7 +506,15 @@ function parseGalileoEnhanced(pnrText, options) {
             } else {
                 // No explicit date, check if arrival time < departure time
                 arrivalMoment = moment.tz(`${depDateStr}${currentYear} ${arrTimeStr}`, "DDMMMYYYY HHmm", true, arrAirportInfo.timezone);
-                if (arrivalMoment.isBefore(departureMoment)) arrivalMoment.add(1, 'day');
+            }
+
+            // Ensure arrival is chronologically after departure. 
+            // This fixes issues where timezone differences cause the local arrival time 
+            // to mathematically fall before the local departure time (e.g., crossing datelines).
+            if (arrivalMoment.isValid() && departureMoment.isValid()) {
+                while (arrivalMoment.isBefore(departureMoment)) {
+                    arrivalMoment.add(1, 'day');
+                }
             }
 
             if (previousArrivalMoment && previousArrivalMoment.isValid() && departureMoment && departureMoment.isValid()) {
