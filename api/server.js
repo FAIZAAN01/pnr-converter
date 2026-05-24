@@ -525,7 +525,7 @@ function parseGalileoEnhanced(pnrText, options) {
 
             let arrivalDateString = null;
             if (arrivalMoment.isValid() && departureMoment.isValid()) {
-                if (!arrivalMoment.isSame(departureMoment, 'day')) {
+                if (arrivalMoment.format("YYYY-MM-DD") !== departureMoment.format("YYYY-MM-DD")) {
                     arrivalDateString = arrivalMoment.format("DDMMM").toUpperCase();
                 }
             }
