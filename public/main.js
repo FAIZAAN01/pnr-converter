@@ -910,7 +910,29 @@ const historyManager = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+async function loadCurrencies() {
+    try {
+        const response = await fetch('/api/currencies');
+        const data = await response.json();
+        if (data.success && data.currencies) {
+            const currencySelect = document.getElementById('currencySelect');
+            if (currencySelect) {
+                currencySelect.innerHTML = ''; // Clear hardcoded currencies
+                data.currencies.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.code;
+                    option.textContent = `${c.code} - ${c.name}`;
+                    currencySelect.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load currencies:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadCurrencies();
     loadOptions();
     loadPresetLogoGrid();
     historyManager.init();
