@@ -737,25 +737,25 @@ function renderClassicItinerary(pnrResult, displayPnrOptions, fareDetails, bagga
 
         if (grandTotal > 0) {
             let fareLines = [];
-            // Apply formatCurrency to the individual totals
+            // Apply formatCurrency with the symbol for each line item
             if (adultBaseTotal > 0) {
-                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum)}): ${formatCurrency(adultBaseTotal)}`);
+                fareLines.push(`Adult Fare (${adultCountNum} x ${formatCurrency(adultFareNum, true)}): ${formatCurrency(adultBaseTotal, true)}`);
             }
             if (childBaseTotal > 0) {
-                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum)}): ${formatCurrency(childBaseTotal)}`);
+                fareLines.push(`Child Fare (${childCountNum} x ${formatCurrency(childFareNum, true)}): ${formatCurrency(childBaseTotal, true)}`);
             }
             if (infantBaseTotal > 0) {
-                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum)}): ${formatCurrency(infantBaseTotal)}`);
+                fareLines.push(`Infant Fare (${infantCountNum} x ${formatCurrency(infantFareNum, true)}): ${formatCurrency(infantBaseTotal, true)}`);
             }
             if (showTaxes && totalTaxes > 0) {
-                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum)}): ${formatCurrency(totalTaxes)}`);
+                fareLines.push(`Tax (${totalPax} x ${formatCurrency(taxNum, true)}): ${formatCurrency(totalTaxes, true)}`);
             }
             if (showFees && totalFees > 0) {
-                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum)}): ${formatCurrency(totalFees)}`);
+                fareLines.push(`Fees (${totalPax} x ${formatCurrency(feeNum, true)}): ${formatCurrency(totalFees, true)}`);
             }
 
-            // Format the Grand Total
-            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal)}</strong>`);
+            // Format the Grand Total with the symbol
+            fareLines.push(`<strong>Total (${currencySymbol}): ${formatCurrency(grandTotal, true)}</strong>`);
 
             const fareDiv = document.createElement('div');
             fareDiv.className = 'fare-summary';
