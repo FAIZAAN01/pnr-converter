@@ -18,25 +18,31 @@ const MORSE_CODE_DICT = {
 
 // --- UTILITY FUNCTIONS ---
 
-function formatCurrency(amount) {
+function formatCurrency(amount, withSymbol = false) {
     const num = parseFloat(amount);
     if (isNaN(num)) return "0";
 
-    const currency = document.getElementById('currencySelect').value;
+    const currencySelect = document.getElementById('currencySelect');
+    const currencyCode = currencySelect.value;
+    const selectedOption = currencySelect.options[currencySelect.selectedIndex];
+    const symbol = selectedOption ? selectedOption.getAttribute('data-symbol') : currencyCode;
 
     // If RWF, remove all decimals and formatting to 0 places
-    if (currency === 'RWF') {
-        return new Intl.NumberFormat('en-US', {
+    if (currencyCode === 'RWF') {
+        const formattedAmount = new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
         }).format(Math.round(num)); // Round to nearest whole number
+        return withSymbol ? `${symbol} ${formattedAmount}` : formattedAmount;
     }
 
     // For other currencies (USD, EUR, etc.), keep 2 decimal places
-    return new Intl.NumberFormat('en-US', {
+    const formattedAmount = new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     }).format(num);
+
+    return withSymbol ? `${symbol} ${formattedAmount}` : formattedAmount;
 }
 
 function showPopup(message, duration = 3000) {
@@ -921,7 +927,8 @@ async function loadCurrencies() {
                 data.currencies.forEach(c => {
                     const option = document.createElement('option');
                     option.value = c.code;
-                    option.textContent = `${c.code} - ${c.name}`;
+                    option.setAttribute('data-symbol', c.symbol);
+                    option.textContent = `${c.code} - ${c.symbol}`;
                     currencySelect.appendChild(option);
                 });
             }
