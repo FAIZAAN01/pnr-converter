@@ -400,7 +400,8 @@ function getTravelClassName(classCode, airlineCode = null) {
         'EK': { 'O': 'Business', 'E': 'Premium Economy', 'W': 'Premium Economy' }, // example: XYZ airline
         'AT': { 'P': 'Economy' },
         'UX': { 'O': 'Business' },
-        'VN': { 'A': 'Economy'}// example: ABC airline
+        'VN': { 'A': 'Economy'},
+        'TK': { 'K': 'Business' }// example: ABC airline
         // Add more airlines and their custom codes here
 
     };
