@@ -28,7 +28,10 @@
   },
   "UX":{
       "business": ["O"]
-  },}
+  },
+  "TK":{
+      "business": ["K"]
+  },
   "default": {
     "first": ["F", "A"],
     "business": ["J", "C", "D", "I", "Z", "P"],
